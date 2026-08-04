@@ -14,8 +14,15 @@ export function LoadingButton({
   ...props
 }: LoadingButtonProps) {
   return (
-    <Button disabled={loading || disabled} {...props}>
-      {loading ? <Loader2 className="animate-spin" /> : children}
+    <Button aria-busy={loading} disabled={loading || disabled} {...props}>
+      {loading ? (
+        <>
+          <Loader2 aria-hidden="true" className="animate-spin" />
+          <span className="sr-only">Loading</span>
+        </>
+      ) : (
+        children
+      )}
     </Button>
   );
 }
