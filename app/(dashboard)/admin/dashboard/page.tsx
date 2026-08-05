@@ -284,7 +284,7 @@ export default function AdminDashboardPage() {
         </CardHeader>
         <CardContent>
           <div className="h-[200px] w-full rounded-md bg-muted/30 flex items-center justify-center text-muted-foreground text-sm">
-            📊 Chart (dummy) – Replace with real chart library
+            📊 BarChart (dummy) – Replace with real chart library
           </div>
         </CardContent>
       </Card>
