@@ -10,6 +10,8 @@ import { passwordSchema } from "./validation";
 
 const BETTER_AUTH_SECRET = process.env.BETTER_AUTH_SECRET;
 
+const APP_URL = process.env.NEXT_APP_URL ?? "http://localhost:3000";
+
 if (!BETTER_AUTH_SECRET) {
   throw new Error("BETTER_AUTH_SECRET environment variable is required");
 }
@@ -20,9 +22,7 @@ export const auth = betterAuth({
   }),
   secret: BETTER_AUTH_SECRET,
   plugins: [admin(), multiSession(), nextCookies()],
-  trustedOrigins: [
-    "http://localhost:3000",
-  ],
+  trustedOrigins: [APP_URL],
 
   databaseHooks: {
     user: {

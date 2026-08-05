@@ -18,7 +18,7 @@ export default async function CraftsmanLayout({
   const session = await getServerSession();
 
   if (!session?.user) {
-    redirect("/auth/sign-in");
+    redirect("/sign-in");
   }
 
   if (session.user.role !== "CRAFTSMAN") {

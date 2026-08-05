@@ -56,7 +56,7 @@ interface NavItem {
 const mainNavItems: NavItem[] = [
   {
     title: "Dashboard",
-    href: "/dashboard/customer",
+    href: "/customer/dashboard",
     icon: LayoutDashboard,
   },
   {
@@ -66,7 +66,7 @@ const mainNavItems: NavItem[] = [
   },
   {
     title: "My Job Requests",
-    href: "/dashboard/customer/jobs",
+    href: "/customer/my-job-requests",
     icon: BriefcaseBusiness,
     todoComment:
       "Fetch jobs where customerId = session.user.id from Job table",
@@ -98,7 +98,6 @@ const mainNavItems: NavItem[] = [
     icon: User,
   },
 ];
-
 const supportNavItems: NavItem[] = [
   { title: "Settings", href: "/dashboard/settings", icon: Settings },
   { title: "Help", href: "/help", icon: CircleHelp },

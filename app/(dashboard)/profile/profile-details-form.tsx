@@ -120,8 +120,7 @@ export function ProfileDetailsForm({ user }: ProfileDetailsFormProps) {
             {imagePreview && (
               <div className="relative size-16">
                 <UserAvatar
-                  name={user.name}
-                  image={imagePreview}
+                  user={{ ...user, image: imagePreview }}
                   className="size-16"
                 />
                 <Button
