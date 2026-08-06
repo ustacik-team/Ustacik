@@ -1,7 +1,6 @@
-// components/craftsmen/craftsmen-filters.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Filter, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,6 +23,7 @@ import { cn } from "@/lib/utils";
 
 export interface FilterOptions {
   category: string;
+  subService: string;
   region: string;
   verification: string;
   sort: string;
@@ -34,8 +34,10 @@ interface CraftsmenFiltersProps {
   filters: FilterOptions;
   /** Callback when any filter changes */
   onFilterChange: (filters: FilterOptions) => void;
-  /** Available categories (defaults to the 8 from the brief) */
+  /** Available categories */
   categories?: { value: string; label: string }[];
+  /** Available sub-services grouped by category (includes category key) */
+  subServiceOptions?: { category: string; value: string; label: string }[];
   /** Available regions */
   regions?: { value: string; label: string }[];
   /** Verification levels */
@@ -82,10 +84,39 @@ const defaultSortOptions = [
   { value: "name_asc", label: "Name A-Z" },
 ];
 
+// Pre-defined grouped mock sub-services based on your categories
+const defaultSubServiceOptions = [
+  { category: "Plumbing & Water Systems", value: "Pipe Installation", label: "Pipe Installation" },
+  { category: "Plumbing & Water Systems", value: "Water Heater Repair", label: "Water Heater Repair" },
+  { category: "Plumbing & Water Systems", value: "Drain Cleaning", label: "Drain Cleaning" },
+  { category: "Electrical", value: "Wiring & Lighting", label: "Wiring & Lighting" },
+  { category: "Electrical", value: "Panel Upgrades", label: "Panel Upgrades" },
+  { category: "Electrical", value: "Home Automation", label: "Home Automation" },
+  { category: "HVAC & Refrigeration", value: "AC Installation", label: "AC Installation" },
+  { category: "HVAC & Refrigeration", value: "AC Repair", label: "AC Repair" },
+  { category: "HVAC & Refrigeration", value: "Ventilation", label: "Ventilation" },
+  { category: "Appliance & Electronics Repair", value: "Washing Machine Repair", label: "Washing Machine Repair" },
+  { category: "Appliance & Electronics Repair", value: "TV Repair", label: "TV Repair" },
+  { category: "Appliance & Electronics Repair", value: "Fridge Repair", label: "Fridge Repair" },
+  { category: "Painting & Plastering", value: "Interior Painting", label: "Interior Painting" },
+  { category: "Painting & Plastering", value: "Exterior Painting", label: "Exterior Painting" },
+  { category: "Painting & Plastering", value: "Drywall & Plaster", label: "Drywall & Plaster" },
+  { category: "Carpentry & Furniture", value: "Custom Furniture", label: "Custom Furniture" },
+  { category: "Carpentry & Furniture", value: "Door Installation", label: "Door Installation" },
+  { category: "Carpentry & Furniture", value: "Flooring", label: "Flooring" },
+  { category: "Aluminium, PVC & Glass", value: "Window Installation", label: "Window Installation" },
+  { category: "Aluminium, PVC & Glass", value: "Door Frames", label: "Door Frames" },
+  { category: "Aluminium, PVC & Glass", value: "Glass Repair", label: "Glass Repair" },
+  { category: "Garden & Pool Maintenance", value: "Landscaping", label: "Landscaping" },
+  { category: "Garden & Pool Maintenance", value: "Pool Cleaning", label: "Pool Cleaning" },
+  { category: "Garden & Pool Maintenance", value: "Irrigation", label: "Irrigation" },
+];
+
 export function CraftsmenFilters({
   filters,
   onFilterChange,
   categories = defaultCategories,
+  subServiceOptions = defaultSubServiceOptions, // ✅ Now includes category keys
   regions = defaultRegions,
   verificationLevels = defaultVerificationLevels,
   sortOptions = defaultSortOptions,
@@ -93,7 +124,21 @@ export function CraftsmenFilters({
 }: CraftsmenFiltersProps) {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
 
+  // ✅ FIX: Filters sub-services based on the selected category
+  const filteredSubServices = useMemo(() => {
+    if (filters.category === "all") {
+      return subServiceOptions;
+    }
+    return subServiceOptions.filter((sub) => sub.category === filters.category);
+  }, [filters.category, subServiceOptions]);
+
   const handleFilterChange = (key: keyof FilterOptions, value: string) => {
+    // When category changes, reset subService to "all"
+    if (key === "category") {
+      const updated = { ...filters, [key]: value, subService: "all" };
+      onFilterChange(updated);
+      return;
+    }
     const updated = { ...filters, [key]: value };
     onFilterChange(updated);
   };
@@ -101,6 +146,7 @@ export function CraftsmenFilters({
   const handleReset = () => {
     const reset = {
       category: "all",
+      subService: "all",
       region: "all",
       verification: "all",
       sort: "rating_desc",
@@ -112,14 +158,16 @@ export function CraftsmenFilters({
   const isFiltered = () => {
     return (
       filters.category !== "all" ||
+      filters.subService !== "all" ||
       filters.region !== "all" ||
       filters.verification !== "all"
     );
   };
 
-  const activeFilterCount = (["category", "region", "verification"] as const).filter(
+  const activeFilterCount = (["category", "subService", "region", "verification"] as const).filter(
     (key) => filters[key] !== "all"
   ).length;
+
   return (
     <div className="w-full">
       {/* Desktop: full filter bar */}
@@ -136,6 +184,25 @@ export function CraftsmenFilters({
             {categories.map((cat) => (
               <SelectItem key={cat.value} value={cat.value}>
                 {cat.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        {/* Sub-Service Dropdown - Now category-aware */}
+        <Select
+          value={filters.subService}
+          onValueChange={(val) => handleFilterChange("subService", val)}
+          disabled={!filteredSubServices || filteredSubServices.length === 0}
+        >
+          <SelectTrigger className="w-[180px] h-10">
+            <SelectValue placeholder="Sub-Service" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Sub-Services</SelectItem>
+            {filteredSubServices.map((sub) => (
+              <SelectItem key={sub.value} value={sub.value}>
+                {sub.label}
               </SelectItem>
             ))}
           </SelectContent>
@@ -238,6 +305,28 @@ export function CraftsmenFilters({
                     {categories.map((cat) => (
                       <SelectItem key={cat.value} value={cat.value}>
                         {cat.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Sub-Service Mobile */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Sub-Service</label>
+                <Select
+                  value={filters.subService}
+                  onValueChange={(val) => handleFilterChange("subService", val)}
+                  disabled={!filteredSubServices || filteredSubServices.length === 0}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Sub-Service" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Sub-Services</SelectItem>
+                    {filteredSubServices.map((sub) => (
+                      <SelectItem key={sub.value} value={sub.value}>
+                        {sub.label}
                       </SelectItem>
                     ))}
                   </SelectContent>

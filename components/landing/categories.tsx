@@ -1,58 +1,66 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { 
-  Droplets, 
-  Zap, 
-  Hammer, 
-  PaintRoller, 
-  Fan, 
-  Wrench, 
-  Layers, 
-  Truck,
-  ArrowRight
+import {
+  Droplets,
+  Zap,
+  Hammer,
+  PaintRoller,
+  Fan,
+  Wrench,
+  Sprout,
+  ArrowRight,
+  DoorClosed,
 } from "lucide-react";
 
 const categories = [
   {
     icon: Droplets,
-    title: "Plumbing & Heating",
-    description: "Expert repairs, installations, and maintenance for all your plumbing needs.",
+    title: "Plumbing & Water Systems",
+    description:
+      "Expert installations, repairs, and maintenance for all your plumbing and water needs.",
   },
   {
     icon: Zap,
-    title: "Electrical Services",
-    description: "Certified electricians handling wiring, lighting, and electrical safety.",
-  },
-  {
-    icon: Hammer,
-    title: "Carpentry & Joinery",
-    description: "Custom furniture, door installations, and precise woodworking projects.",
-  },
-  {
-    icon: PaintRoller,
-    title: "Painting & Decorating",
-    description: "Professional interior and exterior painting with a flawless finish.",
+    title: "Electrical",
+    description:
+      "Certified electricians handling wiring, lighting, safety checks, and electrical panels.",
   },
   {
     icon: Fan,
-    title: "HVAC & Cooling",
-    description: "Installation and repair of air conditioning, ventilation, and heating systems.",
+    title: "HVAC & Refrigeration",
+    description:
+      "Installation and repair of air conditioning, ventilation, refrigeration, and heating systems.",
   },
   {
     icon: Wrench,
-    title: "Appliance Repairs",
-    description: "Quick diagnostics and repairs for washing machines, fridges, and more.",
+    title: "Appliance & Electronics Repair",
+    description:
+      "Quick diagnostics and skilled repairs for washing machines, fridges, TVs, and more.",
   },
   {
-    icon: Layers,
-    title: "Tiling & Masonry",
-    description: "High-quality tiling for bathrooms, kitchens, and custom stonework.",
+    icon: PaintRoller,
+    title: "Painting & Plastering",
+    description:
+      "Professional interior and exterior painting with flawless finishes and expert plastering.",
   },
   {
-    icon: Truck,
-    title: "Moving & Assembly",
-    description: "Reliable moving services and expert assembly for your furniture.",
+    icon: Hammer,
+    title: "Carpentry & Furniture",
+    description:
+      "Custom furniture, precision woodworking, door installations, and carpentry projects.",
+  },
+  {
+    icon: DoorClosed,
+    title: "Aluminium, PVC & Glass",
+    description:
+      "Expert installation and repairs for windows, doors, glasswork, and aluminium structures.",
+  },
+  {
+    icon: Sprout,
+    title: "Garden & Pool Maintenance",
+    description:
+      "Complete landscaping, garden care, pool cleaning, and outdoor maintenance services.",
   },
 ];
 
@@ -60,7 +68,6 @@ export function Categories() {
   return (
     <section id="categories" className="py-12 md:py-16 bg-muted/20">
       <div className="container mx-auto px-4 md:px-6">
-        
         {/* Section Header (Optional but recommended) */}
         <div className="text-center mb-10">
           <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
@@ -74,8 +81,8 @@ export function Categories() {
         {/* Responsive Grid: 4 Cols Desktop, 2 Cols Tablet, 1 Col Mobile */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {categories.map((category, index) => (
-            <Card 
-              key={index} 
+            <Card
+              key={index}
               className="group relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
             >
               <CardHeader className="pt-6 pb-2">
@@ -102,7 +109,6 @@ export function Categories() {
             </Link>
           </Button>
         </div>
-
       </div>
     </section>
   );

@@ -12,6 +12,7 @@ export interface FeaturedCraftsman {
   rating: number;
   reviewCount: number;
   category: string;
+  subServices: string[]; // ✅ Added this field to match CraftsmanCardProps
   region: string;
   priceMin: number;
   priceMax: number;

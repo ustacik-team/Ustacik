@@ -16,7 +16,7 @@ import { Footer } from "@/components/landing/footer";
 // ─── Mock Data (Strictly typed!) ──────────────────────────────────────
 const mockCraftsmen: FeaturedCraftsman[] = [
   {
-    id: "1",
+    id: "craftsman-1", // ✅ Updated ID
     name: "Ahmet Yılmaz",
     businessName: "Yılmaz Plumbing & Heating Solutions",
     image: null,
@@ -24,13 +24,14 @@ const mockCraftsmen: FeaturedCraftsman[] = [
     rating: 4.9,
     reviewCount: 128,
     category: "Plumbing & Water Systems",
+    subServices: ["Pipe Installation", "Water Heater Repair", "Drain Cleaning"], // ✅ Added
     region: "Nicosia",
     priceMin: 250,
     priceMax: 1500,
     jobsCompleted: 345,
   },
   {
-    id: "2",
+    id: "craftsman-2", // ✅ Updated ID
     name: "Mehmet Demir",
     businessName: "Demir Electrical Services Ltd.",
     image: "/craftsmen/mehmet.jpg",
@@ -38,13 +39,14 @@ const mockCraftsmen: FeaturedCraftsman[] = [
     rating: 4.8,
     reviewCount: 95,
     category: "Electrical",
+    subServices: ["Wiring & Lighting", "Panel Upgrades", "Home Automation"], // ✅ Added
     region: "Kyrenia",
     priceMin: 300,
     priceMax: 2000,
     jobsCompleted: 210,
   },
   {
-    id: "3",
+    id: "craftsman-3", // ✅ Updated ID
     name: "Ayşe Kaya",
     businessName: "Kaya Creative Painting & Decor",
     image: null,
@@ -52,13 +54,14 @@ const mockCraftsmen: FeaturedCraftsman[] = [
     rating: 4.7,
     reviewCount: 42,
     category: "Painting & Plastering",
+    subServices: ["Interior Painting", "Drywall & Plaster"], // ✅ Added
     region: "Famagusta",
     priceMin: 150,
     priceMax: 1200,
     jobsCompleted: 88,
   },
   {
-    id: "4",
+    id: "craftsman-4", // ✅ Updated ID
     name: "Mustafa Çelik",
     businessName: "Çelik Master Carpentry",
     image: "/craftsmen/mustafa.jpg",
@@ -66,13 +69,14 @@ const mockCraftsmen: FeaturedCraftsman[] = [
     rating: 4.9,
     reviewCount: 150,
     category: "Carpentry & Furniture",
+    subServices: ["Custom Furniture", "Door Installation", "Flooring"], // ✅ Added
     region: "Larnaca",
     priceMin: 400,
     priceMax: 5000,
     jobsCompleted: 412,
   },
   {
-    id: "5",
+    id: "craftsman-5", // ✅ Updated ID
     name: "Fatma Şahin",
     businessName: "Şahin Cooling & HVAC Specialists",
     image: null,
@@ -80,12 +84,14 @@ const mockCraftsmen: FeaturedCraftsman[] = [
     rating: 4.6,
     reviewCount: 77,
     category: "HVAC & Refrigeration",
+    subServices: ["AC Installation", "AC Repair", "Ventilation"], // ✅ Added
     region: "Nicosia",
     priceMin: 350,
     priceMax: 2500,
     jobsCompleted: 195,
   },
 ];
+
 
 // ─── Landing Page ──────────────────────────────────────────────────────
 export default async function Home() {
