@@ -24,6 +24,7 @@ const mockCraftsmen: FeaturedCraftsman[] = [
     rating: 4.9,
     reviewCount: 128,
     category: "Plumbing & Water Systems",
+    subServices: ["Pipe Installation", "Water Heater Repair", "Drain Cleaning"], // ✅ Added
     region: "Nicosia",
     priceMin: 250,
     priceMax: 1500,
@@ -38,6 +39,7 @@ const mockCraftsmen: FeaturedCraftsman[] = [
     rating: 4.8,
     reviewCount: 95,
     category: "Electrical",
+    subServices: ["Wiring & Lighting", "Panel Upgrades", "Home Automation"], // ✅ Added
     region: "Kyrenia",
     priceMin: 300,
     priceMax: 2000,
@@ -52,6 +54,7 @@ const mockCraftsmen: FeaturedCraftsman[] = [
     rating: 4.7,
     reviewCount: 42,
     category: "Painting & Plastering",
+    subServices: ["Interior Painting", "Drywall & Plaster"], // ✅ Added
     region: "Famagusta",
     priceMin: 150,
     priceMax: 1200,
@@ -66,6 +69,7 @@ const mockCraftsmen: FeaturedCraftsman[] = [
     rating: 4.9,
     reviewCount: 150,
     category: "Carpentry & Furniture",
+    subServices: ["Custom Furniture", "Door Installation", "Flooring"], // ✅ Added
     region: "Larnaca",
     priceMin: 400,
     priceMax: 5000,
@@ -80,6 +84,7 @@ const mockCraftsmen: FeaturedCraftsman[] = [
     rating: 4.6,
     reviewCount: 77,
     category: "HVAC & Refrigeration",
+    subServices: ["AC Installation", "AC Repair", "Ventilation"], // ✅ Added
     region: "Nicosia",
     priceMin: 350,
     priceMax: 2500,
@@ -93,7 +98,7 @@ export default async function Home() {
   const user = session?.user || null;
 
   return (
-    <div className="flex min-h-screen flex-col bg-(image:--page-bg) bg-cover bg-center bg-fixed">
+    <div className="flex min-h-screen flex-col bg-background">
       {/* 1. Navbar */}
       <Navbar user={user} />
 

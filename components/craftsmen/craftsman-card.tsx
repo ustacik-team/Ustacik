@@ -12,7 +12,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { VerificationBadge } from "@/components/craftsmen/verification-badge";
-import { Rating } from "@/components/craftsmen/rating";
 import { cn } from "@/lib/utils";
 
 export interface CraftsmanCardProps {
@@ -24,6 +23,7 @@ export interface CraftsmanCardProps {
   rating: number;
   reviewCount: number;
   category: string;
+  subServices: string[];
   region: string;
   priceMin: number;
   priceMax: number;
@@ -40,6 +40,7 @@ export function CraftsmanCard({
   rating,
   reviewCount,
   category,
+  subServices,
   region,
   priceMin,
   priceMax,
@@ -73,7 +74,6 @@ export function CraftsmanCard({
           className
         )}
       >
-        {/* Subtle accent highlight on hover */}
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-primary/40 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
         <CardContent className="p-6 flex flex-col justify-between h-full space-y-5">
@@ -156,13 +156,26 @@ export function CraftsmanCard({
               </span>
             </div>
 
-            {/* Category */}
-            <div className="flex items-center gap-3 text-sm">
-              <span className="h-4 w-4 shrink-0 text-center text-muted-foreground/60">⚙️</span>
-              <span className="text-muted-foreground">Category</span>
-              <span className="ml-auto font-medium text-foreground line-clamp-1">
-                {category}
-              </span>
+            {/* Category & SubServices */}
+            <div className="flex flex-col gap-1.5 text-sm">
+              <div className="flex items-center gap-3">
+                <span className="h-4 w-4 shrink-0 text-center text-muted-foreground/60">⚙️</span>
+                <span className="text-muted-foreground">Category</span>
+                <span className="ml-auto font-medium text-foreground line-clamp-1">
+                  {category}
+                </span>
+              </div>
+              {/* ✅ Enhanced Sub-services: Clean, distinct accent tags */}
+              <div className="flex flex-wrap gap-2 ml-7 mt-1">
+                {subServices.slice(0, 4).map((sub, idx) => (
+                  <span 
+                    key={idx} 
+                    className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-[10px] font-medium text-primary border border-primary/20 shadow-sm"
+                  >
+                    {sub}
+                  </span>
+                ))}
+              </div>
             </div>
 
             {/* Price */}
@@ -176,7 +189,6 @@ export function CraftsmanCard({
           </div>
 
           {/* ─── BOTTOM SECTION ─────────────────────────────────────── */}
-          {/* ✅ REMOVED the inner <Link> completely. Outer <Link> handles navigation. */}
           <Button
             variant="default"
             className="w-full mt-1 gap-2 bg-primary font-semibold text-primary-foreground shadow-sm transition-all duration-300 hover:bg-primary/90 hover:shadow-md hover:shadow-primary/20 group/btn"

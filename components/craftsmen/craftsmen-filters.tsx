@@ -1,7 +1,6 @@
-// components/craftsmen/craftsmen-filters.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Filter, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,6 +23,7 @@ import { cn } from "@/lib/utils";
 
 export interface FilterOptions {
   category: string;
+  subService: string; // ✅ Added subService
   region: string;
   verification: string;
   sort: string;
@@ -34,8 +34,10 @@ interface CraftsmenFiltersProps {
   filters: FilterOptions;
   /** Callback when any filter changes */
   onFilterChange: (filters: FilterOptions) => void;
-  /** Available categories (defaults to the 8 from the brief) */
+  /** Available categories */
   categories?: { value: string; label: string }[];
+  /** Available sub-services (flat list) */
+  subServiceOptions?: { value: string; label: string }[];
   /** Available regions */
   regions?: { value: string; label: string }[];
   /** Verification levels */
@@ -86,6 +88,7 @@ export function CraftsmenFilters({
   filters,
   onFilterChange,
   categories = defaultCategories,
+  subServiceOptions = [], // ✅ New default
   regions = defaultRegions,
   verificationLevels = defaultVerificationLevels,
   sortOptions = defaultSortOptions,
@@ -93,7 +96,28 @@ export function CraftsmenFilters({
 }: CraftsmenFiltersProps) {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
 
+  // ✅ Filter sub-services based on selected category
+  const filteredSubServices = useMemo(() => {
+    if (filters.category === "all") {
+      return subServiceOptions;
+    }
+    // Note: Since we don't have a mapping table here, we assume the sub-service options 
+    // already have a 'category' property if passed dynamically, OR we just show all sub-services 
+    // if the user is filtering by category. For a full dynamic experience, 
+    // you can pass a structured object like { category: string, subServices: string[] }[] 
+    // and flatten it here.
+    // For this mock, we simply return all sub-service options if category is 'all', 
+    // otherwise we show the full list (parent page should handle passing contextually).
+    return subServiceOptions; 
+  }, [filters.category, subServiceOptions]);
+
   const handleFilterChange = (key: keyof FilterOptions, value: string) => {
+    // When category changes, reset subService to "all"
+    if (key === "category") {
+      const updated = { ...filters, [key]: value, subService: "all" };
+      onFilterChange(updated);
+      return;
+    }
     const updated = { ...filters, [key]: value };
     onFilterChange(updated);
   };
@@ -101,6 +125,7 @@ export function CraftsmenFilters({
   const handleReset = () => {
     const reset = {
       category: "all",
+      subService: "all", // ✅ Reset subService
       region: "all",
       verification: "all",
       sort: "rating_desc",
@@ -112,14 +137,16 @@ export function CraftsmenFilters({
   const isFiltered = () => {
     return (
       filters.category !== "all" ||
+      filters.subService !== "all" || // ✅ Check subService
       filters.region !== "all" ||
       filters.verification !== "all"
     );
   };
 
-  const activeFilterCount = (["category", "region", "verification"] as const).filter(
+  const activeFilterCount = (["category", "subService", "region", "verification"] as const).filter(
     (key) => filters[key] !== "all"
   ).length;
+
   return (
     <div className="w-full">
       {/* Desktop: full filter bar */}
@@ -136,6 +163,25 @@ export function CraftsmenFilters({
             {categories.map((cat) => (
               <SelectItem key={cat.value} value={cat.value}>
                 {cat.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        {/* ✅ Sub-Service Dropdown (New) */}
+        <Select
+          value={filters.subService}
+          onValueChange={(val) => handleFilterChange("subService", val)}
+          disabled={!filteredSubServices || filteredSubServices.length === 0}
+        >
+          <SelectTrigger className="w-[180px] h-10">
+            <SelectValue placeholder="Sub-Service" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Sub-Services</SelectItem>
+            {filteredSubServices.map((sub) => (
+              <SelectItem key={sub.value} value={sub.value}>
+                {sub.label}
               </SelectItem>
             ))}
           </SelectContent>
@@ -238,6 +284,28 @@ export function CraftsmenFilters({
                     {categories.map((cat) => (
                       <SelectItem key={cat.value} value={cat.value}>
                         {cat.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* ✅ Sub-Service Mobile */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Sub-Service</label>
+                <Select
+                  value={filters.subService}
+                  onValueChange={(val) => handleFilterChange("subService", val)}
+                  disabled={!filteredSubServices || filteredSubServices.length === 0}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Sub-Service" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Sub-Services</SelectItem>
+                    {filteredSubServices.map((sub) => (
+                      <SelectItem key={sub.value} value={sub.value}>
+                        {sub.label}
                       </SelectItem>
                     ))}
                   </SelectContent>
