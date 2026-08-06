@@ -394,8 +394,10 @@ export default function CraftsmenPage() {
 
   const pageSize = 9;
   const requestIdRef = useRef(0);
-  const isFirstRender = useRef(true); // ✅ Prevents scroll on initial load
-  const searchContainerRef = useRef<HTMLDivElement>(null); // ✅ Scroll target
+  const searchContainerRef = useRef<HTMLDivElement>(null); // Scroll target
+  
+  // ✅ NEW: Tracks if the scroll should trigger (only on pagination clicks)
+  const shouldScrollAfterPageChange = useRef(false);
 
   // ─── Fetch with request ID ────────────────────────────────────────────
   useEffect(() => {
@@ -416,16 +418,18 @@ export default function CraftsmenPage() {
     fetchData();
   }, [currentPage, searchQuery, filters]);
 
-  // ─── Scroll to Search/Filters when pagination changes ─────────────────
+  // ─── Scroll to Search/Filters ONLY on pagination actions ──────────────
   useEffect(() => {
-    // 1. Prevent scrolling on initial page load/refresh
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
+    // 1. Don't scroll if it's still loading or if the flag isn't set
+    if (isLoading || !shouldScrollAfterPageChange.current) {
       return; 
     }
 
-    // 2. Scroll to the search bar container when navigating pages
-    if (!isLoading && craftsmenData.items.length > 0) {
+    // 2. Reset flag so it won't trigger again accidentally
+    shouldScrollAfterPageChange.current = false;
+
+    // 3. Perform the scroll once data is ready
+    if (craftsmenData.items.length > 0) {
       setTimeout(() => {
         searchContainerRef.current?.scrollIntoView({
           behavior: "smooth",
@@ -446,7 +450,9 @@ export default function CraftsmenPage() {
     setCurrentPage(1);
   }, []);
 
+  // ✅ Set the flag only here, so scroll happens ONLY on pagination
   const handlePageChange = useCallback((page: number) => {
+    shouldScrollAfterPageChange.current = true;
     setCurrentPage(page);
   }, []);
 
@@ -477,12 +483,10 @@ export default function CraftsmenPage() {
       <div className="flex-1 container mx-auto px-4 py-6 space-y-6">
         <CraftsmenHero {...heroStats} />
 
-        {/* ✅ Attach ref to the Search/Filters wrapper (cleaned up JSX) */}
         <div className="space-y-4" ref={searchContainerRef}>
           <CraftsmenSearch onSearch={handleSearch} />
           <CraftsmenFilters filters={filters} onFilterChange={handleFilterChange} />
 
-          {/* ✅ NO ref here anymore! gridContainerRef is completely removed */}
           <CraftsmenGrid
             craftsmen={craftsmenData.items}
             loading={isLoading}

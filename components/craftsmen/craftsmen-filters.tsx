@@ -117,8 +117,9 @@ export function CraftsmenFilters({
     );
   };
 
-  const activeFilterCount = Object.values(filters).filter((v) => v !== "all").length;
-
+  const activeFilterCount = (["category", "region", "verification"] as const).filter(
+    (key) => filters[key] !== "all"
+  ).length;
   return (
     <div className="w-full">
       {/* Desktop: full filter bar */}

@@ -1,7 +1,6 @@
-// components/craftsmen/craftsmen-search.tsx
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 
@@ -27,6 +26,8 @@ function useControlledState<T>(
 interface CraftsmenSearchProps {
   /** Optional external value for controlled usage */
   value?: string;
+  /** Required for controlled usage: fired on every keystroke */
+  onValueChange?: (value: string) => void;
   /** Callback fired when the search query changes (debounced) */
   onSearch?: (query: string) => void;
   /** Placeholder text (default: "Search by craftsman or business...") */
@@ -37,6 +38,7 @@ interface CraftsmenSearchProps {
 
 export function CraftsmenSearch({
   value: externalValue,
+  onValueChange,
   onSearch,
   placeholder = "Search by craftsman or business...",
   debounceMs = 300,
@@ -54,18 +56,31 @@ export function CraftsmenSearch({
     return () => clearTimeout(timer);
   }, [value, debounceMs]);
 
-  // Notify parent when debounced value changes
+  // Stabilize onSearch callback to avoid effect loops
+  const onSearchRef = useRef(onSearch);
   useEffect(() => {
-    if (onSearch) {
-      onSearch(debouncedValue);
+    onSearchRef.current = onSearch;
+  }, [onSearch]);
+
+  // Skip first mount to prevent overwriting initial URL query
+  const isFirstMount = useRef(true);
+  useEffect(() => {
+    if (isFirstMount.current) {
+      isFirstMount.current = false;
+      return;
     }
-  }, [debouncedValue, onSearch]);
+    if (onSearchRef.current) {
+      onSearchRef.current(debouncedValue);
+    }
+  }, [debouncedValue]);
 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      setValue(e.target.value);
+      const newValue = e.target.value;
+      setValue(newValue);
+      onValueChange?.(newValue);
     },
-    [setValue]
+    [setValue, onValueChange]
   );
 
   return (

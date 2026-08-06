@@ -1,4 +1,3 @@
-// components/craftsmen/rating.tsx
 import { Star, StarHalf } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -21,10 +20,13 @@ export function Rating({ rating, reviewCount, className }: RatingProps) {
     );
   }
 
-  // Ensure rating is within 0–5
+  // Ensure rating is within 0–5 and round to nearest half
   const clampedRating = Math.min(Math.max(rating, 0), 5);
-  const fullStars = Math.floor(clampedRating);
-  const hasHalfStar = clampedRating - fullStars >= 0.5;
+  const roundedRating = Math.round(clampedRating * 2) / 2; // Round to nearest 0.5
+
+  // Derive star counts from the rounded rating
+  const fullStars = Math.floor(roundedRating);
+  const hasHalfStar = roundedRating - fullStars === 0.5;
   const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
 
   return (
@@ -50,8 +52,8 @@ export function Rating({ rating, reviewCount, className }: RatingProps) {
         />
       ))}
 
-      {/* Rating number and review count */}
-      <span className="ml-1 text-sm font-medium">{clampedRating.toFixed(1)}</span>
+      {/* Rating number and review count – now using roundedRating */}
+      <span className="ml-1 text-sm font-medium">{roundedRating.toFixed(1)}</span>
       <span className="text-sm text-muted-foreground">({reviewCount} reviews)</span>
     </div>
   );

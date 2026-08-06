@@ -43,11 +43,12 @@ const footerColumns = [
   },
 ];
 
+// Added explicit label for accessibility
 const socialLinks = [
-  { icon: FaFacebook, href: "https://facebook.com" },
-  { icon: FaTwitter, href: "https://twitter.com" },
-  { icon: FaInstagram, href: "https://instagram.com" },
-  { icon: FaLinkedin, href: "https://linkedin.com" },
+  { icon: FaFacebook, label: "Facebook", href: "https://facebook.com" },
+  { icon: FaTwitter, label: "Twitter", href: "https://twitter.com" },
+  { icon: FaInstagram, label: "Instagram", href: "https://instagram.com" },
+  { icon: FaLinkedin, label: "LinkedIn", href: "https://linkedin.com" },
 ];
 
 export function Footer() {
@@ -111,7 +112,8 @@ export function Footer() {
                     className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary"
                   >
                     <Icon className="h-4 w-4" />
-                    <span className="sr-only">{social.icon.name}</span>
+                    {/* Use explicit label for screen readers */}
+                    <span className="sr-only">{social.label}</span>
                   </Link>
                 );
               })}
