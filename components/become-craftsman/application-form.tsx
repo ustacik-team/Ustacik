@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react"; // ✅ Added useEffect
-import { useForm } from "react-hook-form";
+import { useState, useEffect } from "react";
+import { useForm, Resolver } from "react-hook-form"; // ✅ Import Resolver
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import Image from "next/image";
@@ -117,19 +117,20 @@ const SECTION_FIELDS = {
 export function ApplicationForm() {
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   
-  // ✅ 1. Accordion State (Multi-open)
+  // ✅ Accordion State (Multi-open)
   const [openSections, setOpenSections] = useState<string[]>(["personal-info"]);
 
-  // ✅ 2. Profile Photo State
+  // ✅ Profile Photo State
   const [profilePhoto, setProfilePhoto] = useState<File | null>(null);
   const [profilePhotoPreview, setProfilePhotoPreview] = useState<string | null>(null);
 
-  // ✅ 3. Portfolio Photos State
+  // ✅ Portfolio Photos State
   const [portfolioPhotos, setPortfolioPhotos] = useState<File[]>([]);
   const [portfolioPreviews, setPortfolioPreviews] = useState<string[]>([]);
 
   const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+    // ✅ Fix: Explicitly cast resolver to avoid type mismatch error
+    resolver: zodResolver(formSchema) as Resolver<FormValues>,
     defaultValues: {
       fullName: "",
       email: "",
@@ -248,9 +249,7 @@ export function ApplicationForm() {
 
           <CardContent className="pt-6">
             <Form {...form}>
-              {/* ✅ 4. Added onInvalid handler to expand accordion sections */}
               <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="space-y-6">
-                {/* ✅ 5. Changed Accordion to type="multiple" */}
                 <Accordion type="multiple" value={openSections} onValueChange={setOpenSections} className="w-full">
                   
                   {/* ─── STEP 1: PERSONAL INFO ──────────────────────── */}
@@ -320,7 +319,6 @@ export function ApplicationForm() {
                       <div className="space-y-2">
                         <FormLabel>Profile Photo</FormLabel>
                         <div className="relative flex flex-col sm:flex-row items-start gap-4">
-                          {/* ✅ 6. Functional Profile Photo Input */}
                           <div className="relative flex items-center justify-center w-full sm:w-48 h-32 rounded-lg border-2 border-dashed border-muted-foreground/20 bg-muted/20 hover:bg-muted/30 transition-colors cursor-pointer overflow-hidden">
                             {profilePhotoPreview ? (
                               <div className="relative w-full h-full group">
@@ -539,7 +537,6 @@ export function ApplicationForm() {
                       </div>
                     </AccordionTrigger>
                     <AccordionContent className="pt-4 pb-6 space-y-4">
-                      {/* Upload Field */}
                       <div className="space-y-2">
                         <FormLabel>Upload Work Photos</FormLabel>
                         <div className="relative flex items-center justify-center w-full h-32 rounded-lg border-2 border-dashed border-muted-foreground/20 bg-muted/20 hover:bg-muted/30 transition-colors cursor-pointer">
@@ -558,14 +555,12 @@ export function ApplicationForm() {
                         </div>
                       </div>
 
-                      {/* Preview Grid */}
                       {portfolioPreviews.length > 0 && (
                         <div className="space-y-2">
                           <p className="text-sm font-medium text-foreground">Uploaded Photos</p>
                           <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
                             {portfolioPreviews.map((url, index) => (
                               <div key={index} className="relative aspect-square rounded-lg overflow-hidden border border-border/20 group">
-                                {/* ✅ 7. Added unoptimized={true} for blob URL preview safety */}
                                 <Image 
                                   src={url} 
                                   alt={`Upload ${index + 1}`} 
