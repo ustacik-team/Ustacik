@@ -24,10 +24,19 @@ import { allCraftsmen, Craftsman } from "@/lib/mock-craftsmen";
 
 // ─── Helper: Map basic craftsman to full profile structure ────────────
 function buildFullProfile(basic: Craftsman) {
+  // Deterministic pseudo-random derived from the id
+  const seed = Array.from(basic.id).reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
+  const yearsOfExperience = (seed % 15) + 3;
+
   // Generate dummy reviews to match reviewCount
   const generatedReviews = Array.from({ length: basic.reviewCount }).map(() => ({
     rating: basic.rating,
   }));
+
+  // Deterministic dates (base date: 2024-01-01)
+  const baseDate = new Date("2024-01-01").getTime();
+  const verifiedAtDate = new Date(baseDate + seed * 86400000 * 7); // 7 days per seed
+  const reviewDateOffset = seed * 86400000 * 2; // 2 days per seed
 
   // Build the complex object expected by the components
   return {
@@ -38,7 +47,7 @@ function buildFullProfile(basic: Craftsman) {
       phone: "+905338887766", // Mock phone
     },
     businessName: basic.businessName,
-    bio: `Experienced ${basic.category} professional with over ${Math.floor(Math.random() * 15) + 3} years of hands-on experience. Dedicated to providing high-quality service to homes and businesses across Northern Cyprus.`,
+    bio: `Experienced ${basic.category} professional with over ${yearsOfExperience} years of hands-on experience. Dedicated to providing high-quality service to homes and businesses across Northern Cyprus.`,
     region: { name: basic.region },
     categories: [{ name: basic.category }],
     verificationLevel: basic.verificationLevel,
@@ -47,8 +56,8 @@ function buildFullProfile(basic: Craftsman) {
     priceRangeMax: basic.priceMax,
     workmanshipGuarantee: basic.verificationLevel === "APPROVED", // Example logic
     reviews: generatedReviews,
-    yearsOfExperience: Math.floor(Math.random() * 15) + 3,
-    businessRegistrationNumber: `TRNC-BIZ-202${Math.floor(Math.random() * 4)}-${Math.floor(Math.random() * 100000)}`,
+    yearsOfExperience,
+    businessRegistrationNumber: `TRNC-BIZ-202${seed % 4}-${seed * 7 % 100000}`,
     serviceCategories: [
       {
         name: basic.category,
@@ -70,7 +79,7 @@ function buildFullProfile(basic: Craftsman) {
       businessRegistrationVerified: basic.verificationLevel !== "REGISTERED",
       guaranteeVerified: basic.verificationLevel === "APPROVED",
       verifiedBy: { name: "Ustacik Trust Team" },
-      verifiedAt: new Date().toISOString(),
+      verifiedAt: verifiedAtDate.toISOString(),
     },
     reviewSummary: {
       totalReviews: basic.reviewCount,
@@ -80,23 +89,27 @@ function buildFullProfile(basic: Craftsman) {
       priceHonestyAvg: Math.max(3, basic.rating - 0.1),
       communicationAvg: Math.min(5, basic.rating + 0.2),
     },
-    customerReviews: Array.from({ length: Math.min(3, basic.reviewCount) }).map((_, i) => ({
-      id: `r${i}`,
-      customer: { name: `Customer ${i + 1}`, image: null },
-      createdAt: new Date(Date.now() - Math.random() * 10000000000).toISOString(),
-      rating: basic.rating,
-      punctuality: Math.min(5, basic.rating + 0.1),
-      workmanship: basic.rating,
-      priceHonesty: Math.max(3, basic.rating - 0.1),
-      communication: Math.min(5, basic.rating + 0.2),
-      comment: `Great experience! Very professional ${basic.category} work.`,
-      photos: [],
-      reply: i === 0 ? {
-        id: `rep${i}`,
-        reply: "Thank you! We appreciate your feedback.",
-        createdAt: new Date().toISOString(),
-      } : null,
-    })),
+    customerReviews: Array.from({ length: Math.min(3, basic.reviewCount) }).map((_, i) => {
+      const reviewDate = new Date(baseDate + reviewDateOffset + i * 86400000 * 3);
+      const replyDate = new Date(reviewDate.getTime() + 86400000);
+      return {
+        id: `r${i}`,
+        customer: { name: `Customer ${i + 1}`, image: null },
+        createdAt: reviewDate.toISOString(),
+        rating: basic.rating,
+        punctuality: Math.min(5, basic.rating + 0.1),
+        workmanship: basic.rating,
+        priceHonesty: Math.max(3, basic.rating - 0.1),
+        communication: Math.min(5, basic.rating + 0.2),
+        comment: `Great experience! Very professional ${basic.category} work.`,
+        photos: [],
+        reply: i === 0 ? {
+          id: `rep${i}`,
+          reply: "Thank you! We appreciate your feedback.",
+          createdAt: replyDate.toISOString(),
+        } : null,
+      };
+    }),
     relatedCraftsmen: allCraftsmen
       .filter((c) => c.id !== basic.id && c.category === basic.category)
       .slice(0, 3)
