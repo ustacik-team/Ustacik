@@ -58,14 +58,14 @@ export function Navbar({ user, isLoading = false }: NavbarProps) {
             </NavigationMenuItem>
             <NavigationMenuItem>
               <NavigationMenuLink asChild>
-                <Link href="#categories" className="px-3 py-2 text-sm font-medium transition-colors hover:text-primary">
+                <Link href="/#categories" className="px-3 py-2 text-sm font-medium transition-colors hover:text-primary">
                   Categories
                 </Link>
               </NavigationMenuLink>
             </NavigationMenuItem>
             <NavigationMenuItem>
               <NavigationMenuLink asChild>
-                <Link href="#how-it-works" className="px-3 py-2 text-sm font-medium transition-colors hover:text-primary">
+                <Link href="/#how-it-works" className="px-3 py-2 text-sm font-medium transition-colors hover:text-primary">
                   How it Works
                 </Link>
               </NavigationMenuLink>
