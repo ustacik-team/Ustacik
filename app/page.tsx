@@ -16,7 +16,7 @@ import { Footer } from "@/components/landing/footer";
 // ─── Mock Data (Strictly typed!) ──────────────────────────────────────
 const mockCraftsmen: FeaturedCraftsman[] = [
   {
-    id: "1",
+    id: "craftsman-1", // ✅ Updated ID
     name: "Ahmet Yılmaz",
     businessName: "Yılmaz Plumbing & Heating Solutions",
     image: null,
@@ -31,7 +31,7 @@ const mockCraftsmen: FeaturedCraftsman[] = [
     jobsCompleted: 345,
   },
   {
-    id: "2",
+    id: "craftsman-2", // ✅ Updated ID
     name: "Mehmet Demir",
     businessName: "Demir Electrical Services Ltd.",
     image: "/craftsmen/mehmet.jpg",
@@ -46,7 +46,7 @@ const mockCraftsmen: FeaturedCraftsman[] = [
     jobsCompleted: 210,
   },
   {
-    id: "3",
+    id: "craftsman-3", // ✅ Updated ID
     name: "Ayşe Kaya",
     businessName: "Kaya Creative Painting & Decor",
     image: null,
@@ -61,7 +61,7 @@ const mockCraftsmen: FeaturedCraftsman[] = [
     jobsCompleted: 88,
   },
   {
-    id: "4",
+    id: "craftsman-4", // ✅ Updated ID
     name: "Mustafa Çelik",
     businessName: "Çelik Master Carpentry",
     image: "/craftsmen/mustafa.jpg",
@@ -76,7 +76,7 @@ const mockCraftsmen: FeaturedCraftsman[] = [
     jobsCompleted: 412,
   },
   {
-    id: "5",
+    id: "craftsman-5", // ✅ Updated ID
     name: "Fatma Şahin",
     businessName: "Şahin Cooling & HVAC Specialists",
     image: null,
@@ -92,13 +92,14 @@ const mockCraftsmen: FeaturedCraftsman[] = [
   },
 ];
 
+
 // ─── Landing Page ──────────────────────────────────────────────────────
 export default async function Home() {
   const session = await getServerSession();
   const user = session?.user || null;
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="flex min-h-screen flex-col bg-(image:--page-bg) bg-cover bg-center bg-fixed">
       {/* 1. Navbar */}
       <Navbar user={user} />
 

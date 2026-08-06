@@ -18,7 +18,7 @@ export interface Craftsman {
 
 export const allCraftsmen: Craftsman[] = [
   {
-    id: "1",
+    id: "craftsman-1",
     name: "Ahmet Yılmaz",
     businessName: "Yılmaz Plumbing",
     image: null,
@@ -33,7 +33,7 @@ export const allCraftsmen: Craftsman[] = [
     jobsCompleted: 47,
   },
   {
-    id: "2",
+    id: "craftsman-2",
     name: "Mehmet Demir",
     businessName: "Demir Electrical",
     image: null,
@@ -48,7 +48,7 @@ export const allCraftsmen: Craftsman[] = [
     jobsCompleted: 38,
   },
   {
-    id: "3",
+    id: "craftsman-3",
     name: "Ayşe Kaya",
     businessName: "Kaya Painting & Decor",
     image: null,
@@ -63,7 +63,7 @@ export const allCraftsmen: Craftsman[] = [
     jobsCompleted: 24,
   },
   {
-    id: "4",
+    id: "craftsman-4",
     name: "Mustafa Çelik",
     businessName: "Çelik Woodworks",
     image: null,
@@ -78,7 +78,7 @@ export const allCraftsmen: Craftsman[] = [
     jobsCompleted: 32,
   },
   {
-    id: "5",
+    id: "craftsman-5",
     name: "Zeynep Öztürk",
     businessName: "Öztürk Garden & Pool",
     image: null,
@@ -93,7 +93,7 @@ export const allCraftsmen: Craftsman[] = [
     jobsCompleted: 19,
   },
   {
-    id: "6",
+    id: "craftsman-6",
     name: "Ali Can",
     businessName: "Can Heating & Cooling",
     image: null,
@@ -108,7 +108,7 @@ export const allCraftsmen: Craftsman[] = [
     jobsCompleted: 28,
   },
   {
-    id: "7",
+    id: "craftsman-7",
     name: "Elif Yıldız",
     businessName: "Yıldız Electronics Repair",
     image: null,
@@ -123,7 +123,7 @@ export const allCraftsmen: Craftsman[] = [
     jobsCompleted: 15,
   },
   {
-    id: "8",
+    id: "craftsman-8",
     name: "Hasan Eminağa",
     businessName: "Eminağa Furniture",
     image: null,
@@ -138,7 +138,7 @@ export const allCraftsmen: Craftsman[] = [
     jobsCompleted: 44,
   },
   {
-    id: "9",
+    id: "craftsman-9",
     name: "Fatma Şahin",
     businessName: "Şahin Glass & Aluminium",
     image: null,
@@ -153,7 +153,7 @@ export const allCraftsmen: Craftsman[] = [
     jobsCompleted: 11,
   },
   {
-    id: "10",
+    id: "craftsman-10",
     name: "Kemal Aydın",
     businessName: "Aydın Painting",
     image: null,
@@ -168,7 +168,7 @@ export const allCraftsmen: Craftsman[] = [
     jobsCompleted: 29,
   },
   {
-    id: "11",
+    id: "craftsman-11",
     name: "Hatice Yılmaz",
     businessName: "Yılmaz Electric",
     image: null,
@@ -183,7 +183,7 @@ export const allCraftsmen: Craftsman[] = [
     jobsCompleted: 16,
   },
   {
-    id: "12",
+    id: "craftsman-12",
     name: "Serkan Kaya",
     businessName: "Kaya Plumbing",
     image: null,
@@ -198,7 +198,7 @@ export const allCraftsmen: Craftsman[] = [
     jobsCompleted: 22,
   },
   {
-    id: "13",
+    id: "craftsman-13",
     name: "Merve Demir",
     businessName: "Demir Climate",
     image: null,
@@ -213,7 +213,7 @@ export const allCraftsmen: Craftsman[] = [
     jobsCompleted: 18,
   },
   {
-    id: "14",
+    id: "craftsman-14",
     name: "Okan Çelik",
     businessName: "Çelik Outdoor Services",
     image: null,
@@ -228,7 +228,7 @@ export const allCraftsmen: Craftsman[] = [
     jobsCompleted: 25,
   },
   {
-    id: "15",
+    id: "craftsman-15",
     name: "Seda Öztürk",
     businessName: "Öztürk Glass",
     image: null,
@@ -243,7 +243,7 @@ export const allCraftsmen: Craftsman[] = [
     jobsCompleted: 9,
   },
   {
-    id: "16",
+    id: "craftsman-16",
     name: "Emre Can",
     businessName: "Can Custom Wood",
     image: null,
@@ -258,7 +258,7 @@ export const allCraftsmen: Craftsman[] = [
     jobsCompleted: 41,
   },
   {
-    id: "17",
+    id: "craftsman-17",
     name: "Simge Yıldız",
     businessName: "Yıldız Plastering",
     image: null,
@@ -273,7 +273,7 @@ export const allCraftsmen: Craftsman[] = [
     jobsCompleted: 20,
   },
   {
-    id: "18",
+    id: "craftsman-18",
     name: "Burak Eminağa",
     businessName: "Eminağa Electric",
     image: null,
@@ -288,7 +288,7 @@ export const allCraftsmen: Craftsman[] = [
     jobsCompleted: 14,
   },
   {
-    id: "19",
+    id: "craftsman-19",
     name: "Cansu Şahin",
     businessName: "Şahin Appliance Repair",
     image: null,
@@ -303,7 +303,7 @@ export const allCraftsmen: Craftsman[] = [
     jobsCompleted: 27,
   },
   {
-    id: "20",
+    id: "craftsman-20",
     name: "Murat Aydın",
     businessName: "Aydın Water Systems",
     image: null,

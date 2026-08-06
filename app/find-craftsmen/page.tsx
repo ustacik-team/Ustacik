@@ -18,7 +18,7 @@ function getFilteredCraftsmen(
   searchQuery: string,
   filters: {
     category: string;
-    subService: string; // ✅ Added subService to type
+    subService: string;
     region: string;
     verification: string;
     sort: string;
@@ -37,7 +37,6 @@ function getFilteredCraftsmen(
     filtered = filtered.filter((c) => c.category === filters.category);
   }
   
-  // ✅ New Sub-Service filter logic
   if (filters.subService !== "all") {
     filtered = filtered.filter((c) => 
       c.subServices.includes(filters.subService)
@@ -86,13 +85,32 @@ export default function CraftsmenPage() {
 
   const [searchQuery, setSearchQuery] = useState("");
   
-  // ✅ Updated state with subService
-  const [filters, setFilters] = useState({
+  // ✅ FIX: Use a lazy initializer to read URL params and avoid cascading renders
+  const defaultFilters = {
     category: "all",
     subService: "all", 
     region: "all",
     verification: "all",
     sort: "rating_desc",
+  };
+
+  const [filters, setFilters] = useState(() => {
+    if (typeof window === 'undefined') return defaultFilters;
+
+    const params = new URLSearchParams(window.location.search);
+    const updates: Partial<typeof defaultFilters> = {};
+
+    const category = params.get('category');
+    const region = params.get('region');
+    const verification = params.get('verification');
+    const subService = params.get('subService');
+
+    if (category) updates.category = category;
+    if (region) updates.region = region;
+    if (verification) updates.verification = verification;
+    if (subService) updates.subService = subService;
+
+    return { ...defaultFilters, ...updates };
   });
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -175,7 +193,7 @@ export default function CraftsmenPage() {
   const resetFilters = useCallback(() => {
     setFilters({
       category: "all",
-      subService: "all", // ✅ Reset subService too
+      subService: "all",
       region: "all",
       verification: "all",
       sort: "rating_desc",
@@ -200,7 +218,6 @@ export default function CraftsmenPage() {
         <div className="space-y-4" ref={searchContainerRef}>
           <CraftsmenSearch onSearch={handleSearch} />
           
-          {/* ✅ Pass subServiceOptions to the filter component */}
           <CraftsmenFilters 
             filters={filters} 
             onFilterChange={handleFilterChange}

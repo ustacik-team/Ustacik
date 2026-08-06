@@ -191,7 +191,7 @@ export function CraftsmanCard({
           {/* ─── BOTTOM SECTION ─────────────────────────────────────── */}
           <Button
             variant="default"
-            className="w-full mt-1 gap-2 bg-primary font-semibold text-primary-foreground shadow-sm transition-all duration-300 hover:bg-primary/90 hover:shadow-md hover:shadow-primary/20 group/btn"
+            className="w-full mt-1 gap-2 bg-primary font-semibold text-primary-foreground shadow-sm transition-all duration-300 hover:bg-primary/90 hover:shadow-md hover:shadow-primary/20 group/btn cursor-pointer"
           >
             <span>View Profile</span>
             <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover/btn:translate-x-1" />
