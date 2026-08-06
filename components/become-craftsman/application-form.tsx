@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react"; // ✅ Added useEffect
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -105,10 +105,28 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
+// ─── SECTION FIELDS MAP FOR ERROR EXPANSION ──────────────────────────────
+const SECTION_FIELDS = {
+  "personal-info": ["fullName", "email", "phone"],
+  "business-info": ["businessName", "region", "category", "subService", "priceMin", "priceMax"],
+  "verification": ["businessRegistrationNumber", "workmanshipGuarantee"],
+  "terms": ["confirmAccuracy", "agreePublish"],
+} as const;
+
 // ─── COMPONENT ──────────────────────────────────────────────────────────
 export function ApplicationForm() {
   const [selectedCategory, setSelectedCategory] = useState<string>("");
-  const [uploadedPhotos, setUploadedPhotos] = useState<string[]>([]);
+  
+  // ✅ 1. Accordion State (Multi-open)
+  const [openSections, setOpenSections] = useState<string[]>(["personal-info"]);
+
+  // ✅ 2. Profile Photo State
+  const [profilePhoto, setProfilePhoto] = useState<File | null>(null);
+  const [profilePhotoPreview, setProfilePhotoPreview] = useState<string | null>(null);
+
+  // ✅ 3. Portfolio Photos State
+  const [portfolioPhotos, setPortfolioPhotos] = useState<File[]>([]);
+  const [portfolioPreviews, setPortfolioPreviews] = useState<string[]>([]);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -130,22 +148,77 @@ export function ApplicationForm() {
     },
   });
 
+  // ─── MEMORY CLEANUP FOR BLOB URLS ──────────────────────────────────────
+  useEffect(() => {
+    return () => {
+      if (profilePhotoPreview) URL.revokeObjectURL(profilePhotoPreview);
+      portfolioPreviews.forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, [profilePhotoPreview, portfolioPreviews]);
+
+  // ─── SUBMIT & INVALID HANDLERS ────────────────────────────────────────
+  const onInvalid = (errors: Record<string, unknown>) => {
+    // Automatically expand any Accordion section that contains validation errors
+    const invalid = Object.entries(SECTION_FIELDS)
+      .filter(([, fields]) => fields.some((f) => f in errors))
+      .map(([section]) => section);
+    setOpenSections((prev) => Array.from(new Set([...prev, ...invalid])));
+  };
+
   const onSubmit = (values: FormValues) => {
-    console.log("Form Submitted:", values);
+    console.log("Form Submitted:", { ...values, profilePhoto, portfolioPhotos });
     alert("Application submitted successfully! (Mock)");
   };
 
-  // Handle image upload preview (Mock)
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    // In a real app, you would upload these to S3/Cloudinary here.
-    // For mock, we convert to object URLs for preview.
-    const newImages = files.map((file) => URL.createObjectURL(file));
-    setUploadedPhotos((prev) => [...prev, ...newImages]);
+  // ─── FILE UPLOAD HANDLERS ──────────────────────────────────────────────
+  const handleProfilePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file size (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert("File size exceeds 5MB limit.");
+      return;
+    }
+
+    // Validate file type
+    if (!["image/svg+xml", "image/png", "image/jpeg"].includes(file.type)) {
+      alert("Only SVG, PNG, and JPG formats are allowed.");
+      return;
+    }
+
+    // Cleanup previous preview
+    if (profilePhotoPreview) URL.revokeObjectURL(profilePhotoPreview);
+
+    setProfilePhoto(file);
+    setProfilePhotoPreview(URL.createObjectURL(file));
   };
 
-  const removePhoto = (index: number) => {
-    setUploadedPhotos((prev) => prev.filter((_, i) => i !== index));
+  const handlePortfolioUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    
+    const validatedFiles = files.filter((file) => {
+      if (file.size > 10 * 1024 * 1024) {
+        alert(`File ${file.name} exceeds 10MB limit.`);
+        return false;
+      }
+      if (!["image/png", "image/jpeg"].includes(file.type)) {
+        alert(`File ${file.name} must be PNG or JPG.`);
+        return false;
+      }
+      return true;
+    });
+
+    const newUrls = validatedFiles.map((file) => URL.createObjectURL(file));
+    setPortfolioPhotos((prev) => [...prev, ...validatedFiles]);
+    setPortfolioPreviews((prev) => [...prev, ...newUrls]);
+  };
+
+  const removePortfolioPhoto = (index: number) => {
+    const url = portfolioPreviews[index];
+    if (url) URL.revokeObjectURL(url);
+    setPortfolioPreviews((prev) => prev.filter((_, i) => i !== index));
+    setPortfolioPhotos((prev) => prev.filter((_, i) => i !== index));
   };
 
   // Watch category to filter sub-services
@@ -175,8 +248,10 @@ export function ApplicationForm() {
 
           <CardContent className="pt-6">
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                <Accordion type="single" collapsible defaultValue="personal-info" className="w-full">
+              {/* ✅ 4. Added onInvalid handler to expand accordion sections */}
+              <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="space-y-6">
+                {/* ✅ 5. Changed Accordion to type="multiple" */}
+                <Accordion type="multiple" value={openSections} onValueChange={setOpenSections} className="w-full">
                   
                   {/* ─── STEP 1: PERSONAL INFO ──────────────────────── */}
                   <AccordionItem value="personal-info" className="border-b border-border/20">
@@ -244,19 +319,46 @@ export function ApplicationForm() {
                       />
                       <div className="space-y-2">
                         <FormLabel>Profile Photo</FormLabel>
-                        <div className="relative flex items-center gap-4 rounded-lg border-2 border-dashed border-muted-foreground/20 p-4 bg-muted/20 transition-colors hover:bg-muted/30">
-                          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted/50">
-                            <UploadCloud className="h-5 w-5 text-muted-foreground" />
+                        <div className="relative flex flex-col sm:flex-row items-start gap-4">
+                          {/* ✅ 6. Functional Profile Photo Input */}
+                          <div className="relative flex items-center justify-center w-full sm:w-48 h-32 rounded-lg border-2 border-dashed border-muted-foreground/20 bg-muted/20 hover:bg-muted/30 transition-colors cursor-pointer overflow-hidden">
+                            {profilePhotoPreview ? (
+                              <div className="relative w-full h-full group">
+                                <Image 
+                                  src={profilePhotoPreview} 
+                                  alt="Profile Preview" 
+                                  fill 
+                                  className="object-cover" 
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    if (profilePhotoPreview) URL.revokeObjectURL(profilePhotoPreview);
+                                    setProfilePhoto(null);
+                                    setProfilePhotoPreview(null);
+                                  }}
+                                  className="absolute top-1 right-1 h-6 w-6 rounded-full bg-black/60 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                                >
+                                  <X className="h-3 w-3" />
+                                </button>
+                              </div>
+                            ) : (
+                              <div className="flex flex-col items-center gap-1 text-muted-foreground">
+                                <UploadCloud className="h-5 w-5" />
+                                <p className="text-xs font-medium">Click to upload</p>
+                              </div>
+                            )}
+                            <Input 
+                              type="file" 
+                              accept=".svg,.png,.jpg,.jpeg" 
+                              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                              onChange={handleProfilePhotoUpload}
+                            />
                           </div>
-                          <div className="space-y-0.5 text-sm">
-                            <p className="font-medium">Click to upload</p>
+                          <div className="space-y-1 text-sm">
+                            <p className="font-medium">Upload a profile photo</p>
                             <p className="text-muted-foreground text-xs">SVG, PNG, JPG (max. 5MB)</p>
                           </div>
-                          <Input 
-                            type="file" 
-                            accept="image/*" 
-                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                          />
                         </div>
                       </div>
                     </AccordionContent>
@@ -449,29 +551,31 @@ export function ApplicationForm() {
                           <Input 
                             type="file" 
                             multiple 
-                            accept="image/*" 
+                            accept=".png,.jpg,.jpeg" 
                             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                            onChange={handleImageUpload}
+                            onChange={handlePortfolioUpload}
                           />
                         </div>
                       </div>
 
                       {/* Preview Grid */}
-                      {uploadedPhotos.length > 0 && (
+                      {portfolioPreviews.length > 0 && (
                         <div className="space-y-2">
                           <p className="text-sm font-medium text-foreground">Uploaded Photos</p>
                           <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
-                            {uploadedPhotos.map((url, index) => (
+                            {portfolioPreviews.map((url, index) => (
                               <div key={index} className="relative aspect-square rounded-lg overflow-hidden border border-border/20 group">
+                                {/* ✅ 7. Added unoptimized={true} for blob URL preview safety */}
                                 <Image 
                                   src={url} 
                                   alt={`Upload ${index + 1}`} 
                                   fill 
+                                  unoptimized={true} 
                                   className="object-cover"
                                 />
                                 <button
                                   type="button"
-                                  onClick={() => removePhoto(index)}
+                                  onClick={() => removePortfolioPhoto(index)}
                                   className="absolute top-1 right-1 h-6 w-6 rounded-full bg-black/60 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                                 >
                                   <X className="h-3 w-3" />
@@ -554,7 +658,6 @@ export function ApplicationForm() {
                         render={({ field }) => (
                           <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border border-border/20 p-4">
                             <FormControl>
-                              {/* ✅ FIXED: Added bg-background and border-border to make the checkbox visible in Light Mode */}
                               <Checkbox
                                 checked={field.value}
                                 onCheckedChange={field.onChange}
@@ -578,7 +681,6 @@ export function ApplicationForm() {
                         render={({ field }) => (
                           <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border border-border/20 p-4">
                             <FormControl>
-                              {/* ✅ FIXED: Added bg-background and border-border to make the checkbox visible in Light Mode */}
                               <Checkbox
                                 checked={field.value}
                                 onCheckedChange={field.onChange}

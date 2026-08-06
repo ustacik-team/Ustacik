@@ -71,7 +71,7 @@ function getFilteredCraftsmen(
   }
 
   const totalItems = filtered.length;
-  const totalPages = Math.ceil(totalItems / pageSize);
+  const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
   const startIndex = (page - 1) * pageSize;
   const paginatedItems = filtered.slice(startIndex, startIndex + pageSize);
 
@@ -85,7 +85,6 @@ export default function CraftsmenPage() {
 
   const [searchQuery, setSearchQuery] = useState("");
 
-  // ✅ Simple local state - NO URL syncing anymore!
   const [filters, setFilters] = useState({
     category: "all",
     subService: "all",
@@ -95,12 +94,13 @@ export default function CraftsmenPage() {
   });
 
   const [currentPage, setCurrentPage] = useState(1);
-  const [isLoading, setIsLoading] = useState(false);
-  const [craftsmenData, setCraftsmenData] = useState<{
+  const [state, setState] = useState<{
+    status: "idle" | "loading" | "success";
     items: Craftsman[];
     totalPages: number;
     totalItems: number;
   }>({
+    status: "idle",
     items: [],
     totalPages: 1,
     totalItems: 0,
@@ -113,16 +113,13 @@ export default function CraftsmenPage() {
 
   // ✅ Derive unique sub-service options from mock data
   const subServiceOptions = useMemo(() => {
-    // Create a map from the mock data using category and sub-services
     const options = allCraftsmen.flatMap((c) =>
       c.subServices.map((sub) => ({
-        category: c.category, // ✅ Include the category!
+        category: c.category,
         value: sub,
         label: sub,
       })),
     );
-
-    // Deduplicate using Set (based on value + category to be safe)
     const unique = new Set();
     return options.filter((opt) => {
       const key = `${opt.category}-${opt.value}`;
@@ -131,39 +128,52 @@ export default function CraftsmenPage() {
       return true;
     });
   }, []);
+
   // ─── Fetch with request ID ────────────────────────────────────────────
   useEffect(() => {
+    let isMounted = true;
     const currentRequestId = ++requestIdRef.current;
 
-    const fetchData = () => {
-      setIsLoading(true);
+    // ✅ FIX: Schedule loading state in a microtask to avoid React's "synchronous setState" warning
+    queueMicrotask(() => {
+      if (isMounted) {
+        setState((prev) => ({ ...prev, status: "loading", items: [] }));
+      }
+    });
 
-      setTimeout(() => {
-        if (currentRequestId !== requestIdRef.current) return;
+    const timer = setTimeout(() => {
+      if (!isMounted || currentRequestId !== requestIdRef.current) return;
 
-        const result = getFilteredCraftsmen(
-          currentPage,
-          pageSize,
-          searchQuery,
-          filters,
-        );
-        setCraftsmenData(result);
-        setIsLoading(false);
-      }, 600);
+      const result = getFilteredCraftsmen(
+        currentPage,
+        pageSize,
+        searchQuery,
+        filters,
+      );
+
+      setState({
+        status: "success",
+        items: result.items,
+        totalPages: result.totalPages,
+        totalItems: result.totalItems,
+      });
+    }, 600);
+
+    return () => {
+      isMounted = false;
+      clearTimeout(timer);
     };
-
-    fetchData();
   }, [currentPage, searchQuery, filters]);
 
   // ─── Scroll to Search/Filters ONLY on pagination actions ──────────────
   useEffect(() => {
-    if (isLoading || !shouldScrollAfterPageChange.current) {
+    if (state.status === "loading" || !shouldScrollAfterPageChange.current) {
       return;
     }
 
     shouldScrollAfterPageChange.current = false;
 
-    if (craftsmenData.items.length > 0) {
+    if (state.items.length > 0) {
       setTimeout(() => {
         searchContainerRef.current?.scrollIntoView({
           behavior: "smooth",
@@ -171,7 +181,7 @@ export default function CraftsmenPage() {
         });
       }, 100);
     }
-  }, [currentPage, isLoading, craftsmenData.items.length]);
+  }, [currentPage, state.status, state.items.length]);
 
   // ─── Handlers ──────────────────────────────────────────────────────────
   const handleSearch = useCallback((query: string) => {
@@ -221,8 +231,8 @@ export default function CraftsmenPage() {
             subServiceOptions={subServiceOptions}
           />
           <CraftsmenGrid
-            craftsmen={craftsmenData.items}
-            loading={isLoading}
+            craftsmen={state.items}
+            loading={state.status === "loading"}
             onResetFilters={resetFilters}
             emptyState={{
               title: "No craftsmen found",
@@ -232,7 +242,7 @@ export default function CraftsmenPage() {
           />
           <CraftsmenPagination
             currentPage={currentPage}
-            totalPages={craftsmenData.totalPages}
+            totalPages={state.totalPages}
             onPageChange={handlePageChange}
             scrollToTop={false}
           />

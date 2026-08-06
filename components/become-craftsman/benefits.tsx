@@ -64,13 +64,12 @@ export function Benefits() {
             return (
               <Card 
                 key={index} 
-                className="border-border/40 bg-card/60 backdrop-blur-sm shadow-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-lg"
+                className="group border-border/40 bg-card/60 backdrop-blur-sm shadow-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-lg"
               >
                 <CardHeader className="pb-2 pt-6">
                   <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary/20">
                     <Icon className="h-6 w-6" />
-                  </div>
-                  <CardTitle className="text-lg font-semibold">{benefit.title}</CardTitle>
+                  </div>                  <CardTitle className="text-lg font-semibold">{benefit.title}</CardTitle>
                 </CardHeader>
                 <CardContent className="pb-6 pt-0">
                   <p className="text-sm text-muted-foreground leading-relaxed">
