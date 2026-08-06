@@ -16,7 +16,9 @@ export default function UnauthorizedPage() {
         </div>
         <div>
           <Button asChild>
-            <Link href={`/sign-in?redirect=${pathname}`}>Sign in</Link>
+            <Link href={`/sign-in?redirect=${encodeURIComponent(pathname)}`}>
+              Sign in
+            </Link>
           </Button>
         </div>
       </div>

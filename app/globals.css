@@ -74,6 +74,10 @@
 }
 
 :root {
+  --page-bg: url('/page-bg.png');
+  --hero-bg: url('/hero-bg.png');
+  --cta-bg: url('/cta-bg.png');
+  --find-craftsmen-bg: url('/find-craftsmen-bg.png');
   --background: oklch(1.0000 0 0);
   --foreground: oklch(0.1884 0.0128 248.5103);
   --card: oklch(0.9784 0.0011 197.1387);
@@ -130,6 +134,10 @@
 }
 
 .dark {
+  --page-bg: url('/page-bg-dark.png');
+  --hero-bg: url('/hero-bg-dark.png');
+  --cta-bg: url('/cta-bg-dark.png');
+  --find-craftsmen-bg: url('/find-craftsmen-bg-dark.png');
   --background: oklch(0 0 0);
   --foreground: oklch(0.9328 0.0025 228.7857);
   --card: oklch(0.2097 0.0080 274.5332);
