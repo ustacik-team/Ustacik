@@ -82,15 +82,12 @@ export function ProfileHero({ craftsman }: ProfileHeroProps) {
     <section className="relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent -z-10" />
 
-      {/* pt-8 lg:pt-10 pb-2 lg:pb-2 eliminates the vertical gap seen in the 2nd image */}
       <div className="pt-6 lg:pt-8 pb-2 lg:pb-2">
         
-        {/* ✅ Changed gap to 6 to exactly match the flex gap in the About/Trust row below */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
           
           {/* ─── LEFT CARD: PROFILE INFO ────────────────────────────── */}
           <Card className="lg:col-span-2 border-border/40 bg-card/60 backdrop-blur-sm shadow-sm transition-all duration-300 hover:shadow-md">
-            {/* ✅ Uses EXACT same CardHeader classes and padding as AboutCraftsman */}
             <CardHeader className="border-b border-border/20 pb-4">
               <CardTitle className="flex items-center gap-2 text-lg font-bold">
                 <FileText className="h-5 w-5 text-primary" />
@@ -98,7 +95,6 @@ export function ProfileHero({ craftsman }: ProfileHeroProps) {
               </CardTitle>
             </CardHeader>
 
-            {/* ✅ Uses EXACT same CardContent padding and flex classes as AboutCraftsman */}
             <CardContent className="pt-6 pb-6 space-y-5 flex-1 flex-col justify-between">
               <div className="flex flex-col sm:flex-row gap-6">
                 <div className="relative shrink-0 mx-auto sm:mx-0">
@@ -198,7 +194,6 @@ export function ProfileHero({ craftsman }: ProfileHeroProps) {
 
           {/* ─── RIGHT CARD: QUICK TRUST CHECK ──────────────────────── */}
           <Card className="lg:col-span-1 border-border/40 bg-card/60 backdrop-blur-sm shadow-sm transition-all duration-300 hover:shadow-md">
-            {/* ✅ Uses EXACT same CardHeader classes and padding as VerificationCard */}
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 border-b border-border/20">
               <CardTitle className="flex items-center gap-2 text-lg font-bold">
                 <ShieldCheck className="h-5 w-5 text-primary" />
@@ -209,7 +204,6 @@ export function ProfileHero({ craftsman }: ProfileHeroProps) {
               </Badge>
             </CardHeader>
 
-            {/* ✅ Uses EXACT same CardContent classes and padding as VerificationCard */}
             <CardContent className="pt-4 pb-4 space-y-3">
               <div className="space-y-3">
                 <div className="flex items-start gap-3">
@@ -247,7 +241,12 @@ export function ProfileHero({ craftsman }: ProfileHeroProps) {
 
               {/* ─── BOTTOM CTA on Trust Card ──────────────────── */}
               <div className="pt-3 border-t border-border/20 flex flex-col gap-2">
-                <Button className="w-full bg-primary/90 hover:bg-primary">Request a Job</Button>
+                {/* ✅ FIX: Added asChild and Link to make the button functional */}
+                <Button className="w-full bg-primary/90 hover:bg-primary" asChild>
+                  <Link href={`/craftsmen/${craftsman.id}/request`}>
+                    Request a Job
+                  </Link>
+                </Button>
                 {user.phone && (
                   <Button variant="ghost" className="w-full gap-2 text-muted-foreground hover:text-foreground" asChild>
                     <a href={`tel:${user.phone}`}>

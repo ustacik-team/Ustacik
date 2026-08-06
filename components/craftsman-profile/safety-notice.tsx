@@ -13,8 +13,7 @@ export function SafetyNotice({ className }: SafetyNoticeProps) {
       <ShieldAlert className="h-5 w-5 text-amber-500" />
       <AlertTitle className="text-sm font-semibold">Safety Notice</AlertTitle>
       <AlertDescription className="text-sm text-muted-foreground leading-relaxed">
-        Ustacik connects customers with verified craftsmen but does not guarantee workmanship or manage payments.{" "}
-        <Link href="/terms" className="font-medium text-primary underline-offset-4 hover:underline transition-colors">
+        Ustacik connects customers with craftsmen but does not guarantee workmanship or manage payments. Check each craftsman&apos;s verification status before engaging their services.{" "}        <Link href="/terms" className="font-medium text-primary underline-offset-4 hover:underline transition-colors">
           Terms of Service
         </Link>
       </AlertDescription>

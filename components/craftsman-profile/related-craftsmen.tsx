@@ -2,7 +2,6 @@ import { CraftsmanCard } from "@/components/craftsmen/craftsman-card";
 import { cn } from "@/lib/utils";
 
 // ─── Types ──────────────────────────────────────────────────────────────
-// Aligned with CraftsmanCardProps
 export interface RelatedCraftsmanData {
   id: string;
   name: string;
@@ -10,13 +9,13 @@ export interface RelatedCraftsmanData {
   image: string | null;
   verificationLevel: "REGISTERED" | "VERIFIED" | "APPROVED";
   rating: number;
-  reviewCount: number;      // ✅ Added
-  category: string;         // ✅ Added
-  subServices: string[];    // ✅ Added
-  region: string;           // ✅ Added
-  priceMin: number | null;  // Could be null
-  priceMax: number | null;  // Could be null
-  jobsCompleted: number;    // ✅ Added
+  reviewCount: number;
+  category: string;
+  subServices: string[];
+  region: string;
+  priceMin: number | null;
+  priceMax: number | null;
+  jobsCompleted: number;
 }
 
 interface RelatedCraftsmenProps {
@@ -24,7 +23,6 @@ interface RelatedCraftsmenProps {
   className?: string;
 }
 
-// ─── Component ──────────────────────────────────────────────────────────
 export function RelatedCraftsmen({ craftsmen, className }: RelatedCraftsmenProps) {
   if (!craftsmen || craftsmen.length === 0) {
     return null;
@@ -48,8 +46,8 @@ export function RelatedCraftsmen({ craftsmen, className }: RelatedCraftsmenProps
             category={craftsman.category}
             subServices={craftsman.subServices}
             region={craftsman.region}
-            priceMin={craftsman.priceMin || 0}
-            priceMax={craftsman.priceMax || 0}
+            priceMin={craftsman.priceMin} 
+            priceMax={craftsman.priceMax} 
             jobsCompleted={craftsman.jobsCompleted}
           />
         ))}

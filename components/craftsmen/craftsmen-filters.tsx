@@ -23,7 +23,7 @@ import { cn } from "@/lib/utils";
 
 export interface FilterOptions {
   category: string;
-  subService: string; // ✅ Added subService
+  subService: string;
   region: string;
   verification: string;
   sort: string;
@@ -36,8 +36,8 @@ interface CraftsmenFiltersProps {
   onFilterChange: (filters: FilterOptions) => void;
   /** Available categories */
   categories?: { value: string; label: string }[];
-  /** Available sub-services (flat list) */
-  subServiceOptions?: { value: string; label: string }[];
+  /** Available sub-services grouped by category (includes category key) */
+  subServiceOptions?: { category: string; value: string; label: string }[];
   /** Available regions */
   regions?: { value: string; label: string }[];
   /** Verification levels */
@@ -84,11 +84,39 @@ const defaultSortOptions = [
   { value: "name_asc", label: "Name A-Z" },
 ];
 
+// Pre-defined grouped mock sub-services based on your categories
+const defaultSubServiceOptions = [
+  { category: "Plumbing & Water Systems", value: "Pipe Installation", label: "Pipe Installation" },
+  { category: "Plumbing & Water Systems", value: "Water Heater Repair", label: "Water Heater Repair" },
+  { category: "Plumbing & Water Systems", value: "Drain Cleaning", label: "Drain Cleaning" },
+  { category: "Electrical", value: "Wiring & Lighting", label: "Wiring & Lighting" },
+  { category: "Electrical", value: "Panel Upgrades", label: "Panel Upgrades" },
+  { category: "Electrical", value: "Home Automation", label: "Home Automation" },
+  { category: "HVAC & Refrigeration", value: "AC Installation", label: "AC Installation" },
+  { category: "HVAC & Refrigeration", value: "AC Repair", label: "AC Repair" },
+  { category: "HVAC & Refrigeration", value: "Ventilation", label: "Ventilation" },
+  { category: "Appliance & Electronics Repair", value: "Washing Machine Repair", label: "Washing Machine Repair" },
+  { category: "Appliance & Electronics Repair", value: "TV Repair", label: "TV Repair" },
+  { category: "Appliance & Electronics Repair", value: "Fridge Repair", label: "Fridge Repair" },
+  { category: "Painting & Plastering", value: "Interior Painting", label: "Interior Painting" },
+  { category: "Painting & Plastering", value: "Exterior Painting", label: "Exterior Painting" },
+  { category: "Painting & Plastering", value: "Drywall & Plaster", label: "Drywall & Plaster" },
+  { category: "Carpentry & Furniture", value: "Custom Furniture", label: "Custom Furniture" },
+  { category: "Carpentry & Furniture", value: "Door Installation", label: "Door Installation" },
+  { category: "Carpentry & Furniture", value: "Flooring", label: "Flooring" },
+  { category: "Aluminium, PVC & Glass", value: "Window Installation", label: "Window Installation" },
+  { category: "Aluminium, PVC & Glass", value: "Door Frames", label: "Door Frames" },
+  { category: "Aluminium, PVC & Glass", value: "Glass Repair", label: "Glass Repair" },
+  { category: "Garden & Pool Maintenance", value: "Landscaping", label: "Landscaping" },
+  { category: "Garden & Pool Maintenance", value: "Pool Cleaning", label: "Pool Cleaning" },
+  { category: "Garden & Pool Maintenance", value: "Irrigation", label: "Irrigation" },
+];
+
 export function CraftsmenFilters({
   filters,
   onFilterChange,
   categories = defaultCategories,
-  subServiceOptions = [], // ✅ New default
+  subServiceOptions = defaultSubServiceOptions, // ✅ Now includes category keys
   regions = defaultRegions,
   verificationLevels = defaultVerificationLevels,
   sortOptions = defaultSortOptions,
@@ -96,19 +124,12 @@ export function CraftsmenFilters({
 }: CraftsmenFiltersProps) {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
 
-  // ✅ Filter sub-services based on selected category
+  // ✅ FIX: Filters sub-services based on the selected category
   const filteredSubServices = useMemo(() => {
     if (filters.category === "all") {
       return subServiceOptions;
     }
-    // Note: Since we don't have a mapping table here, we assume the sub-service options 
-    // already have a 'category' property if passed dynamically, OR we just show all sub-services 
-    // if the user is filtering by category. For a full dynamic experience, 
-    // you can pass a structured object like { category: string, subServices: string[] }[] 
-    // and flatten it here.
-    // For this mock, we simply return all sub-service options if category is 'all', 
-    // otherwise we show the full list (parent page should handle passing contextually).
-    return subServiceOptions; 
+    return subServiceOptions.filter((sub) => sub.category === filters.category);
   }, [filters.category, subServiceOptions]);
 
   const handleFilterChange = (key: keyof FilterOptions, value: string) => {
@@ -125,7 +146,7 @@ export function CraftsmenFilters({
   const handleReset = () => {
     const reset = {
       category: "all",
-      subService: "all", // ✅ Reset subService
+      subService: "all",
       region: "all",
       verification: "all",
       sort: "rating_desc",
@@ -137,7 +158,7 @@ export function CraftsmenFilters({
   const isFiltered = () => {
     return (
       filters.category !== "all" ||
-      filters.subService !== "all" || // ✅ Check subService
+      filters.subService !== "all" ||
       filters.region !== "all" ||
       filters.verification !== "all"
     );
@@ -168,7 +189,7 @@ export function CraftsmenFilters({
           </SelectContent>
         </Select>
 
-        {/* ✅ Sub-Service Dropdown (New) */}
+        {/* Sub-Service Dropdown - Now category-aware */}
         <Select
           value={filters.subService}
           onValueChange={(val) => handleFilterChange("subService", val)}
@@ -290,7 +311,7 @@ export function CraftsmenFilters({
                 </Select>
               </div>
 
-              {/* ✅ Sub-Service Mobile */}
+              {/* Sub-Service Mobile */}
               <div className="space-y-2">
                 <label className="text-sm font-medium">Sub-Service</label>
                 <Select

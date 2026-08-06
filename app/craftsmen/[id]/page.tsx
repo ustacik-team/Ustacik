@@ -18,7 +18,6 @@ import { ReviewSummary } from "@/components/craftsman-profile/review-summary";
 import { Reviews } from "@/components/craftsman-profile/reviews";
 import { RelatedCraftsmen } from "@/components/craftsman-profile/related-craftsmen";
 import { SafetyNotice } from "@/components/craftsman-profile/safety-notice";
-import { MobileCta } from "@/components/craftsman-profile/mobile-cta";
 
 // ✅ Import the basic array
 import { allCraftsmen, Craftsman } from "@/lib/mock-craftsmen";
@@ -140,11 +139,13 @@ export default async function CraftsmanProfilePage({
   // Map the data to the full profile structure
   const craftsman = buildFullProfile(basicCraftsman);
 
-  // Calculate stats
-  const overallRating = craftsman.reviews.reduce((sum, rev) => sum + rev.rating, 0) / craftsman.reviews.length;
+  // ✅ FIX: Prevent division by zero (0 / 0) leading to NaN when there are 0 reviews
+  const overallRating = craftsman.reviews.length > 0
+    ? craftsman.reviews.reduce((sum, rev) => sum + rev.rating, 0) / craftsman.reviews.length
+    : 0;
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="flex min-h-screen flex-col bg-(image:--find-craftsmen-bg) bg-cover bg-center bg-no-repeat bg-fixed">
       <Navbar user={user} />
 
       <main className="flex-1">
@@ -187,7 +188,6 @@ export default async function CraftsmanProfilePage({
       </main>
 
       <Footer />
-      <MobileCta craftsmanId={craftsman.id} phone={craftsman.user.phone} />
     </div>
   );
 }

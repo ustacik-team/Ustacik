@@ -25,8 +25,8 @@ export interface CraftsmanCardProps {
   category: string;
   subServices: string[];
   region: string;
-  priceMin: number;
-  priceMax: number;
+  priceMin: number | null;
+  priceMax: number | null;
   jobsCompleted: number;
   className?: string;
 }
@@ -55,7 +55,7 @@ export function CraftsmanCard({
     .slice(0, 2);
 
   const priceRange =
-    priceMin && priceMax
+    priceMin !== null && priceMax !== null
       ? `₺${priceMin.toLocaleString()} – ₺${priceMax.toLocaleString()}`
       : "Price on request";
 

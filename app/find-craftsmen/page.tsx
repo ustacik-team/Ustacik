@@ -8,7 +8,7 @@ import { CraftsmenGrid } from "@/components/craftsmen/craftsmen-grid";
 import { CraftsmenPagination } from "@/components/craftsmen/craftsmen-pagination";
 import { Navbar } from "@/components/landing/navbar";
 import { Footer } from "@/components/landing/footer";
-import { useSession } from "@/lib/auth-client"; 
+import { useSession } from "@/lib/auth-client";
 import { allCraftsmen, Craftsman } from "@/lib/mock-craftsmen";
 
 // ─── Helper ───────────────────────────────────────────────────────────────
@@ -22,7 +22,7 @@ function getFilteredCraftsmen(
     region: string;
     verification: string;
     sort: string;
-  }
+  },
 ) {
   let filtered = allCraftsmen.filter((c) => {
     const searchLower = searchQuery.toLowerCase();
@@ -36,18 +36,18 @@ function getFilteredCraftsmen(
   if (filters.category !== "all") {
     filtered = filtered.filter((c) => c.category === filters.category);
   }
-  
   if (filters.subService !== "all") {
-    filtered = filtered.filter((c) => 
-      c.subServices.includes(filters.subService)
+    filtered = filtered.filter((c) =>
+      c.subServices.includes(filters.subService),
     );
   }
-
   if (filters.region !== "all") {
     filtered = filtered.filter((c) => c.region === filters.region);
   }
   if (filters.verification !== "all") {
-    filtered = filtered.filter((c) => c.verificationLevel === filters.verification);
+    filtered = filtered.filter(
+      (c) => c.verificationLevel === filters.verification,
+    );
   }
 
   switch (filters.sort) {
@@ -80,37 +80,18 @@ function getFilteredCraftsmen(
 
 // ─── Page Component ──────────────────────────────────────────────────────
 export default function CraftsmenPage() {
-  const { data: session, isPending } = useSession(); 
+  const { data: session, isPending } = useSession();
   const user = session?.user || null;
 
   const [searchQuery, setSearchQuery] = useState("");
-  
-  // ✅ FIX: Use a lazy initializer to read URL params and avoid cascading renders
-  const defaultFilters = {
+
+  // ✅ Simple local state - NO URL syncing anymore!
+  const [filters, setFilters] = useState({
     category: "all",
-    subService: "all", 
+    subService: "all",
     region: "all",
     verification: "all",
     sort: "rating_desc",
-  };
-
-  const [filters, setFilters] = useState(() => {
-    if (typeof window === 'undefined') return defaultFilters;
-
-    const params = new URLSearchParams(window.location.search);
-    const updates: Partial<typeof defaultFilters> = {};
-
-    const category = params.get('category');
-    const region = params.get('region');
-    const verification = params.get('verification');
-    const subService = params.get('subService');
-
-    if (category) updates.category = category;
-    if (region) updates.region = region;
-    if (verification) updates.verification = verification;
-    if (subService) updates.subService = subService;
-
-    return { ...defaultFilters, ...updates };
   });
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -132,11 +113,24 @@ export default function CraftsmenPage() {
 
   // ✅ Derive unique sub-service options from mock data
   const subServiceOptions = useMemo(() => {
-    const allSubs = allCraftsmen.flatMap((c) => c.subServices);
-    const uniqueSubs = Array.from(new Set(allSubs));
-    return uniqueSubs.map((sub) => ({ value: sub, label: sub }));
-  }, []);
+    // Create a map from the mock data using category and sub-services
+    const options = allCraftsmen.flatMap((c) =>
+      c.subServices.map((sub) => ({
+        category: c.category, // ✅ Include the category!
+        value: sub,
+        label: sub,
+      })),
+    );
 
+    // Deduplicate using Set (based on value + category to be safe)
+    const unique = new Set();
+    return options.filter((opt) => {
+      const key = `${opt.category}-${opt.value}`;
+      if (unique.has(key)) return false;
+      unique.add(key);
+      return true;
+    });
+  }, []);
   // ─── Fetch with request ID ────────────────────────────────────────────
   useEffect(() => {
     const currentRequestId = ++requestIdRef.current;
@@ -147,7 +141,12 @@ export default function CraftsmenPage() {
       setTimeout(() => {
         if (currentRequestId !== requestIdRef.current) return;
 
-        const result = getFilteredCraftsmen(currentPage, pageSize, searchQuery, filters);
+        const result = getFilteredCraftsmen(
+          currentPage,
+          pageSize,
+          searchQuery,
+          filters,
+        );
         setCraftsmenData(result);
         setIsLoading(false);
       }, 600);
@@ -159,7 +158,7 @@ export default function CraftsmenPage() {
   // ─── Scroll to Search/Filters ONLY on pagination actions ──────────────
   useEffect(() => {
     if (isLoading || !shouldScrollAfterPageChange.current) {
-      return; 
+      return;
     }
 
     shouldScrollAfterPageChange.current = false;
@@ -214,16 +213,13 @@ export default function CraftsmenPage() {
       <Navbar user={user} isLoading={isPending} />
       <div className="flex-1 container mx-auto px-4 py-6 space-y-6">
         <CraftsmenHero {...heroStats} />
-
         <div className="space-y-4" ref={searchContainerRef}>
           <CraftsmenSearch onSearch={handleSearch} />
-          
-          <CraftsmenFilters 
-            filters={filters} 
+          <CraftsmenFilters
+            filters={filters}
             onFilterChange={handleFilterChange}
             subServiceOptions={subServiceOptions}
           />
-
           <CraftsmenGrid
             craftsmen={craftsmenData.items}
             loading={isLoading}
@@ -234,7 +230,6 @@ export default function CraftsmenPage() {
               buttonText: "Reset Filters",
             }}
           />
-
           <CraftsmenPagination
             currentPage={currentPage}
             totalPages={craftsmenData.totalPages}

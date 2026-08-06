@@ -67,7 +67,12 @@ export function WorkGallery({ works, className }: WorkGalleryProps) {
           {works.map((work) => (
             <Dialog key={work.id}>
               <DialogTrigger asChild>
-                <div className="group relative aspect-square overflow-hidden rounded-lg border border-border/20 bg-muted/10 cursor-pointer">
+                {/* ✅ Replaced non-interactive div with accessible button */}
+                <button
+                  type="button"
+                  aria-label={`Open ${work.alt || "work portfolio image"}`}
+                  className="group relative aspect-square overflow-hidden rounded-lg border border-border/20 bg-muted/10 cursor-pointer"
+                >
                   {/* Lazy-loaded Image with Hover Zoom */}
                   <Image
                     src={work.imageUrl}
@@ -91,7 +96,7 @@ export function WorkGallery({ works, className }: WorkGalleryProps) {
                       </span>
                     </div>
                   </div>
-                </div>
+                </button>
               </DialogTrigger>
 
               {/* ─── Full-Screen Lightbox (Dialog) ───────────────────── */}
