@@ -74,7 +74,7 @@ interface NavItem {
 const mainNavItems: NavItem[] = [
   {
     title: "Dashboard",
-    href: "/dashboard/admin",
+    href: "/admin/dashboard",
     icon: LayoutDashboard,
   },
   {
@@ -84,13 +84,13 @@ const mainNavItems: NavItem[] = [
     subItems: [
       {
         title: "Customers",
-        href: "/dashboard/admin/users/customers",
+        href: "/admin/users/customers",
         icon: Users,
         todoComment: "View all registered customers and account information.",
       },
       {
         title: "Craftsmen",
-        href: "/dashboard/admin/users/craftsmen",
+        href: "/admin/users/craftsmen",
         icon: Hammer,
         todoComment:
           "View all craftsmen, verification status, regions, subscriptions and profiles.",
@@ -99,65 +99,65 @@ const mainNavItems: NavItem[] = [
   },
   {
     title: "Verification Queue",
-    href: "/dashboard/admin/verifications",
+    href: "/admin/verifications",
     icon: ShieldCheck,
     todoComment:
       "Approve or reject verification requests. Review ID, references, work photos, business registration and guarantees. Create VerificationRecord and VerificationLog.",
   },
   {
     title: "Jobs",
-    href: "/dashboard/admin/jobs",
+    href: "/admin/jobs",
     icon: BriefcaseBusiness,
     todoComment:
       "Monitor all job requests, accepted jobs, completed jobs and cancellations.",
   },
   {
     title: "Reviews",
-    href: "/dashboard/admin/reviews",
+    href: "/admin/reviews",
     icon: MessageSquareQuote,
     todoComment:
       "Moderate reviews. Remove only abusive reviews or reviews without a valid completed job.",
   },
   {
     title: "Categories",
-    href: "/dashboard/admin/categories",
+    href: "/admin/categories",
     icon: Tags,
     todoComment: "Manage the eight service categories and sub-services.",
   },
   {
     title: "Regions",
-    href: "/dashboard/admin/regions",
+    href: "/admin/regions",
     icon: MapPinned,
     todoComment: "Manage supported regions across Northern Cyprus.",
   },
   {
     title: "Notifications",
-    href: "/dashboard/admin/notifications",
+    href: "/admin/notifications",
     icon: Bell,
     todoComment: "Platform notifications and administrative alerts.",
   },
   {
     title: "Analytics",
-    href: "/dashboard/admin/analytics",
+    href: "/admin/analytics",
     icon: BarChart3,
     todoComment:
       "Platform statistics: users, craftsmen, completed jobs, reviews, verification metrics and growth.",
   },
   {
     title: "Admin Logs",
-    href: "/dashboard/admin/logs",
+    href: "/admin/logs",
     icon: ClipboardList,
     todoComment: "Audit trail of administrator actions from AdminLog.",
   },
   {
     title: "Profile",
-    href: "/dashboard/admin/profile",
+    href: "/admin/profile",
     icon: User,
   },
 ];
 
 const supportNavItems: NavItem[] = [
-  { title: "Settings", href: "/dashboard/settings", icon: Settings },
+  { title: "Settings", href: "/settings", icon: Settings },
   { title: "Help", href: "/help", icon: CircleHelp },
 ];
 
@@ -195,7 +195,7 @@ export function AdminSidebar({ user, className, ...props }: AdminSidebarProps) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <Link href="/dashboard/admin" onClick={handleNavClick}>
+              <Link href="/admin/dashboard" onClick={handleNavClick}>
                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
                   <Shield className="size-4" />
                 </div>

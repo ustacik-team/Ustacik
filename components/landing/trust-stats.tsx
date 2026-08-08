@@ -81,4 +81,4 @@ export function TrustStats({ stats }: TrustStatsProps) {
       </div>
     </section>
   );
-}
+}

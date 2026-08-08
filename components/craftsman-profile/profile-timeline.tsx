@@ -4,7 +4,8 @@ import {
   CheckCircle, 
   Briefcase, 
   MessageSquare,
-  UserPlus
+  UserPlus,
+  type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -60,7 +61,7 @@ export function ProfileTimeline({
       icon: MessageSquare,
       color: "bg-amber-500",
     } : null,
-  ].filter(Boolean) as { id: string; title: string; date: Date; icon: any; color: string }[];
+  ].filter(Boolean) as { id: string; title: string; date: Date; icon: LucideIcon; color: string }[];
 
   // Sort events chronologically (newest first)
   const sortedEvents = events.sort((a, b) => b.date.getTime() - a.date.getTime());
@@ -82,7 +83,7 @@ export function ProfileTimeline({
           {/* Timeline Vertical Line */}
           <div className="absolute left-0 top-2 bottom-2 w-[2px] bg-border/40" />
 
-          {sortedEvents.map((event, index) => {
+          {sortedEvents.map((event) => {
             const Icon = event.icon;
             return (
               <div key={event.id} className="relative pb-8 last:pb-0">

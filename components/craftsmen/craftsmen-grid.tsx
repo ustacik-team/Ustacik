@@ -23,6 +23,9 @@ interface CraftsmenGridProps {
     description?: string;
     buttonText?: string;
   };
+  displayMode?: "grid" | "list";
+  comparisonIds?: string[];
+  onToggleComparison?: (craftsmanId: string) => void;
 }
 
 export function CraftsmenGrid({
@@ -32,13 +35,17 @@ export function CraftsmenGrid({
   onResetFilters,
   className,
   emptyState = {},
+  displayMode = "grid",
+  comparisonIds = [],
+  onToggleComparison,
 }: CraftsmenGridProps) {
   // Show skeletons while loading
   if (loading) {
     return (
       <div
         className={cn(
-          "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6",
+          "grid grid-cols-1 gap-6",
+          displayMode === "grid" && "sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4",
           className
         )}
       >
@@ -67,12 +74,18 @@ export function CraftsmenGrid({
   return (
     <div
       className={cn(
-        "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6",
+        "grid grid-cols-1 gap-6",
+        displayMode === "grid" && "sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4",
         className
       )}
     >
       {craftsmen.map((craftsman) => (
-        <CraftsmanCard key={craftsman.id} {...craftsman} />
+        <CraftsmanCard
+          key={craftsman.id}
+          {...craftsman}
+          comparisonSelected={comparisonIds.includes(craftsman.id)}
+          onToggleComparison={onToggleComparison}
+        />
       ))}
     </div>
   );

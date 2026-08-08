@@ -5,9 +5,14 @@ import { CraftsmenHero } from "@/components/craftsmen/craftsmen-hero";
 import { CraftsmenSearch } from "@/components/craftsmen/craftsmen-search";
 import { CraftsmenFilters } from "@/components/craftsmen/craftsmen-filters";
 import { CraftsmenGrid } from "@/components/craftsmen/craftsmen-grid";
+import { CraftsmenHero } from "@/components/craftsmen/craftsmen-hero";
 import { CraftsmenPagination } from "@/components/craftsmen/craftsmen-pagination";
-import { Navbar } from "@/components/landing/navbar";
+import { RecentlyViewedCraftsmen } from "@/components/craftsmen/recently-viewed-craftsmen";
+import { CraftsmenSearch } from "@/components/craftsmen/craftsmen-search";
 import { Footer } from "@/components/landing/footer";
+import { Navbar } from "@/components/landing/navbar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { useSession } from "@/lib/auth-client";
 
 // ─── Types ──────────────────────────────────────────────────────────────
@@ -51,10 +56,8 @@ interface SubServiceOption {
   label: string;
 }
 
-// ─── Page Component ──────────────────────────────────────────────────────
-export default function CraftsmenPage() {
-  const { data: session, isPending } = useSession();
-  const user = session?.user || null;
+function persistDirectoryState(nextState: DirectoryState) {
+  if (typeof window === "undefined") return;
 
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState({
@@ -85,10 +88,10 @@ export default function CraftsmenPage() {
   const [isStatsLoading, setIsStatsLoading] = useState(true);
   const [subServiceOptions, setSubServiceOptions] = useState<SubServiceOption[]>([]);
 
-  const pageSize = 9;
-  const requestIdRef = useRef(0);
-  const searchContainerRef = useRef<HTMLDivElement>(null);
-  const shouldScrollAfterPageChange = useRef(false);
+export default function CraftsmenPage() {
+  const { data: session, isPending } = useSession();
+  const [directoryState, setDirectoryState] = useState(readInitialState);
+  const [comparisonIds, setComparisonIds] = useState<string[]>([]);
 
   // ─── Fetch hero stats once ───────────────────────────────────────────
   useEffect(() => {
@@ -228,27 +231,18 @@ export default function CraftsmenPage() {
     setCurrentPage(1);
   }, []);
 
-  const handleFilterChange = useCallback((newFilters: typeof filters) => {
-    setFilters(newFilters);
-    setCurrentPage(1);
-  }, []);
+  const updateDirectory = (nextState: DirectoryState) => {
+    setDirectoryState(nextState);
+    persistDirectoryState(nextState);
+  };
 
-  const handlePageChange = useCallback((page: number) => {
-    shouldScrollAfterPageChange.current = true;
-    setCurrentPage(page);
-  }, []);
+  const resetFilters = () => {
+    updateDirectory({ ...directoryState, query: "", filters: defaultFilters, page: 1 });
+  };
 
-  const resetFilters = useCallback(() => {
-    setFilters({
-      category: "all",
-      subService: "all",
-      region: "all",
-      verification: "all",
-      sort: "rating_desc",
-    });
-    setSearchQuery("");
-    setCurrentPage(1);
-  }, []);
+  const updateFilters = (filters: DirectoryFilters) => {
+    updateDirectory({ ...directoryState, filters, page: 1 });
+  };
 
   return (
     <div className="flex min-h-screen flex-col bg-(image:--find-craftsmen-bg) bg-cover bg-center bg-no-repeat bg-fixed">
@@ -262,24 +256,50 @@ export default function CraftsmenPage() {
             onFilterChange={handleFilterChange}
             subServiceOptions={subServiceOptions}
           />
+          <CraftsmenFilters filters={directoryState.filters} onFilterChange={updateFilters} subServiceOptions={subServiceOptions} />
+
+          <div className="flex flex-col gap-3 rounded-xl border border-border/70 bg-card/70 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+            <div aria-live="polite" className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+              <span><strong className="text-foreground">{filteredCraftsmen.length}</strong> craftsmen found</span>
+              {activeFilterCount > 0 && <Badge variant="secondary">{activeFilterCount} active {activeFilterCount === 1 ? "filter" : "filters"}</Badge>}
+              {activeFilterCount > 0 && <Button variant="ghost" size="sm" className="h-7 gap-1" onClick={resetFilters}><RotateCcw className="size-3.5" />Clear</Button>}
+            </div>
+            <div className="flex items-center gap-1 self-start rounded-lg border bg-background p-1 sm:self-auto">
+              <Button type="button" size="icon-sm" variant={directoryState.displayMode === "grid" ? "secondary" : "ghost"} aria-label="Use grid view" aria-pressed={directoryState.displayMode === "grid"} onClick={() => updateDirectory({ ...directoryState, displayMode: "grid" })}><Grid2X2 className="size-4" /></Button>
+              <Button type="button" size="icon-sm" variant={directoryState.displayMode === "list" ? "secondary" : "ghost"} aria-label="Use list view" aria-pressed={directoryState.displayMode === "list"} onClick={() => updateDirectory({ ...directoryState, displayMode: "list" })}><List className="size-4" /></Button>
+            </div>
+          </div>
+
           <CraftsmenGrid
-            craftsmen={state.items}
-            loading={state.status === "loading"}
+            craftsmen={visibleCraftsmen}
             onResetFilters={resetFilters}
+            displayMode={directoryState.displayMode}
+            comparisonIds={comparisonIds}
+            onToggleComparison={toggleComparison}
             emptyState={{
               title: "No craftsmen found",
-              description: "Try adjusting your search or filters.",
-              buttonText: "Reset Filters",
+              description: "Try removing a filter or search for a broader service.",
+              buttonText: "Clear filters",
             }}
           />
-          <CraftsmenPagination
-            currentPage={currentPage}
-            totalPages={state.totalPages}
-            onPageChange={handlePageChange}
-            scrollToTop={false}
-          />
-        </div>
-      </div>
+          {filteredCraftsmen.length > 0 && (
+            <CraftsmenPagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={(page) => {
+                updateDirectory({ ...directoryState, page });
+                document.getElementById("directory-heading")?.scrollIntoView({ behavior: "smooth", block: "start" });
+              }}
+              scrollToTop={false}
+            />
+          )}
+        </section>
+        <ComparisonTray
+          craftsmen={comparisonCraftsmen as Craftsman[]}
+          onRemove={toggleComparison}
+          onClear={() => setComparisonIds([])}
+        />
+      </main>
       <Footer />
     </div>
   );

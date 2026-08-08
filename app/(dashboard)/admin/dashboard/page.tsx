@@ -15,15 +15,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { MetricChart } from "@/components/dashboard/metric-chart";
 import {
-  ArrowUpRight,
-  DollarSign,
   Users,
   Briefcase,
   Activity,
   UserCheck,
-  UserX,
-  Clock,
   Star,
   TrendingUp,
   ShieldCheck,
@@ -288,7 +285,8 @@ export default function AdminDashboardPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="h-[200px] w-full rounded-md bg-muted/30 flex items-center justify-center text-muted-foreground text-sm">
+          <MetricChart label="Verified profiles this month" value="42" change="+18.4%" bars={[34, 48, 41, 62, 57, 69, 78, 72, 86, 94]} tone="violet" />
+          <div className="hidden h-[200px] w-full rounded-md bg-muted/30 flex items-center justify-center text-muted-foreground text-sm">
             📊 BarChart (dummy) – Replace with real chart library
           </div>
         </CardContent>

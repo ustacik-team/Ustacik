@@ -58,7 +58,7 @@ export function UserDropdown({ user }: UserDropdownProps) {
 function AdminItem() {
   return (
     <DropdownMenuItem asChild>
-      <Link href="/admin">
+      <Link href="/admin/dashboard">
         <ShieldIcon className="size-4" /> <span>Admin</span>
       </Link>
     </DropdownMenuItem>

@@ -16,6 +16,7 @@ import { ReviewSummary } from "@/components/craftsman-profile/review-summary";
 import { Reviews } from "@/components/craftsman-profile/reviews";
 import { RelatedCraftsmen } from "@/components/craftsman-profile/related-craftsmen";
 import { SafetyNotice } from "@/components/craftsman-profile/safety-notice";
+import { RecentViewTracker } from "@/components/craftsmen/recent-view-tracker";
 
 export default async function CraftsmanProfilePage({
   params,

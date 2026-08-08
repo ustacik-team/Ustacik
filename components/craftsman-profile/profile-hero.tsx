@@ -77,6 +77,24 @@ export function ProfileHero({ craftsman }: ProfileHeroProps) {
     },
   };
   const currentLevel = levelConfig[verificationLevel];
+  const trustProgress = verificationLevel === "APPROVED" ? 100 : verificationLevel === "VERIFIED" ? 66 : 33;
+  const trustChecks = [
+    {
+      label: "Profile published",
+      detail: "Service details and contact options are available",
+      complete: true,
+    },
+    {
+      label: "Identity & trade review",
+      detail: verificationLevel === "REGISTERED" ? "Review is still in progress" : "Platform review completed",
+      complete: verificationLevel !== "REGISTERED",
+    },
+    {
+      label: "Community record",
+      detail: reviewCount > 0 ? reviewCount + " customer reviews on this profile" : "Building a review history",
+      complete: reviewCount > 0,
+    },
+  ];
 
   return (
     <section className="relative overflow-hidden">
@@ -193,7 +211,7 @@ export function ProfileHero({ craftsman }: ProfileHeroProps) {
           </Card>
 
           {/* ─── RIGHT CARD: QUICK TRUST CHECK ──────────────────────── */}
-          <Card className="lg:col-span-1 border-border/40 bg-card/60 backdrop-blur-sm shadow-sm transition-all duration-300 hover:shadow-md">
+          <Card className="lg:col-span-1 overflow-hidden border-border/40 bg-card/60 backdrop-blur-sm shadow-sm transition-all duration-300 hover:shadow-md">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 border-b border-border/20">
               <CardTitle className="flex items-center gap-2 text-lg font-bold">
                 <ShieldCheck className="h-5 w-5 text-primary" />
@@ -204,39 +222,28 @@ export function ProfileHero({ craftsman }: ProfileHeroProps) {
               </Badge>
             </CardHeader>
 
-            <CardContent className="pt-4 pb-4 space-y-3">
+            <CardContent className="space-y-4 pb-4 pt-4">
+              <div className="rounded-xl border border-primary/10 bg-primary/[0.035] p-3">
+                <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  <span>Trust progress</span>
+                  <span className="text-primary">{trustProgress}%</span>
+                </div>
+                <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
+                  <div className="h-full rounded-full bg-gradient-to-r from-primary to-sky-400 transition-all duration-500" style={{ width: trustProgress + "%" }} />
+                </div>
+              </div>
               <div className="space-y-3">
-                <div className="flex items-start gap-3">
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-green-500/10 text-green-500">
-                    <CheckCircle2 className="h-4 w-4" />
+                {trustChecks.map((check) => (
+                  <div key={check.label} className="flex items-start gap-3">
+                    <div className={cn("flex h-8 w-8 shrink-0 items-center justify-center rounded-full", check.complete ? "bg-emerald-500/10 text-emerald-500" : "bg-muted text-muted-foreground")}>
+                      <CheckCircle2 className="h-4 w-4" />
+                    </div>
+                    <div className="space-y-0.5">
+                      <p className="text-sm font-medium leading-none">{check.label}</p>
+                      <p className="text-xs text-muted-foreground">{check.detail}</p>
+                    </div>
                   </div>
-                  <div className="space-y-0.5">
-                    <p className="text-sm font-medium leading-none">Identity Verified</p>
-                    <p className="text-xs text-muted-foreground">Government ID confirmed</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-green-500/10 text-green-500">
-                    <CheckCircle2 className="h-4 w-4" />
-                  </div>
-                  <div className="space-y-0.5">
-                    <p className="text-sm font-medium leading-none">Phone Verified</p>
-                    <p className="text-xs text-muted-foreground">Active and reachable</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-500/10 text-amber-500">
-                    <Star className="h-4 w-4 fill-amber-500" />
-                  </div>
-                  <div className="space-y-0.5">
-                    <p className="text-sm font-medium leading-none">Community Trusted</p>
-                    <p className="text-xs text-muted-foreground">
-                      {reviewCount} verified reviews from real customers
-                    </p>
-                  </div>
-                </div>
+                ))}
               </div>
 
               {/* ─── BOTTOM CTA on Trust Card ──────────────────── */}
