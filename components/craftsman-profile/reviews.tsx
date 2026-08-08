@@ -1,8 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { Star, User, Calendar, ImageIcon } from "lucide-react";
+import { Star, User, Calendar } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 

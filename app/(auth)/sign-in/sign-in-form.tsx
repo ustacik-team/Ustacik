@@ -46,7 +46,10 @@ export function SignInForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const redirect = searchParams.get("redirect");
+  const requestedRedirect = searchParams.get("redirect");
+  const redirect = requestedRedirect?.startsWith("/") && !requestedRedirect.startsWith("//")
+    ? requestedRedirect
+    : "/dashboard";
 
   const form = useForm<SignInValues>({
     resolver: zodResolver(signInSchema),
@@ -73,7 +76,7 @@ export function SignInForm() {
       setError(error.message || "Something went wrong");
     } else {
       toast.success("Signed in successfully");
-      router.push(redirect ?? "/dashboard");
+      router.push(redirect);
     }
   }
 
@@ -83,7 +86,7 @@ export function SignInForm() {
 
     const { error } = await authClient.signIn.social({
       provider,
-      callbackURL: redirect ?? "/dashboard",
+      callbackURL: redirect,
     });
 
     setLoading(false);

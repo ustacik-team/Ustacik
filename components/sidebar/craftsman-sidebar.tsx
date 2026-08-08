@@ -56,7 +56,7 @@ interface NavItem {
 const mainNavItems: NavItem[] = [
   {
     title: "Dashboard",
-    href: "/dashboard/craftsman",
+    href: "/craftsman/dashboard",
     icon: LayoutDashboard,
   },
   {
@@ -66,49 +66,49 @@ const mainNavItems: NavItem[] = [
   },
   {
     title: "Job Requests",
-    href: "/dashboard/craftsman/jobs",
+    href: "/craftsman/jobs",
     icon: BriefcaseBusiness,
     todoComment:
       "Display jobs assigned to this craftsman. Filter Job where craftsman.userId = session.user.id. Show Pending, Accepted and Completed jobs.",
   },
   {
     title: "My Services",
-    href: "/dashboard/craftsman/services",
+    href: "/craftsman/services",
     icon: Hammer,
     todoComment:
       "Manage categories, sub-services and pricing from CraftsmanCategory, CraftsmanSubService and CraftsmanProfile.",
   },
   {
     title: "Portfolio",
-    href: "/dashboard/craftsman/portfolio",
+    href: "/craftsman/portfolio",
     icon: Heart,
     todoComment:
       "Manage WorkPhoto uploads that appear on the public craftsman profile.",
   },
   {
     title: "Verification",
-    href: "/dashboard/craftsman/verification",
+    href: "/craftsman/verification",
     icon: Shield,
     todoComment:
       "Show current verification level (Registered, Verified, Approved), verification history and allow submission of required verification documents.",
   },
   {
     title: "Reviews",
-    href: "/dashboard/craftsman/reviews",
+    href: "/craftsman/reviews",
     icon: MessageSquareQuote,
     todoComment:
       "View customer reviews and reply once per review. Uses Review and ReviewReply tables.",
   },
   {
     title: "Notifications",
-    href: "/dashboard/craftsman/notifications",
+    href: "/craftsman/notifications",
     icon: Bell,
     todoComment:
       "Show notifications where userId = session.user.id.",
   },
   {
     title: "Profile",
-    href: "/dashboard/craftsman/profile",
+    href: "/craftsman/profile",
     icon: User,
     todoComment:
       "Manage business profile, bio, business name, pricing, phone, region and profile photo.",
@@ -116,7 +116,7 @@ const mainNavItems: NavItem[] = [
 ];
 
 const supportNavItems: NavItem[] = [
-  { title: "Settings", href: "/dashboard/settings", icon: Settings },
+  { title: "Settings", href: "/settings", icon: Settings },
   { title: "Help", href: "/help", icon: CircleHelp },
 ];
 
@@ -142,7 +142,7 @@ export function CraftsmanSidebar({ user, className, ...props }: CraftsmanSidebar
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <Link href="/dashboard/craftsman" onClick={handleNavClick}>
+              <Link href="/craftsman/dashboard" onClick={handleNavClick}>
                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
                   <Shield className="size-4" />
                 </div>

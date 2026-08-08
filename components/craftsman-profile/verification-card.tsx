@@ -106,6 +106,8 @@ export function VerificationCard({
         day: "numeric",
       })
     : null;
+  const verifiedCount = checklistItems.filter((item) => item.isVerified).length;
+  const verificationProgress = Math.round((verifiedCount / checklistItems.length) * 100);
 
   return (
     <TooltipProvider delayDuration={200}>
@@ -122,6 +124,15 @@ export function VerificationCard({
         </CardHeader>
 
         <CardContent className="pt-4 pb-4 space-y-3">
+          <div className="rounded-xl border border-primary/10 bg-primary/[0.035] p-3">
+            <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              <span>Verification checklist</span>
+              <span className="text-primary">{verifiedCount} of {checklistItems.length} complete</span>
+            </div>
+            <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
+              <div className="h-full rounded-full bg-gradient-to-r from-primary to-emerald-400" style={{ width: verificationProgress + "%" }} />
+            </div>
+          </div>
           <div className="space-y-1.5">
             {checklistItems.map((item) => (
               <div

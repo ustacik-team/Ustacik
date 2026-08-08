@@ -19,7 +19,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { XIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 
 const updateProfileSchema = z.object({
@@ -73,7 +73,7 @@ export function ProfileDetailsForm({ user }: ProfileDetailsFormProps) {
     }
   }
 
-  const imagePreview = form.watch("image");
+  const imagePreview = useWatch({ control: form.control, name: "image" });
 
   const loading = form.formState.isSubmitting;
 

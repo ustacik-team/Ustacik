@@ -18,6 +18,7 @@ import { ReviewSummary } from "@/components/craftsman-profile/review-summary";
 import { Reviews } from "@/components/craftsman-profile/reviews";
 import { RelatedCraftsmen } from "@/components/craftsman-profile/related-craftsmen";
 import { SafetyNotice } from "@/components/craftsman-profile/safety-notice";
+import { RecentViewTracker } from "@/components/craftsmen/recent-view-tracker";
 
 // ✅ Import the basic array
 import { allCraftsmen, Craftsman } from "@/lib/mock-craftsmen";
@@ -160,6 +161,7 @@ export default async function CraftsmanProfilePage({
   return (
     <div className="flex min-h-screen flex-col bg-(image:--find-craftsmen-bg) bg-cover bg-center bg-no-repeat bg-fixed">
       <Navbar user={user} />
+      <RecentViewTracker craftsman={basicCraftsman} />
 
       <main className="flex-1">
         <div className="container mx-auto px-4 md:px-6 pt-4 pb-12 space-y-8">
