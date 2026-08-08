@@ -1,121 +1,192 @@
 # ustacik.com
 
-A trusted craftsman marketplace for Northern Cyprus, developed during the **Ata Bilişim Teknolojileri Internship Program**.
+A trusted craftsman platform for Northern Cyprus, built as part of the **Ata Bilişim Teknolojileri** internship program.
 
 ---
 
 # 📖 About
 
-**ustacik.com** connects homeowners with trusted craftsmen across Northern Cyprus.
+**ustacik.com** connects customers with trusted craftsmen across Northern Cyprus (Nicosia, Kyrenia, Famagusta, Larnaca, Morphou, Güzelyurt, and more).
 
-Unlike traditional directories or social media groups, the platform focuses on **trust** through manual verification, verified customer reviews, transparent profiles, and a structured job request system.
-
-This project is being developed over a **2-week internship** by a team of interns working together to build a production-ready platform.
+The platform aims to bridge the trust gap between customers and service providers through manual admin verification, verified multi-metric reviews, and transparent craftsman profiles.
 
 ---
 
 # 🎯 Project Objectives
 
-- Connect customers with skilled craftsmen.
-- Build a transparent trust and verification system.
-- Allow customers to submit job requests.
-- Enable craftsmen to manage their professional profiles.
-- Provide multilingual support (English & Turkish).
-- Deliver a fast, responsive, mobile-first experience.
+- **Connect Customers & Craftsmen**: Enable seamless discovery and job requests for local home and trade services.
+- **Verification System**: Implement a 3-tier manual verification process (Registered, Verified, Approved).
+- **Multidimensional Reviews**: Transparent feedback based on punctuality, workmanship, price honesty, and communication.
+- **Role-Based Experience**: Dedicated dashboards for Customers, Craftsmen, and Administrators.
+- **Mobile-First & Modern UI**: Built with a responsive, accessible, and high-performance design.
 
 ---
 
 # ✨ Core Features
 
-## Public Platform
-
-- Landing page
-- Craftsman directory
-- Advanced search & filtering
-- Individual craftsman profiles
-- Job request system
-- SEO-optimized pages
-- English & Turkish localization
-
-## Craftsman Portal
-
-- Dashboard
-- Profile management
-- Work photo management
-- Job management
-- Verification status
-- Reviews
-
-## Admin Portal
-
-- User management
-- Craftsman verification
-- Category management
-- Region management
-- Job management
-- Review moderation
-- Platform analytics
+- 🔍 **Craftsman Directory**: Search and filter craftsmen by name, business, category, sub-service, region, verification level, and rating.
+- 🏷️ **Categories & Sub-Services**: Detailed categorization spanning Plumbing, Electrical, Painting, Carpentry, HVAC, Gardening, Appliances, Aluminium/Glass, and more.
+- 🛡️ **3-Tier Verification**: Admin-managed verification badges backed by document and reference checks.
+- ⭐ **Multidimensional Review Engine**: Customer reviews covering 4 core metrics with photo attachments and craftsman reply capabilities.
+- 📊 **Role-Based Dashboards**:
+  - **Admin Dashboard**: Verification queue management, platform growth statistics, user/craftsman metrics, and activity logs.
+  - **Craftsman Dashboard**: Work requests overview, completed jobs tracking, profile management, and revenue stats.
+  - **Customer Dashboard**: Job request tracking, past reviews, and account settings.
+- 🔐 **Authentication & Security**: Multi-session authentication via Better Auth supporting Email/Password (with password strength enforcement) and Google OAuth.
+- ⚡ **Performance Optimized**: Cached ISR queries using Next.js `unstable_cache` for featured craftsmen and dynamic API pagination.
 
 ---
 
-# 🔒 Trust System
+## 🏗 Tech Stack
 
-Every craftsman belongs to one of three verification levels.
+### Frontend & Application Framework
 
-| Level | Requirements |
-|--------|--------------|
-| **Registered** | Phone verification, category selection, and region |
-| **Verified** | ID verification, previous customer references, and work photos |
-| **Approved** | Business registration and workmanship guarantee |
+- **Framework**: [Next.js 16](https://nextjs.org/) (App Router, Server Components & Actions)
+- **UI & Styling**: [React 19](https://react.dev/), [Tailwind CSS v4](https://tailwindcss.com/), [Shadcn UI](https://ui.shadcn.com/), [Radix UI](https://www.radix-ui.com/), [Base UI](https://base-ui.com/)
+- **Icons & Theme**: [Lucide React](https://lucide.dev/), [React Icons](https://react-icons.github.io/react-icons/), `next-themes` (Dark/Light mode)
+- **Forms & Validation**: [React Hook Form](https://react-hook-form.com/), [Zod](https://zod.dev/), `@hookform/resolvers`
 
-Verification is carried out manually by administrators to maintain trust and authenticity across the platform.
+### Backend & Database
+
+- **API**: Next.js App Router API Handlers (`app/api/`)
+- **Database**: PostgreSQL hosted on [Neon](https://neon.tech/)
+- **ORM**: [Prisma 7](https://www.prisma.io/) with `@prisma/adapter-neon` serverless driver
+- **Authentication**: [Better Auth](https://www.better-auth.com/) with Prisma adapter & plugins (`admin`, `multiSession`, `nextCookies`)
+
+---
+
+## 🔒 Trust & Verification Model
+
+Every craftsman profile is categorized under one of three verification levels managed manually by administrators:
+
+| Level          | Badge    | Description                                                                                                          |
+| :------------- | :------- | :------------------------------------------------------------------------------------------------------------------- |
+| **REGISTERED** | Standard | Default state upon account creation. Phone & basic profile provided.                                                 |
+| **VERIFIED**   | Verified | Identity & phone number verified by admin.                                                                           |
+| **APPROVED**   | Premium  | Full background check completed: Business registration, work photos, references, and workmanship guarantee verified. |
 
 ---
 
 # ⭐ Review System
 
-Only customers who have completed a job through the platform can leave reviews.
+Reviews are restricted to completed jobs to maintain integrity.
 
-Each review includes:
+Each review measures four specific criteria on a 1–5 scale:
 
-- Punctuality
-- Workmanship
-- Price Honesty
-- Communication
-- Optional comment
-- Optional photos
+1. ⏰ **Punctuality**: Timeliness and schedule adherence.
+2. 🔨 **Workmanship**: Quality of service and craftsmanship.
+3. 💰 **Price Honesty**: Transparency and adherence to quoted pricing.
+4. 💬 **Communication**: Clarity, responsiveness, and professionalism.
 
-Craftsmen may publish one public reply to each review.
+Customers can attach photo evidence, and craftsmen have the ability to post official replies to reviews.
 
 ---
 
-# 🛠 Tech Stack
+## 📁 Directory Structure
 
-## Frontend
+```text
+ustacik/
+├── app/
+│   ├── (auth)/                # Authentication routes (sign-in, sign-up)
+│   ├── (dashboard)/           # Protected dashboard routes
+│   │   ├── admin/             # Admin management & queue dashboard
+│   │   ├── craftsman/         # Craftsman job & profile dashboard
+│   │   ├── customer/          # Customer job requests & profile dashboard
+│   │   └── profile/           # Unified user account settings
+│   ├── (public)/              # Public landing pages
+│   │   ├── become-craftsman/  # Craftsman onboarding & application page
+│   │   ├── craftsmen/[id]/    # Detailed craftsman profile page
+│   │   └── find-craftsmen/    # Search & filter directory page
+│   └── api/                   # REST API routes
+│       ├── auth/[...all]/     # Better Auth API endpoints
+│       ├── craftsmen/         # Craftsman directory & detail APIs
+│       ├── featured-craftsmen/# Featured top-rated craftsmen API
+│       └── sub-services/      # Sub-services lookup API
+├── components/                # Modular React components
+│   ├── become-craftsman/      # Onboarding components
+│   ├── craftsman-profile/     # Profile page detail components
+│   ├── craftsmen/             # Directory cards, filters, and search
+│   ├── landing/               # Homepage hero, stats, testimonials, footer
+│   ├── sidebar/               # Navigation sidebars
+│   └── ui/                    # Base UI / Shadcn design primitives
+├── lib/                       # Core utilities & server clients
+│   ├── api/                   # Response & error handling helpers
+│   ├── auth.ts                # Better Auth server configuration
+│   ├── auth-client.ts         # Better Auth client hooks
+│   ├── get-session.ts         # Server-side cached session retriever
+│   └── prisma.ts              # Neon-adapted Prisma Client instance
+├── prisma/
+│   └── schema.prisma          # Database models & enums
+└── public/                    # Static assets & public media
+```
 
-- Next.js 15
-- React
-- TypeScript
-- Tailwind CSS
-- shadcn/ui
-- React Hook Form
-- Zod
+---
 
-## Backend
+## 🚀 Getting Started
 
-- Next.js App Router
-- Route Handlers
-- Prisma ORM
-- PostgreSQL (Neon)
+### Prerequisites
 
-## Authentication
+- **Node.js**: v18.x or higher
+- **npm**: v9.x or higher
+- **PostgreSQL Database**: Neon serverless PostgreSQL instance (or local PostgreSQL)
 
-- Better Auth
+### 1. Installation
 
-## Development
+Clone the repository and install dependencies:
 
-- Git
-- GitHub
+```bash
+git clone https://github.com/ustacik-team/Ustacik.git
+cd ustacik
+npm install
+```
+
+### 2. Environment Variables
+
+Create a `.env` file in the root directory:
+
+```env
+# Database
+DATABASE_URL="postgresql://user:password@ep-example.neon.tech/ustacik?sslmode=require"
+
+# Better Auth Configuration
+BETTER_AUTH_SECRET="your-super-secret-key-here"
+NEXT_APP_URL="http://localhost:3000"
+
+# OAuth Providers (Optional)
+GOOGLE_CLIENT_ID="your-google-client-id"
+GOOGLE_CLIENT_SECRET="your-google-client-secret"
+```
+
+### 3. Database Setup
+
+Generate the Prisma client and push the schema to your database:
+
+```bash
+npx prisma generate
+npx prisma db push
+```
+
+### 4. Running the Development Server
+
+Start the Next.js development server:
+
+```bash
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+---
+
+## 📡 API Overview
+
+| Endpoint                  | Method     | Description                                                                                         |
+| :------------------------ | :--------- | :-------------------------------------------------------------------------------------------------- |
+| `/api/auth/[...all]`      | GET / POST | Better Auth endpoints (sign-in, sign-up, sign-out, session).                                        |
+| `/api/craftsmen`          | GET        | List craftsmen with pagination, search, category, subService, region, verification, & sort filters. |
+| `/api/craftsmen/[id]`     | GET        | Fetch full profile, reviews, photos, verification records, and related craftsmen for a specific ID. |
+| `/api/featured-craftsmen` | GET        | Fetch top-rated, approved craftsmen for landing page highlights.                                    |
+| `/api/sub-services`       | GET        | Retrieve sub-services mapped to their parent categories.                                            |
 
 ---
 
@@ -174,7 +245,6 @@ GOOGLE_CLIENT_SECRET=
 npx prisma generate
 ```
 
-
 ## 6. Start the development server
 
 Using npm:
@@ -199,14 +269,14 @@ http://localhost:3000
 
 # 📂 Useful Commands
 
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Start the development server |
-| `npm run build` | Build the application |
-| `npm run start` | Run the production build |
-| `npm run lint` | Run ESLint |
-| `npx prisma generate` | Generate Prisma Client |
-| `npx prisma studio` | Open Prisma Studio |
+| Command               | Description                  |
+| --------------------- | ---------------------------- |
+| `npm run dev`         | Start the development server |
+| `npm run build`       | Build the application        |
+| `npm run start`       | Run the production build     |
+| `npm run lint`        | Run ESLint                   |
+| `npx prisma generate` | Generate Prisma Client       |
+| `npx prisma studio`   | Open Prisma Studio           |
 
 ---
 
@@ -241,31 +311,27 @@ The project follows a Git Flow–inspired workflow.
 main
 │
 develop
-├── feature/auth
-├── feature/frontend
-├── feature/backend
-├── feature/jobs
-├── feature/admin
-├── feature/reviews
-└── feature/...
+  ├── feature/auth
+  ├── feature/backend
+  ├── feature/frontend
+  ├── feature/admin
+  ├── feature/reviews
+  └── feature/jobs
 ```
 
-### Branch Rules
-
-- Always branch from **develop**
-- Create one branch per feature or bug fix
-- Open Pull Requests into **develop**
-- Only maintainers merge into **main**
-
-> ⚠️ **Never push directly to `main`.**
+> **Please create a new branch from `develop` for every major feature or bug fix to keep development organized.**
 
 ---
 
-# 📝 Commit Convention
+## 📌 Development Guidelines
 
-Use conventional commits whenever possible.
+- Keep commits small and meaningful.
+- Use descriptive commit messages following Conventional Commits.
+- Open a Pull Request for every feature.
+- Test your changes before opening a Pull Request (`npm run lint`, `npm run build`).
+- Follow the agreed project architecture.
 
-Examples:
+### 📝 Commit Message Convention
 
 ```text
 feat: add craftsman profile page
@@ -308,4 +374,4 @@ To keep the project consistent:
 
 # 📄 License
 
-This repository was created as part of the **Ata Bilişim Teknolojileri Internship Program** for the development of **ustacik.com**.
+This repository is created for the Ata Bilişim Teknolojileri internship project.

@@ -1,4 +1,6 @@
+import { redirect } from "next/navigation";
 import { getServerSession } from "@/lib/get-session";
+import { prisma } from "@/lib/prisma";
 
 // ─── Global Components ──────────────────────────────────────────────────
 import { Navbar } from "@/components/landing/navbar";
@@ -12,14 +14,51 @@ import { ApplicationForm } from "@/components/become-craftsman/application-form"
 import { HowItWorks } from "@/components/become-craftsman/how-it-works";
 
 // ─── Server Page ─────────────────────────────────────────────────────────
-export default async function BecomeCraftsmanPage() {
+export default async function BecomeCraftsmanPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ reapply?: string }>;
+}) {
   const session = await getServerSession();
   const user = session?.user || null;
+  const params = await searchParams;
+
+  if (user?.role === "CRAFTSMAN") {
+    redirect("/craftsman/dashboard");
+  }
+
+  if (user?.role === "ADMIN") {
+    redirect("/admin/dashboard");
+  }
+
+  let hasApplication = false;
+  if (user) {
+    const latestApp = await prisma.craftsmanApplication.findFirst({
+      where: { userId: user.id },
+      orderBy: { createdAt: "desc" },
+    });
+
+    if (latestApp) {
+      hasApplication = true;
+    }
+
+    if (latestApp?.status === "PENDING") {
+      redirect("/application-status");
+    }
+
+    if (latestApp?.status === "APPROVED") {
+      redirect("/craftsman/dashboard");
+    }
+
+    if (latestApp?.status === "REJECTED" && params.reapply !== "true") {
+      redirect("/application-status");
+    }
+  }
 
   return (
     <div className="flex min-h-screen flex-col bg-(image:--find-craftsmen-bg) bg-cover bg-center bg-no-repeat bg-fixed">
       {/* 1. Navbar */}
-      <Navbar user={user} />
+      <Navbar user={user} hasApplication={hasApplication} />
 
       {/* 2. Main Content Area */}
       <main className="flex-1">

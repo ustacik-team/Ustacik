@@ -1,11 +1,9 @@
 import { getServerSession } from "@/lib/get-session";
+import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 
-// ─── Landing Components ──────────────────────────────────────────────
 import { Navbar } from "@/components/landing/navbar";
 import { Footer } from "@/components/landing/footer";
-
-// ─── Profile Components ──────────────────────────────────────────────
 import { Breadcrumb } from "@/components/craftsman-profile/breadcrumb";
 import { ProfileHero } from "@/components/craftsman-profile/profile-hero";
 import { AboutCraftsman } from "@/components/craftsman-profile/about";
@@ -19,119 +17,6 @@ import { Reviews } from "@/components/craftsman-profile/reviews";
 import { RelatedCraftsmen } from "@/components/craftsman-profile/related-craftsmen";
 import { SafetyNotice } from "@/components/craftsman-profile/safety-notice";
 
-// ✅ Import the basic array
-import { allCraftsmen, Craftsman } from "@/lib/mock-craftsmen";
-
-// ─── Helper: Map basic craftsman to full profile structure ────────────
-function buildFullProfile(basic: Craftsman) {
-  // Deterministic pseudo-random derived from the id
-  const seed = Array.from(basic.id).reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
-  const yearsOfExperience = (seed % 15) + 3;
-
-  // Generate dummy reviews to match reviewCount
-  const generatedReviews = Array.from({ length: basic.reviewCount }).map(() => ({
-    rating: basic.rating,
-  }));
-
-  // Deterministic dates (base date: 2024-01-01)
-  const baseDate = new Date("2024-01-01").getTime();
-  const verifiedAtDate = new Date(baseDate + seed * 86400000 * 7); // 7 days per seed
-  const reviewDateOffset = seed * 86400000 * 2; // 2 days per seed
-
-  // Build the complex object expected by the components
-  return {
-    id: basic.id,
-    user: {
-      name: basic.name,
-      image: basic.image,
-      phone: "+905338887766", // Mock phone
-    },
-    businessName: basic.businessName,
-    bio: `Experienced ${basic.category} professional with over ${yearsOfExperience} years of hands-on experience. Dedicated to providing high-quality service to homes and businesses across Northern Cyprus.`,
-    region: { name: basic.region },
-    categories: [{ name: basic.category }],
-    verificationLevel: basic.verificationLevel,
-    totalJobsCompleted: basic.jobsCompleted,
-    priceRangeMin: basic.priceMin,
-    priceRangeMax: basic.priceMax,
-    workmanshipGuarantee: basic.verificationLevel === "APPROVED", // Example logic
-    reviews: generatedReviews,
-    yearsOfExperience,
-    businessRegistrationNumber: `TRNC-BIZ-202${seed % 4}-${seed * 7 % 100000}`,
-    serviceCategories: [
-      {
-        name: basic.category,
-        subServices: basic.subServices,
-      },
-    ],
-    photos: [
-      { id: "1", imageUrl: "/images/work-1.jpg", uploadDate: "2024-01-15" },
-      { id: "2", imageUrl: "/images/work-2.jpg", uploadDate: "2024-02-20" },
-      { id: "3", imageUrl: "/images/work-3.jpg", uploadDate: "2024-03-10" },
-      { id: "4", imageUrl: "/images/work-4.jpg", uploadDate: "2024-04-05" },
-    ],
-    verification: {
-      verificationLevel: basic.verificationLevel,
-      phoneVerified: true,
-      idVerified: true,
-      referencesVerified: true,
-      workPhotosVerified: true,
-      businessRegistrationVerified: basic.verificationLevel !== "REGISTERED",
-      guaranteeVerified: basic.verificationLevel === "APPROVED",
-      verifiedBy: { name: "Ustacik Trust Team" },
-      verifiedAt: verifiedAtDate.toISOString(),
-    },
-    reviewSummary: {
-      totalReviews: basic.reviewCount,
-      averageRating: basic.rating,
-      punctualityAvg: Math.min(5, basic.rating + 0.1),
-      workmanshipAvg: basic.rating,
-      priceHonestyAvg: Math.max(3, basic.rating - 0.1),
-      communicationAvg: Math.min(5, basic.rating + 0.2),
-    },
-    customerReviews: Array.from({ length: Math.min(3, basic.reviewCount) }).map((_, i) => {
-      const reviewDate = new Date(baseDate + reviewDateOffset + i * 86400000 * 3);
-      const replyDate = new Date(reviewDate.getTime() + 86400000);
-      return {
-        id: `r${i}`,
-        customer: { name: `Customer ${i + 1}`, image: null },
-        createdAt: reviewDate.toISOString(),
-        rating: basic.rating,
-        punctuality: Math.min(5, basic.rating + 0.1),
-        workmanship: basic.rating,
-        priceHonesty: Math.max(3, basic.rating - 0.1),
-        communication: Math.min(5, basic.rating + 0.2),
-        comment: `Great experience! Very professional ${basic.category} work.`,
-        photos: [],
-        reply: i === 0 ? {
-          id: `rep${i}`,
-          reply: "Thank you! We appreciate your feedback.",
-          createdAt: replyDate.toISOString(),
-        } : null,
-      };
-    }),
-    relatedCraftsmen: allCraftsmen
-      .filter((c) => c.id !== basic.id && c.category === basic.category)
-      .slice(0, 3)
-      .map((c) => ({
-        id: c.id,
-        name: c.name,
-        businessName: c.businessName,
-        image: c.image,
-        verificationLevel: c.verificationLevel,
-        rating: c.rating,
-        priceMin: c.priceMin,
-        priceMax: c.priceMax,
-        reviewCount: c.reviewCount,
-        category: c.category,
-        subServices: c.subServices,
-        region: c.region,
-        jobsCompleted: c.jobsCompleted,
-      })),
-  };
-}
-
-// ─── Page Component ──────────────────────────────────────────────────
 export default async function CraftsmanProfilePage({
   params,
 }: {
@@ -141,32 +26,225 @@ export default async function CraftsmanProfilePage({
   const session = await getServerSession();
   const user = session?.user || null;
 
-  // Find the basic craftsman
-  const basicCraftsman = allCraftsmen.find((c) => c.id === id);
+  const profile = await prisma.craftsmanProfile.findUnique({
+    where: { id },
+    include: {
+      user: { select: { name: true, image: true, phone: true } },
+      region: { select: { name: true } },
+      categories: {
+        include: { category: { select: { name: true } } },
+        take: 1,
+      },
+      subServices: {
+        include: {
+          subService: {
+            select: { name: true, category: { select: { name: true } } },
+          },
+        },
+      },
+      photos: {
+        select: { id: true, imageUrl: true, createdAt: true },
+        orderBy: { createdAt: "desc" },
+      },
+      verificationRecords: {
+        orderBy: { verifiedAt: "desc" },
+        take: 1,
+        include: { verifier: { select: { name: true } } },
+      },
+      reviews: {
+        include: {
+          customer: { select: { name: true, image: true } },
+          reply: true,
+          photos: { select: { id: true, imageUrl: true } },
+        },
+        orderBy: { createdAt: "desc" },
+      },
+    },
+  });
 
-  // Handle 404
-  if (!basicCraftsman) {
+  if (!profile) {
     notFound();
   }
 
-  // Map the data to the full profile structure
-  const craftsman = buildFullProfile(basicCraftsman);
+  const reviews = profile.reviews;
+  const reviewCount = reviews.length;
+  let averageRating: number | null = null;
+  let punctualityAvg = 0,
+    workmanshipAvg = 0,
+    priceHonestyAvg = 0,
+    communicationAvg = 0;
+  if (reviewCount > 0) {
+    let sumP = 0,
+      sumW = 0,
+      sumPH = 0,
+      sumC = 0;
+    for (const r of reviews) {
+      sumP += r.punctuality;
+      sumW += r.workmanship;
+      sumPH += r.priceHonesty;
+      sumC += r.communication;
+    }
+    punctualityAvg = sumP / reviewCount;
+    workmanshipAvg = sumW / reviewCount;
+    priceHonestyAvg = sumPH / reviewCount;
+    communicationAvg = sumC / reviewCount;
+    averageRating = (punctualityAvg + workmanshipAvg + priceHonestyAvg + communicationAvg) / 4;
+  }
 
-  // ✅ FIX: Prevent division by zero (0 / 0) leading to NaN when there are 0 reviews
-  const overallRating = craftsman.reviews.length > 0
-    ? craftsman.reviews.reduce((sum, rev) => sum + rev.rating, 0) / craftsman.reviews.length
-    : 0;
+  const yearsOfExperience = null;
+
+  const latestVerification = profile.verificationRecords[0];
+  const verification = latestVerification ?? {
+    verificationLevel: profile.verificationLevel,
+    phoneVerified: false,
+    idVerified: false,
+    referencesVerified: false,
+    workPhotosVerified: false,
+    businessRegistrationVerified: false,
+    guaranteeVerified: false,
+    verifiedAt: null,
+  };
+
+  const craftsman = {
+    id: profile.id,
+    user: {
+      name: profile.user.name,
+      image: profile.user.image,
+      phone: profile.user.phone,
+    },
+    businessName: profile.businessName,
+    bio: profile.bio,
+    region: { name: profile.region.name },
+    categories: profile.categories.map((c) => ({ name: c.category.name })),
+    verificationLevel: profile.verificationLevel,
+    totalJobsCompleted: profile.totalJobsCompleted,
+    priceRangeMin: profile.priceRangeMin ? Number(profile.priceRangeMin) : null,
+    priceRangeMax: profile.priceRangeMax ? Number(profile.priceRangeMax) : null,
+    workmanshipGuarantee: profile.workmanshipGuarantee,
+    reviews: profile.reviews.map(() => ({ rating: averageRating ?? 0 })),
+    yearsOfExperience,
+    businessRegistrationNumber: profile.businessRegistrationNumber,
+    serviceCategories: profile.subServices.reduce((acc, sub) => {
+      const catName = sub.subService.category?.name ?? "Unknown";
+      let cat = acc.find((c) => c.name === catName);
+      if (!cat) {
+        cat = { name: catName, subServices: [] };
+        acc.push(cat);
+      }
+      cat.subServices.push(sub.subService.name);
+      return acc;
+    }, [] as { name: string; subServices: string[] }[]),
+    photos: profile.photos.map((p) => ({
+      id: p.id,
+      imageUrl: p.imageUrl,
+      uploadDate: p.createdAt,
+    })),
+    verification: {
+      verificationLevel: profile.verificationLevel,
+      phoneVerified: verification.phoneVerified,
+      idVerified: verification.idVerified,
+      referencesVerified: verification.referencesVerified,
+      workPhotosVerified: verification.workPhotosVerified,
+      businessRegistrationVerified: verification.businessRegistrationVerified,
+      guaranteeVerified: verification.guaranteeVerified,
+      verifiedBy: latestVerification ? { name: latestVerification.verifier.name } : null,
+      verifiedAt: verification.verifiedAt?.toISOString() ?? null,
+    },
+    reviewSummary: {
+      totalReviews: reviewCount,
+      averageRating: averageRating ?? 0,
+      punctualityAvg,
+      workmanshipAvg,
+      priceHonestyAvg,
+      communicationAvg,
+    },
+    customerReviews: reviews.map((r) => ({
+      id: r.id,
+      customer: { name: r.customer.name, image: r.customer.image },
+      createdAt: r.createdAt.toISOString(),
+      rating: (r.punctuality + r.workmanship + r.priceHonesty + r.communication) / 4,
+      punctuality: r.punctuality,
+      workmanship: r.workmanship,
+      priceHonesty: r.priceHonesty,
+      communication: r.communication,
+      comment: r.comment,
+      photos: r.photos.map((p) => ({ id: p.id, imageUrl: p.imageUrl })),
+      reply: r.reply
+        ? {
+            id: r.reply.id,
+            reply: r.reply.reply,
+            createdAt: r.reply.createdAt.toISOString(),
+          }
+        : null,
+    })),
+    relatedCraftsmen: await (async () => {
+      const firstCat = profile.categories[0]?.category?.name;
+      if (!firstCat) return [];
+      const related = await prisma.craftsmanProfile.findMany({
+        where: {
+          id: { not: profile.id },
+          categories: { some: { category: { name: firstCat } } },
+        },
+        include: {
+          user: { select: { name: true, image: true } },
+          region: { select: { name: true } },
+          categories: { include: { category: { select: { name: true } } }, take: 1 },
+          subServices: { include: { subService: { select: { name: true } } } },
+          reviews: { select: { punctuality: true, workmanship: true, priceHonesty: true, communication: true } },
+        },
+        take: 3,
+      });
+      return related.map((r) => {
+        const rReviews = r.reviews;
+        const rCount = rReviews.length;
+        let rAvg = null;
+        if (rCount > 0) {
+          const total = rReviews.reduce(
+            (s, rev) =>
+              s + (rev.punctuality + rev.workmanship + rev.priceHonesty + rev.communication) / 4,
+            0
+          );
+          rAvg = total / rCount;
+        }
+        return {
+          id: r.id,
+          name: r.user.name,
+          businessName: r.businessName,
+          image: r.user.image,
+          verificationLevel: r.verificationLevel,
+          rating: rAvg ?? 0,
+          priceMin: r.priceRangeMin ? Number(r.priceRangeMin) : null,
+          priceMax: r.priceRangeMax ? Number(r.priceRangeMax) : null,
+          reviewCount: rCount,
+          category: r.categories[0]?.category.name ?? "",
+          subServices: r.subServices.map((s) => s.subService.name),
+          region: r.region.name,
+          jobsCompleted: r.totalJobsCompleted,
+        };
+      });
+    })(),
+  };
+
+  let hasApplication = false;
+  if (user && user.role === "CUSTOMER") {
+    const appRecord = await prisma.craftsmanApplication.findFirst({
+      where: { userId: user.id },
+    });
+    hasApplication = Boolean(appRecord);
+  }
+
+  const overallRating = averageRating ?? 0;
 
   return (
     <div className="flex min-h-screen flex-col bg-(image:--find-craftsmen-bg) bg-cover bg-center bg-no-repeat bg-fixed">
-      <Navbar user={user} />
-
+      <Navbar user={user} hasApplication={hasApplication} />
       <main className="flex-1">
         <div className="container mx-auto px-4 md:px-6 pt-4 pb-12 space-y-8">
-          
-          <Breadcrumb categoryName={craftsman.categories[0].name} craftsmanName={craftsman.user.name} />
+          <Breadcrumb
+            categoryName={craftsman.categories[0]?.name ?? "Craftsman"}
+            craftsmanName={craftsman.user.name}
+          />
           <ProfileHero craftsman={craftsman} />
-
           <div className="flex flex-col lg:flex-row gap-6 items-start">
             <div className="flex-1 flex flex-col gap-6">
               <AboutCraftsman craftsman={craftsman} />
@@ -187,19 +265,19 @@ export default async function CraftsmanProfilePage({
               </div>
             </div>
           </div>
-
           <WorkGallery works={craftsman.photos} />
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <PricingCard priceMin={craftsman.priceRangeMin} priceMax={craftsman.priceRangeMax} />
+            <PricingCard
+              priceMin={craftsman.priceRangeMin}
+              priceMax={craftsman.priceRangeMax}
+            />
             <ReviewSummary {...craftsman.reviewSummary} />
           </div>
-
           <Reviews reviews={craftsman.customerReviews} />
           <RelatedCraftsmen craftsmen={craftsman.relatedCraftsmen} />
           <SafetyNotice />
         </div>
       </main>
-
       <Footer />
     </div>
   );
