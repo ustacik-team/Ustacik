@@ -62,11 +62,10 @@ const defaultCategories = [
 
 const defaultRegions = [
   { value: "all", label: "All Regions" },
-  { value: "Nicosia", label: "Nicosia" },
-  { value: "Kyrenia", label: "Kyrenia" },
   { value: "Famagusta", label: "Famagusta" },
-  { value: "Morphou", label: "Morphou" },
-  { value: "Larnaca", label: "Larnaca" },
+  { value: "Lefke", label: "Lefke" },
+  { value: "Kyrenia", label: "Kyrenia" },
+  { value: "Nicosia", label: "Nicosia" },
 ];
 
 const defaultVerificationLevels = [

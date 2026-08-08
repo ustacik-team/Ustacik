@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useSession } from "@/lib/auth-client";
+import { toast } from "sonner";
 import {
   Card,
   CardContent,
@@ -37,10 +40,20 @@ export function ContactCard({
   className,
 }: ContactCardProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const { data: session } = useSession();
+  const router = useRouter();
 
-  const handleRequestJob = () => {
+  const handleRequestJob = (e: React.MouseEvent) => {
+    if (!session?.user) {
+      e.preventDefault();
+      toast.info("Please sign in to request a job with this craftsman.", {
+        duration: 3500,
+      });
+      router.push(`/sign-in?redirect=${encodeURIComponent(`/craftsmen/${craftsmanId}`)}`);
+      return;
+    }
+
     setIsLoading(true);
-    // Simulate navigation or API call
     setTimeout(() => setIsLoading(false), 800);
   };
 

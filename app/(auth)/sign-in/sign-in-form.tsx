@@ -46,7 +46,7 @@ export function SignInForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const redirect = searchParams.get("redirect");
+  const redirect = searchParams.get("redirect") || searchParams.get("callbackUrl");
 
   const form = useForm<SignInValues>({
     resolver: zodResolver(signInSchema),

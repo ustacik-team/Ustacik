@@ -2,8 +2,19 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Star } from "lucide-react";
 
-// Mock data - replace with real data from your CMS or API later
-const testimonials = [
+export interface TestimonialItem {
+  id: string | number;
+  name: string;
+  avatar: string | null;
+  review: string;
+  rating: number;
+}
+
+interface TestimonialsProps {
+  testimonials?: TestimonialItem[];
+}
+
+const fallbackTestimonials: TestimonialItem[] = [
   {
     id: 1,
     name: "Sarah Mitchell",
@@ -48,7 +59,9 @@ const testimonials = [
   },
 ];
 
-export function Testimonials() {
+export function Testimonials({ testimonials }: TestimonialsProps) {
+  const items = testimonials && testimonials.length > 0 ? testimonials : fallbackTestimonials;
+
   return (
     <section className="py-12 md:py-16 bg-muted/20">
       <div className="container mx-auto px-4 md:px-6">
@@ -65,7 +78,7 @@ export function Testimonials() {
 
         {/* Responsive Grid: 3 Columns Desktop, 2 Tablet, 1 Mobile */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {testimonials.map((testimonial) => (
+          {items.map((testimonial) => (
             <Card 
               key={testimonial.id} 
               className="h-full transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
@@ -75,7 +88,7 @@ export function Testimonials() {
                 {/* Avatar & Customer Name Row */}
                 <div className="flex items-center gap-4">
                   <Avatar className="h-12 w-12 border-2 border-background">
-                    <AvatarImage src={testimonial.avatar} alt={testimonial.name} />
+                    <AvatarImage src={testimonial.avatar ?? undefined} alt={testimonial.name} />
                     <AvatarFallback>
                       {testimonial.name.split(' ').map(n => n[0]).join('')}
                     </AvatarFallback>
@@ -113,4 +126,4 @@ export function Testimonials() {
       </div>
     </section>
   );
-}
+}
