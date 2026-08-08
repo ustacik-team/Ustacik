@@ -46,10 +46,7 @@ export function SignInForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const requestedRedirect = searchParams.get("redirect");
-  const redirect = requestedRedirect?.startsWith("/") && !requestedRedirect.startsWith("//")
-    ? requestedRedirect
-    : "/dashboard";
+  const redirect = searchParams.get("redirect") || searchParams.get("callbackUrl");
 
   const form = useForm<SignInValues>({
     resolver: zodResolver(signInSchema),

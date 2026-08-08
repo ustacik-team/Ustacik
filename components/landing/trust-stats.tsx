@@ -1,51 +1,79 @@
-import { Briefcase, Globe, MessageSquare, UserCheck } from "lucide-react";
-
 import { Card, CardContent } from "@/components/ui/card";
+import { 
+  UserCheck, 
+  Briefcase, 
+  MessageSquare, 
+  Globe 
+} from "lucide-react";
 
-const stats = [
-  {
-    icon: UserCheck,
-    label: "Verified Craftsmen",
-    value: "150+",
-    description: "Profiles manually reviewed for your peace of mind.",
-  },
-  {
-    icon: Briefcase,
-    label: "Completed Jobs",
-    value: "152",
-    description: "Successful projects across the trades people need most.",
-  },
-  {
-    icon: MessageSquare,
-    label: "Customer Reviews",
-    value: "1.2k",
-    description: "Genuine community feedback to inform every decision.",
-  },
-  {
-    icon: Globe,
-    label: "Regions Covered",
-    value: "5",
-    description: "Helping homes and businesses across Northern Cyprus.",
-  },
-];
+export interface TrustStatsData {
+  verifiedCraftsmen: number;
+  completedJobs: number;
+  totalReviews: number;
+  regionsCovered: number;
+}
 
-export function TrustStats() {
+interface TrustStatsProps {
+  stats?: TrustStatsData;
+}
+
+export function TrustStats({ stats }: TrustStatsProps) {
+  const statItems = [
+    {
+      icon: UserCheck,
+      label: "Verified Craftsmen",
+      value: stats ? `${stats.verifiedCraftsmen}` : "150+",
+      description: "All profiles are manually verified for your peace of mind.",
+    },
+    {
+      icon: Briefcase,
+      label: "Completed Jobs",
+      value: stats ? `${stats.completedJobs}` : "152",
+      description: "Successfully finished projects across various trades.",
+    },
+    {
+      icon: MessageSquare,
+      label: "Reviews",
+      value: stats ? `${stats.totalReviews}` : "1.2k",
+      description: "Authentic community feedback and genuine ratings.",
+    },
+    {
+      icon: Globe,
+      label: "Regions Covered",
+      value: stats ? `${stats.regionsCovered}` : "5",
+      description: "Active in Kyrenia, Nicosia, Famagusta, and more.",
+    },
+  ];
+
   return (
-    <section className="relative z-20 -mt-8 pb-12 md:-mt-10 md:pb-16">
+    <section className="py-12 md:py-16">
       <div className="container mx-auto px-4 md:px-6">
-        <div className="grid overflow-hidden rounded-2xl border border-border/70 bg-background/92 shadow-xl shadow-slate-950/10 backdrop-blur-xl sm:grid-cols-2 lg:grid-cols-4">
-          {stats.map((stat, index) => (
-            <Card
-              key={stat.label}
-              className={"group rounded-none border-0 bg-transparent shadow-none transition-colors hover:bg-primary/[0.035] " + (index !== 3 ? "border-b border-border/50 lg:border-b-0 lg:border-r " : "") + (index === 1 ? "sm:border-b-0 sm:border-r-0 lg:border-r " : "") + (index === 2 ? "sm:border-b-0 sm:border-r " : "")}
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {statItems.map((stat, index) => (
+            <Card 
+              key={index} 
+              className="border-none bg-card/50 backdrop-blur-sm shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
             >
-              <CardContent className="space-y-3 p-6 text-center md:p-7">
-                <div className="mx-auto flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary transition-transform duration-300 group-hover:scale-110">
-                  <stat.icon className="size-6" />
+              <CardContent className="p-6 text-center space-y-3">
+                {/* Icon */}
+                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                  <stat.icon className="h-7 w-7" />
                 </div>
-                <div className="text-3xl font-bold tracking-tight text-foreground">{stat.value}</div>
-                <div className="text-xs font-bold uppercase tracking-[0.12em] text-muted-foreground">{stat.label}</div>
-                <div className="mx-auto max-w-[210px] text-xs leading-relaxed text-muted-foreground/80">{stat.description}</div>
+                
+                {/* Large Number */}
+                <div className="text-4xl font-bold text-foreground">
+                  {stat.value}
+                </div>
+                
+                {/* Label */}
+                <div className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+                  {stat.label}
+                </div>
+                
+                {/* Small Description */}
+                <div className="text-xs text-muted-foreground/80 leading-relaxed max-w-[200px] mx-auto">
+                  {stat.description}
+                </div>
               </CardContent>
             </Card>
           ))}

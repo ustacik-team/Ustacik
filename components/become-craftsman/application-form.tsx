@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useForm, Resolver } from "react-hook-form"; // ✅ Import Resolver
+import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
+import { useForm, Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import Image from "next/image";
 import { 
   Card, 
   CardContent, 
@@ -45,11 +45,16 @@ import {
   Briefcase,
   Image as ImageIcon,
   ShieldCheck,
-  FileCheck
+  FileCheck,
+  Loader2,
+  Users,
+  IdCard
 } from "lucide-react";
+import { upload } from "@imagekit/next";
+import { toast } from "sonner";
 
 // ─── MOCK DATA ──────────────────────────────────────────────────────────
-const regions = ["Nicosia", "Kyrenia", "Famagusta", "Morphou", "Larnaca"];
+const regions = ["Famagusta", "Lefke", "Kyrenia", "Nicosia"];
 const categories = [
   "Plumbing & Water Systems",
   "Electrical",
@@ -87,16 +92,26 @@ const formSchema = z.object({
   priceMin: z.coerce.number().min(0, "Minimum price must be positive"),
   priceMax: z.coerce.number().min(0, "Maximum price must be positive"),
   
-  // Verification
+  // Verification (Brief Section 4 Trust Model & Prisma Schema)
+  idNumber: z.string().optional(),
   businessRegistrationNumber: z.string().optional(),
   workmanshipGuarantee: z.boolean().default(false),
   
-  // Terms
+  // Previous Customer References (Required for VERIFIED level)
+  ref1Name: z.string().optional(),
+  ref1Phone: z.string().optional(),
+  ref2Name: z.string().optional(),
+  ref2Phone: z.string().optional(),
+  
+  // Terms & Disclaimers (Brief Section 10 Non-Negotiables)
   confirmAccuracy: z.boolean().refine((val) => val === true, {
     message: "You must confirm the information is accurate",
   }),
   agreePublish: z.boolean().refine((val) => val === true, {
     message: "You must agree to publish your profile",
+  }),
+  agreeDisclaimer: z.boolean().refine((val) => val === true, {
+    message: "You must acknowledge the platform matching & liability disclaimer",
   }),
 }).refine((data) => data.priceMax > data.priceMin, {
   message: "Maximum price must be greater than minimum price",
@@ -109,27 +124,44 @@ type FormValues = z.infer<typeof formSchema>;
 const SECTION_FIELDS = {
   "personal-info": ["fullName", "email", "phone"],
   "business-info": ["businessName", "region", "category", "subService", "priceMin", "priceMax"],
-  "verification": ["businessRegistrationNumber", "workmanshipGuarantee"],
-  "terms": ["confirmAccuracy", "agreePublish"],
+  "verification": [
+    "idNumber",
+    "businessRegistrationNumber",
+    "workmanshipGuarantee",
+    "ref1Name",
+    "ref1Phone",
+    "ref2Name",
+    "ref2Phone",
+  ],
+  "terms": ["confirmAccuracy", "agreePublish", "agreeDisclaimer"],
 } as const;
 
 // ─── COMPONENT ──────────────────────────────────────────────────────────
 export function ApplicationForm() {
+  const router = useRouter();
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   
-  // ✅ Accordion State (Multi-open)
-  const [openSections, setOpenSections] = useState<string[]>(["personal-info"]);
+  // ✅ Accordion State (All sections open by default)
+  const [openSections, setOpenSections] = useState<string[]>([
+    "personal-info",
+    "business-info",
+    "portfolio",
+    "verification",
+    "terms",
+  ]);
 
+  // ✅ Profile Photo State
   // ✅ Profile Photo State
   const [profilePhoto, setProfilePhoto] = useState<File | null>(null);
   const [profilePhotoPreview, setProfilePhotoPreview] = useState<string | null>(null);
 
   // ✅ Portfolio Photos State
+  // ✅ Portfolio Photos State
   const [portfolioPhotos, setPortfolioPhotos] = useState<File[]>([]);
   const [portfolioPreviews, setPortfolioPreviews] = useState<string[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const form = useForm<FormValues>({
-    // ✅ Fix: Explicitly cast resolver to avoid type mismatch error
     resolver: zodResolver(formSchema) as Resolver<FormValues>,
     defaultValues: {
       fullName: "",
@@ -142,84 +174,210 @@ export function ApplicationForm() {
       subService: "",
       priceMin: 0,
       priceMax: 0,
+      idNumber: "",
       businessRegistrationNumber: "",
       workmanshipGuarantee: false,
+      ref1Name: "",
+      ref1Phone: "",
+      ref2Name: "",
+      ref2Phone: "",
       confirmAccuracy: false,
       agreePublish: false,
+      agreeDisclaimer: false,
     },
   });
 
-  // ─── MEMORY CLEANUP FOR BLOB URLS ──────────────────────────────────────
+  // ✅ Track refs for unmount-only blob revocation
+  const profilePreviewRef = useRef<string | null>(null);
+  const portfolioPreviewsRef = useRef<string[]>([]);
+
+  useEffect(() => {
+    profilePreviewRef.current = profilePhotoPreview;
+    portfolioPreviewsRef.current = portfolioPreviews;
+  }, [profilePhotoPreview, portfolioPreviews]);
+
+  // ─── MEMORY CLEANUP (UNMOUNT ONLY) ────────────────────────────────────
   useEffect(() => {
     return () => {
-      if (profilePhotoPreview) URL.revokeObjectURL(profilePhotoPreview);
-      portfolioPreviews.forEach((url) => URL.revokeObjectURL(url));
+      if (profilePreviewRef.current?.startsWith("blob:")) {
+        URL.revokeObjectURL(profilePreviewRef.current);
+      }
+      portfolioPreviewsRef.current.forEach((url) => {
+        if (url?.startsWith("blob:")) {
+          URL.revokeObjectURL(url);
+        }
+      });
     };
-  }, [profilePhotoPreview, portfolioPreviews]);
+  }, []);
 
   // ─── SUBMIT & INVALID HANDLERS ────────────────────────────────────────
   const onInvalid = (errors: Record<string, unknown>) => {
-    // Automatically expand any Accordion section that contains validation errors
     const invalid = Object.entries(SECTION_FIELDS)
       .filter(([, fields]) => fields.some((f) => f in errors))
       .map(([section]) => section);
     setOpenSections((prev) => Array.from(new Set([...prev, ...invalid])));
+    toast.error("Please fill out all required fields marked in red.");
   };
 
-  const onSubmit = (values: FormValues) => {
-    console.log("Form Submitted:", { ...values, profilePhoto, portfolioPhotos });
-    alert("Application submitted successfully! (Mock)");
+  const onSubmit = async (values: FormValues) => {
+    setIsSubmitting(true);
+    const toastId = toast.loading("Uploading images and submitting application...");
+
+    let finalProfileUrl: string | null = null;
+    const finalPortfolioUrls: string[] = [];
+
+    try {
+      // Helper to fetch a single-use authentication token per file
+      const getUploadAuth = async () => {
+        const authRes = await fetch("/api/upload-auth");
+        if (!authRes.ok) {
+          throw new Error("Failed to authenticate with upload server.");
+        }
+        return authRes.json();
+      };
+
+      // 1. Upload Profile Photo
+      if (profilePhoto) {
+        const auth = await getUploadAuth();
+        const res = await upload({
+          file: profilePhoto,
+          fileName: profilePhoto.name,
+          token: auth.token,
+          signature: auth.signature,
+          expire: auth.expire,
+          publicKey: auth.publicKey,
+        });
+        if (res?.url) {
+          finalProfileUrl = res.url;
+        } else {
+          throw new Error("Failed to upload profile photo.");
+        }
+      }
+
+      // 2. Upload Portfolio Photos
+      for (const photo of portfolioPhotos) {
+        const auth = await getUploadAuth();
+        const res = await upload({
+          file: photo,
+          fileName: photo.name,
+          token: auth.token,
+          signature: auth.signature,
+          expire: auth.expire,
+          publicKey: auth.publicKey,
+        });
+        if (res?.url) {
+          finalPortfolioUrls.push(res.url);
+        } else {
+          throw new Error(`Failed to upload ${photo.name}.`);
+        }
+      }
+
+      // 3. Post Application to DB API
+      const payload = {
+        ...values,
+        profilePhotoUrl: finalProfileUrl,
+        portfolioUrls: finalPortfolioUrls,
+      };
+
+      const apiRes = await fetch("/api/applications", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const apiData = await apiRes.json();
+
+      if (!apiRes.ok || !apiData.success) {
+        throw new Error(apiData.message || apiData.error || "Failed to save application to database.");
+      }
+
+      toast.success("Application submitted successfully!", {
+        id: toastId,
+        description: "Your craftsman application has been received and is under review.",
+      });
+      form.reset();
+      setProfilePhoto(null);
+      setProfilePhotoPreview(null);
+      setPortfolioPhotos([]);
+      setPortfolioPreviews([]);
+
+      // Redirect user to application status page
+      router.push("/application-status");
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "An unexpected error occurred.";
+      console.error("Application Submission Error:", err);
+      toast.error(`Submission failed: ${errorMessage}`, { id: toastId });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+
 
   // ─── FILE UPLOAD HANDLERS ──────────────────────────────────────────────
+  const isImageFile = (file: File) => {
+    return file.type.startsWith("image/") || /\.(jpg|jpeg|png|webp|gif|svg|avif)$/i.test(file.name);
+  };
+
   const handleProfilePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate file size (5MB)
     if (file.size > 5 * 1024 * 1024) {
-      alert("File size exceeds 5MB limit.");
+      toast.error("Profile photo size exceeds 5MB limit.");
+      e.target.value = "";
       return;
     }
 
-    // Validate file type
-    if (!["image/svg+xml", "image/png", "image/jpeg"].includes(file.type)) {
-      alert("Only SVG, PNG, and JPG formats are allowed.");
+    if (!isImageFile(file)) {
+      toast.error("Only image formats (SVG, PNG, JPG, WebP) are allowed.");
+      e.target.value = "";
       return;
     }
 
-    // Cleanup previous preview
-    if (profilePhotoPreview) URL.revokeObjectURL(profilePhotoPreview);
+    if (profilePhotoPreview?.startsWith("blob:")) {
+      URL.revokeObjectURL(profilePhotoPreview);
+    }
 
     setProfilePhoto(file);
     setProfilePhotoPreview(URL.createObjectURL(file));
+    setOpenSections((prev) => Array.from(new Set([...prev, "personal-info"])));
+    toast.success("Profile photo selected.");
+    e.target.value = "";
   };
 
   const handlePortfolioUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
     
     const validatedFiles = files.filter((file) => {
       if (file.size > 10 * 1024 * 1024) {
-        alert(`File ${file.name} exceeds 10MB limit.`);
+        toast.error(`File ${file.name} exceeds 10MB limit.`);
         return false;
       }
-      if (!["image/png", "image/jpeg"].includes(file.type)) {
-        alert(`File ${file.name} must be PNG or JPG.`);
+      if (!isImageFile(file)) {
+        toast.error(`File ${file.name} must be an image.`);
         return false;
       }
       return true;
     });
 
-    const newUrls = validatedFiles.map((file) => URL.createObjectURL(file));
-    setPortfolioPhotos((prev) => [...prev, ...validatedFiles]);
-    setPortfolioPreviews((prev) => [...prev, ...newUrls]);
+    if (validatedFiles.length > 0) {
+      const newUrls = validatedFiles.map((file) => URL.createObjectURL(file));
+      setPortfolioPhotos((prev) => [...prev, ...validatedFiles]);
+      setPortfolioPreviews((prev) => [...prev, ...newUrls]);
+      setOpenSections((prev) => Array.from(new Set([...prev, "portfolio"])));
+      toast.success(`${validatedFiles.length} work photo(s) selected.`);
+    }
+
+    e.target.value = "";
   };
 
   const removePortfolioPhoto = (index: number) => {
     const url = portfolioPreviews[index];
-    if (url) URL.revokeObjectURL(url);
+    if (url?.startsWith("blob:")) URL.revokeObjectURL(url);
     setPortfolioPreviews((prev) => prev.filter((_, i) => i !== index));
     setPortfolioPhotos((prev) => prev.filter((_, i) => i !== index));
+    toast.info("Work photo removed.");
   };
 
   return (
@@ -272,6 +430,7 @@ export function ApplicationForm() {
                                   placeholder="John Doe" 
                                   className="border-border/40 bg-background placeholder:text-muted-foreground/60" 
                                   {...field} 
+                                  value={field.value ?? ""}
                                 />
                               </FormControl>
                               <FormMessage />
@@ -289,6 +448,7 @@ export function ApplicationForm() {
                                   placeholder="john@example.com" 
                                   className="border-border/40 bg-background placeholder:text-muted-foreground/60" 
                                   {...field} 
+                                  value={field.value ?? ""}
                                 />
                               </FormControl>
                               <FormMessage />
@@ -307,6 +467,7 @@ export function ApplicationForm() {
                                 placeholder="+90 533 888 77 66" 
                                 className="border-border/40 bg-background placeholder:text-muted-foreground/60" 
                                 {...field} 
+                                value={field.value ?? ""}
                               />
                             </FormControl>
                             <FormMessage />
@@ -316,37 +477,39 @@ export function ApplicationForm() {
                       <div className="space-y-2">
                         <FormLabel>Profile Photo</FormLabel>
                         <div className="relative flex flex-col sm:flex-row items-start gap-4">
-                          <div className="relative flex items-center justify-center w-full sm:w-48 h-32 rounded-lg border-2 border-dashed border-muted-foreground/20 bg-muted/20 hover:bg-muted/30 transition-colors cursor-pointer overflow-hidden">
+                          <div className="relative flex items-center justify-center w-28 h-28 rounded-full border-2 border-dashed border-muted-foreground/20 bg-muted/20 hover:bg-muted/30 transition-colors cursor-pointer overflow-hidden shrink-0">
                             {profilePhotoPreview ? (
                               <div className="relative w-full h-full group">
-                                <Image 
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img 
                                   src={profilePhotoPreview} 
                                   alt="Profile Preview" 
-                                  fill 
-                                  className="object-cover" 
+                                  className="w-full h-full object-cover rounded-full" 
                                 />
                                 <button
                                   type="button"
-                                  onClick={() => {
-                                    if (profilePhotoPreview) URL.revokeObjectURL(profilePhotoPreview);
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (profilePhotoPreview?.startsWith("blob:")) URL.revokeObjectURL(profilePhotoPreview);
                                     setProfilePhoto(null);
                                     setProfilePhotoPreview(null);
+                                    toast.info("Profile photo removed.");
                                   }}
-                                  className="absolute top-1 right-1 h-6 w-6 rounded-full bg-black/60 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                                  className="absolute top-1 right-1 h-6 w-6 rounded-full bg-black/60 text-white flex items-center justify-center opacity-90 hover:opacity-100 transition-opacity z-10"
                                 >
                                   <X className="h-3 w-3" />
                                 </button>
                               </div>
                             ) : (
-                              <div className="flex flex-col items-center gap-1 text-muted-foreground">
+                              <div className="flex flex-col items-center gap-1 text-muted-foreground text-center p-2">
                                 <UploadCloud className="h-5 w-5" />
-                                <p className="text-xs font-medium">Click to upload</p>
+                                <p className="text-[11px] font-medium leading-tight">Upload photo</p>
                               </div>
                             )}
                             <Input 
                               type="file" 
-                              accept=".svg,.png,.jpg,.jpeg" 
-                              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                              accept="image/*" 
+                              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer rounded-full"
                               onChange={handleProfilePhotoUpload}
                             />
                           </div>
@@ -381,6 +544,7 @@ export function ApplicationForm() {
                                 placeholder="Doe's Plumbing Services" 
                                 className="border-border/40 bg-background placeholder:text-muted-foreground/60" 
                                 {...field} 
+                                value={field.value ?? ""}
                               />
                             </FormControl>
                             <FormMessage />
@@ -398,6 +562,7 @@ export function ApplicationForm() {
                                 placeholder="Tell customers about your experience and services..."
                                 className="resize-none h-24 bg-background border-border/40 placeholder:text-muted-foreground/60"
                                 {...field} 
+                                value={field.value ?? ""}
                               />
                             </FormControl>
                             <FormMessage />
@@ -410,7 +575,7 @@ export function ApplicationForm() {
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Region</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <Select onValueChange={field.onChange} value={field.value || ""}>
                               <FormControl>
                                 <SelectTrigger className="border-border/40 bg-background">
                                   <SelectValue placeholder="Select your region" />
@@ -439,7 +604,7 @@ export function ApplicationForm() {
                                   setSelectedCategory(val);
                                   form.setValue("subService", "");
                                 }} 
-                                defaultValue={field.value}
+                                value={field.value || ""}
                               >
                                 <FormControl>
                                   <SelectTrigger className="border-border/40 bg-background">
@@ -462,7 +627,7 @@ export function ApplicationForm() {
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>Sub-Service</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value} disabled={!selectedCategory}>
+                              <Select onValueChange={field.onChange} value={field.value || ""} disabled={!selectedCategory}>
                                 <FormControl>
                                   <SelectTrigger className="border-border/40 bg-background">
                                     <SelectValue placeholder="Select sub-service" />
@@ -494,6 +659,7 @@ export function ApplicationForm() {
                                   placeholder="e.g. 200" 
                                   className="border-border/40 bg-background placeholder:text-muted-foreground/60" 
                                   {...field} 
+                                  value={field.value ?? ""}
                                 />
                               </FormControl>
                               <FormMessage />
@@ -513,6 +679,7 @@ export function ApplicationForm() {
                                   placeholder="e.g. 1000" 
                                   className="border-border/40 bg-background placeholder:text-muted-foreground/60" 
                                   {...field} 
+                                  value={field.value ?? ""}
                                 />
                               </FormControl>
                               <FormMessage />
@@ -545,7 +712,7 @@ export function ApplicationForm() {
                           <Input 
                             type="file" 
                             multiple 
-                            accept=".png,.jpg,.jpeg" 
+                            accept="image/*" 
                             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                             onChange={handlePortfolioUpload}
                           />
@@ -553,22 +720,24 @@ export function ApplicationForm() {
                       </div>
 
                       {portfolioPreviews.length > 0 && (
-                        <div className="space-y-2">
-                          <p className="text-sm font-medium text-foreground">Uploaded Photos</p>
-                          <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+                        <div className="space-y-2 pt-2">
+                          <p className="text-sm font-medium text-foreground">
+                            Uploaded Photos ({portfolioPreviews.length})
+                          </p>
+                          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                             {portfolioPreviews.map((url, index) => (
-                              <div key={index} className="relative aspect-square rounded-lg overflow-hidden border border-border/20 group">
-                                <Image 
+                              <div key={index} className="relative aspect-square w-full rounded-lg overflow-hidden border border-border/20 bg-muted group shadow-xs">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img 
                                   src={url} 
                                   alt={`Upload ${index + 1}`} 
-                                  fill 
-                                  unoptimized={true} 
-                                  className="object-cover"
+                                  className="absolute inset-0 w-full h-full object-cover"
                                 />
                                 <button
                                   type="button"
                                   onClick={() => removePortfolioPhoto(index)}
-                                  className="absolute top-1 right-1 h-6 w-6 rounded-full bg-black/60 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                                  className="absolute top-1.5 right-1.5 h-6 w-6 rounded-full bg-black/60 hover:bg-destructive text-white flex items-center justify-center opacity-90 hover:opacity-100 transition-all shadow-md z-10"
+                                  aria-label={`Remove photo ${index + 1}`}
                                 >
                                   <X className="h-3 w-3" />
                                 </button>
@@ -580,67 +749,196 @@ export function ApplicationForm() {
                     </AccordionContent>
                   </AccordionItem>
 
-                  {/* ─── STEP 4: VERIFICATION ──────────────────────────── */}
+                  {/* ─── STEP 4: VERIFICATION & REFERENCES ─────────────────── */}
                   <AccordionItem value="verification" className="border-b border-border/20">
                     <AccordionTrigger className="hover:no-underline">
                       <div className="flex items-center gap-3">
                         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
                           <ShieldCheck className="h-4 w-4" />
                         </div>
-                        <span className="text-base font-semibold">Verification &amp; Guarantee</span>
+                        <span className="text-base font-semibold">Verification &amp; Customer References</span>
                       </div>
                     </AccordionTrigger>
-                    <AccordionContent className="pt-4 pb-6 space-y-4">
-                      <FormField
-                        control={form.control}
-                        name="businessRegistrationNumber"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Business Registration Number (Optional)</FormLabel>
-                            <FormControl>
-                              <Input 
-                                placeholder="TRNC-BIZ-2023-xxxxx" 
-                                className="border-border/40 bg-background placeholder:text-muted-foreground/60" 
-                                {...field} 
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="workmanshipGuarantee"
-                        render={({ field }) => (
-                          <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border border-border/20 p-4">
-                            <FormControl>
-                              <Checkbox
-                                checked={field.value}
-                                onCheckedChange={field.onChange}
-                              />
-                            </FormControl>
-                            <div className="space-y-1 leading-none">
-                              <FormLabel className="font-medium cursor-pointer">
-                                I provide a written workmanship guarantee.
-                              </FormLabel>
-                              <p className="text-sm text-muted-foreground">
-                                A written guarantee dramatically increases customer trust and is a requirement for the &quot;Approved Craftsman&quot; level.
-                              </p>
-                            </div>
-                          </FormItem>
-                        )}
-                      />
+                    <AccordionContent className="pt-4 pb-6 space-y-6">
+                      
+                      {/* ID Verification */}
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                          <IdCard className="h-4 w-4 text-primary" />
+                          <span>Identity Verification (For Verified Level)</span>
+                        </div>
+                        <FormField
+                          control={form.control}
+                          name="idNumber"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>TRNC ID / Passport Number (Optional)</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  placeholder="e.g. 10293847 or A1234567" 
+                                  className="border-border/40 bg-background placeholder:text-muted-foreground/60" 
+                                  {...field} 
+                                  value={field.value ?? ""}
+                                />
+                              </FormControl>
+                              <p className="text-xs text-muted-foreground">Used exclusively by Ustacik trust admins to perform manual ID verification.</p>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+
+                      {/* Customer References (2 Customers for VERIFIED Status) */}
+                      <div className="space-y-4 pt-2 border-t border-border/20">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                            <Users className="h-4 w-4 text-primary" />
+                            <span>Previous Customer References</span>
+                          </div>
+                          <span className="text-[11px] font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+                            Required for &quot;Verified&quot; Badge
+                          </span>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          Provide details for 2 previous clients. Ustacik trust officers will contact them to verify your previous work.
+                        </p>
+
+                        {/* Reference 1 */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-3 rounded-lg border border-border/30 bg-muted/10">
+                          <FormField
+                            control={form.control}
+                            name="ref1Name"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-xs">Client 1 Full Name</FormLabel>
+                                <FormControl>
+                                  <Input 
+                                    placeholder="Sarah Jenkins" 
+                                    className="border-border/40 bg-background placeholder:text-muted-foreground/60 h-9 text-xs" 
+                                    {...field} 
+                                    value={field.value ?? ""}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="ref1Phone"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-xs">Client 1 Phone Number</FormLabel>
+                                <FormControl>
+                                  <Input 
+                                    placeholder="+90 533 111 22 33" 
+                                    className="border-border/40 bg-background placeholder:text-muted-foreground/60 h-9 text-xs" 
+                                    {...field} 
+                                    value={field.value ?? ""}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+
+                        {/* Reference 2 */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-3 rounded-lg border border-border/30 bg-muted/10">
+                          <FormField
+                            control={form.control}
+                            name="ref2Name"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-xs">Client 2 Full Name</FormLabel>
+                                <FormControl>
+                                  <Input 
+                                    placeholder="Ahmet Yilmaz" 
+                                    className="border-border/40 bg-background placeholder:text-muted-foreground/60 h-9 text-xs" 
+                                    {...field} 
+                                    value={field.value ?? ""}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="ref2Phone"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-xs">Client 2 Phone Number</FormLabel>
+                                <FormControl>
+                                  <Input 
+                                    placeholder="+90 548 444 55 66" 
+                                    className="border-border/40 bg-background placeholder:text-muted-foreground/60 h-9 text-xs" 
+                                    {...field} 
+                                    value={field.value ?? ""}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Business Registration & Guarantees */}
+                      <div className="space-y-4 pt-2 border-t border-border/20">
+                        <FormField
+                          control={form.control}
+                          name="businessRegistrationNumber"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Business Registration Number (Optional - For Approved Level)</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  placeholder="TRNC-BIZ-2023-xxxxx" 
+                                  className="border-border/40 bg-background placeholder:text-muted-foreground/60" 
+                                  {...field} 
+                                  value={field.value ?? ""}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="workmanshipGuarantee"
+                          render={({ field }) => (
+                            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border border-border/20 p-4">
+                              <FormControl>
+                                <Checkbox
+                                  checked={field.value}
+                                  onCheckedChange={field.onChange}
+                                  className="bg-background border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                                />
+                              </FormControl>
+                              <div className="space-y-1 leading-none">
+                                <FormLabel className="font-medium cursor-pointer">
+                                  I provide a written workmanship guarantee.
+                                </FormLabel>
+                                <p className="text-sm text-muted-foreground">
+                                  A written guarantee dramatically increases customer trust and is a requirement for the &quot;Approved Craftsman&quot; level.
+                                </p>
+                              </div>
+                            </FormItem>
+                          )}
+                        />
+                      </div>
                     </AccordionContent>
                   </AccordionItem>
 
-                  {/* ─── STEP 5: TERMS ──────────────────────────────────── */}
+                  {/* ─── STEP 5: TERMS & DISCLAIMERS ────────────────────── */}
                   <AccordionItem value="terms">
                     <AccordionTrigger className="hover:no-underline">
                       <div className="flex items-center gap-3">
                         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
                           <FileCheck className="h-4 w-4" />
                         </div>
-                        <span className="text-base font-semibold">Terms &amp; Agreement</span>
+                        <span className="text-base font-semibold">Terms, Privacy &amp; Platform Liability</span>
                       </div>
                     </AccordionTrigger>
                     <AccordionContent className="pt-4 pb-2 space-y-4">
@@ -658,10 +956,10 @@ export function ApplicationForm() {
                             </FormControl>
                             <div className="space-y-1 leading-none">
                               <FormLabel className="font-medium cursor-pointer">
-                                I confirm that the information provided is accurate.
+                                I confirm that all provided information is accurate and truthful.
                               </FormLabel>
                               <p className="text-sm text-muted-foreground">
-                                We verify all information during the review process.
+                                All submitted references, ID numbers, and registration details will be verified by Ustacik trust officers.
                               </p>
                             </div>
                           </FormItem>
@@ -681,10 +979,33 @@ export function ApplicationForm() {
                             </FormControl>
                             <div className="space-y-1 leading-none">
                               <FormLabel className="font-medium cursor-pointer">
-                                I agree that my business profile may be published after verification.
+                                I agree that my business name, phone number, and work photos will be published after verification.
                               </FormLabel>
                               <p className="text-sm text-muted-foreground">
-                                Your profile will only go live once the verification is fully approved.
+                                Your public profile will display your contact details and portfolio once approved.
+                              </p>
+                            </div>
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="agreeDisclaimer"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border border-border/20 p-4 bg-muted/10">
+                            <FormControl>
+                              <Checkbox
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                                className="bg-background border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                              />
+                            </FormControl>
+                            <div className="space-y-1 leading-none">
+                              <FormLabel className="font-medium cursor-pointer">
+                                Platform Matching &amp; Workmanship Disclaimer
+                              </FormLabel>
+                              <p className="text-xs text-muted-foreground">
+                                I understand that Ustacik connects customers with craftsmen and does not directly guarantee third-party workmanship.
                               </p>
                             </div>
                           </FormItem>
@@ -695,9 +1016,23 @@ export function ApplicationForm() {
                 </Accordion>
 
                 <CardFooter className="px-6 pt-4 border-t border-border/20">
-                  <Button type="submit" size="lg" className="w-full sm:w-auto gap-2 bg-primary hover:bg-primary/90 shadow-lg shadow-primary/25">
-                    Apply as Craftsman
-                    <CheckCircle2 className="h-4 w-4" />
+                  <Button 
+                    type="submit" 
+                    disabled={isSubmitting} 
+                    size="lg" 
+                    className="w-full sm:w-auto gap-2 bg-primary hover:bg-primary/90 shadow-lg shadow-primary/25"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Uploading &amp; Submitting...
+                      </>
+                    ) : (
+                      <>
+                        Apply as Craftsman
+                        <CheckCircle2 className="h-4 w-4" />
+                      </>
+                    )}
                   </Button>
                 </CardFooter>
               </form>

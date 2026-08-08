@@ -43,6 +43,12 @@ enum NotificationType {
   VERIFICATION_APPROVED
 }
 
+enum ApplicationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 // =====================
 // BETTER AUTH
 // =====================
@@ -63,12 +69,13 @@ model User {
   sessions      Session[]
   accounts      Account[]
 
-  craftsmanProfile    CraftsmanProfile?
-  jobRequests         Job[]                @relation("CustomerJobs")
-  reviews             Review[]
-  notifications       Notification[]
-  verificationRecords VerificationRecord[] @relation("Verifier")
-  adminLogs           AdminLog[]
+  craftsmanProfile      CraftsmanProfile?
+  craftsmanApplications CraftsmanApplication[]
+  jobRequests           Job[]                @relation("CustomerJobs")
+  reviews               Review[]
+  notifications         Notification[]
+  verificationRecords   VerificationRecord[] @relation("Verifier")
+  adminLogs             AdminLog[]
 
   @@map("user")
 }
@@ -386,4 +393,46 @@ model AdminLog {
 
   @@index([adminId])
   @@map("admin_log")
+}
+
+// =====================
+// CRAFTSMAN APPLICATIONS
+// =====================
+
+model CraftsmanApplication {
+  id                         String            @id @default(cuid())
+  referenceNumber            String?           @unique
+  userId                     String?
+  fullName                   String
+  email                      String
+  phone                      String
+  profilePhotoUrl            String?
+  businessName               String
+  bio                        String?
+  regionName                 String
+  categoryName               String
+  subServiceName             String
+  priceMin                   Decimal           @db.Decimal(10, 2)
+  priceMax                   Decimal           @db.Decimal(10, 2)
+  portfolioUrls              String[]
+  idNumber                   String?
+  businessRegistrationNumber String?
+  workmanshipGuarantee       Boolean           @default(false)
+  ref1Name                   String?
+  ref1Phone                  String?
+  ref2Name                   String?
+  ref2Phone                  String?
+  status                     ApplicationStatus @default(PENDING)
+  reviewNotes                String?
+  reviewedBy                 String?
+  reviewedAt                 DateTime?
+  createdAt                  DateTime          @default(now())
+  updatedAt                  DateTime          @updatedAt
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([email])
+  @@index([userId])
+  @@index([status])
+  @@map("craftsman_application")
 }

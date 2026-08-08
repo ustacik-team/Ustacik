@@ -1,3 +1,4 @@
+import { CraftsmanApplicationsReview } from "@/components/admin/craftsman-applications-review";
 import {
   Card,
   CardContent,
@@ -231,6 +232,9 @@ export default function AdminDashboardPage() {
         })}
       </div>
 
+      {/* Real Craftsman Applications Review Queue */}
+      <CraftsmanApplicationsReview />
+
       {/* Quick Action Cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card className="hover:bg-muted/50 transition-colors cursor-pointer">
@@ -270,6 +274,7 @@ export default function AdminDashboardPage() {
           </CardContent>
         </Card>
       </div>
+
 
       {/* Chart Placeholder */}
       <Card>

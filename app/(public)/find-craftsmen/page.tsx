@@ -1,10 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { Grid2X2, List, RotateCcw, Sparkles } from "lucide-react";
-import { toast } from "sonner";
-
-import { ComparisonTray } from "@/components/craftsmen/comparison-tray";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { CraftsmenHero } from "@/components/craftsmen/craftsmen-hero";
+import { CraftsmenSearch } from "@/components/craftsmen/craftsmen-search";
 import { CraftsmenFilters } from "@/components/craftsmen/craftsmen-filters";
 import { CraftsmenGrid } from "@/components/craftsmen/craftsmen-grid";
 import { CraftsmenHero } from "@/components/craftsmen/craftsmen-hero";
@@ -16,137 +14,222 @@ import { Navbar } from "@/components/landing/navbar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useSession } from "@/lib/auth-client";
-import { allCraftsmen, type Craftsman } from "@/lib/mock-craftsmen";
 
-type DirectoryFilters = {
+// ─── Types ──────────────────────────────────────────────────────────────
+interface CraftsmanResponse {
+  id: string;
+  name: string;
+  businessName: string | null;
+  image: string | null;
+  verificationLevel: string;
+  averageRating: number | null;
+  reviewCount: number;
   category: string;
-  subService: string;
   region: string;
-  verification: string;
-  sort: string;
-};
+  priceRangeMin: number | null;
+  priceRangeMax: number | null;
+  totalJobsCompleted: number;
+  mainPhoto: string | null;
+  subServices: string[];
+}
 
-type DirectoryState = {
-  query: string;
-  filters: DirectoryFilters;
-  page: number;
-  displayMode: "grid" | "list";
-};
+// Shape expected by CraftsmanCard
+interface CraftsmanCardData {
+  id: string;
+  name: string;
+  businessName: string;
+  image: string | null;
+  verificationLevel: "REGISTERED" | "VERIFIED" | "APPROVED";
+  rating: number;
+  reviewCount: number;
+  category: string;
+  subServices: string[];
+  region: string;
+  priceMin: number;
+  priceMax: number;
+  jobsCompleted: number;
+}
 
-const defaultFilters: DirectoryFilters = {
-  category: "all",
-  subService: "all",
-  region: "all",
-  verification: "all",
-  sort: "rating_desc",
-};
-
-const pageSize = 9;
-
-function readInitialState(): DirectoryState {
-  if (typeof window === "undefined") {
-    return { query: "", filters: defaultFilters, page: 1, displayMode: "grid" };
-  }
-
-  const params = new URLSearchParams(window.location.search);
-  return {
-    query: params.get("q") ?? "",
-    filters: {
-      category: params.get("category") ?? defaultFilters.category,
-      subService: params.get("service") ?? defaultFilters.subService,
-      region: params.get("region") ?? defaultFilters.region,
-      verification: params.get("trust") ?? defaultFilters.verification,
-      sort: params.get("sort") ?? defaultFilters.sort,
-    },
-    page: Math.max(1, Number(params.get("page")) || 1),
-    displayMode: params.get("view") === "list" ? "list" : "grid",
-  };
+interface SubServiceOption {
+  category: string;
+  value: string;
+  label: string;
 }
 
 function persistDirectoryState(nextState: DirectoryState) {
   if (typeof window === "undefined") return;
 
-  const params = new URLSearchParams();
-  if (nextState.query) params.set("q", nextState.query);
-  if (nextState.filters.category !== "all") params.set("category", nextState.filters.category);
-  if (nextState.filters.subService !== "all") params.set("service", nextState.filters.subService);
-  if (nextState.filters.region !== "all") params.set("region", nextState.filters.region);
-  if (nextState.filters.verification !== "all") params.set("trust", nextState.filters.verification);
-  if (nextState.filters.sort !== defaultFilters.sort) params.set("sort", nextState.filters.sort);
-  if (nextState.page !== 1) params.set("page", String(nextState.page));
-  if (nextState.displayMode !== "grid") params.set("view", nextState.displayMode);
-
-  const queryString = params.toString();
-  window.history.replaceState(null, "", queryString ? `/find-craftsmen?${queryString}` : "/find-craftsmen");
-}
-
-function getFilteredCraftsmen(query: string, filters: DirectoryFilters) {
-  const normalizedQuery = query.trim().toLowerCase();
-  const filtered = allCraftsmen.filter((craftsman) => {
-    const searchableText = [
-      craftsman.name,
-      craftsman.businessName,
-      craftsman.category,
-      craftsman.region,
-      ...craftsman.subServices,
-    ]
-      .join(" ")
-      .toLowerCase();
-
-    return (
-      (!normalizedQuery || searchableText.includes(normalizedQuery)) &&
-      (filters.category === "all" || craftsman.category === filters.category) &&
-      (filters.subService === "all" || craftsman.subServices.includes(filters.subService)) &&
-      (filters.region === "all" || craftsman.region === filters.region) &&
-      (filters.verification === "all" || craftsman.verificationLevel === filters.verification)
-    );
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filters, setFilters] = useState({
+    category: "all",
+    subService: "all",
+    region: "all",
+    verification: "all",
+    sort: "rating_desc",
   });
-
-  return filtered.sort((a, b) => {
-    switch (filters.sort) {
-      case "reviews_desc":
-        return b.reviewCount - a.reviewCount;
-      case "jobs_desc":
-        return b.jobsCompleted - a.jobsCompleted;
-      case "newest":
-        return Number(b.id.split("-").at(-1)) - Number(a.id.split("-").at(-1));
-      case "name_asc":
-        return a.name.localeCompare(b.name);
-      default:
-        return b.rating - a.rating || b.reviewCount - a.reviewCount;
-    }
+  const [currentPage, setCurrentPage] = useState(1);
+  const [state, setState] = useState<{
+    status: "idle" | "loading" | "success";
+    items: CraftsmanCardData[];
+    totalPages: number;
+    totalItems: number;
+  }>({
+    status: "idle",
+    items: [],
+    totalPages: 1,
+    totalItems: 0,
   });
-}
+  const [heroStats, setHeroStats] = useState({
+    totalCraftsmen: 0,
+    verifiedCraftsmen: 0,
+    completedJobs: 0,
+    totalReviews: 0,
+  });
+  const [isStatsLoading, setIsStatsLoading] = useState(true);
+  const [subServiceOptions, setSubServiceOptions] = useState<SubServiceOption[]>([]);
 
 export default function CraftsmenPage() {
   const { data: session, isPending } = useSession();
   const [directoryState, setDirectoryState] = useState(readInitialState);
   const [comparisonIds, setComparisonIds] = useState<string[]>([]);
 
-  const subServiceOptions = useMemo(() => {
-    const seen = new Set<string>();
-    return allCraftsmen.flatMap((craftsman) =>
-      craftsman.subServices.flatMap((service) => {
-        const key = `${craftsman.category}-${service}`;
-        if (seen.has(key)) return [];
-        seen.add(key);
-        return [{ category: craftsman.category, value: service, label: service }];
-      }),
-    );
+  // ─── Fetch hero stats once ───────────────────────────────────────────
+  useEffect(() => {
+    async function fetchHeroStats() {
+      try {
+        const res = await fetch("/api/craftsmen/stats");
+        const json = await res.json();
+        if (res.ok && json.success) {
+          setHeroStats(json.data);
+        }
+      } catch {
+        // fallback
+      } finally {
+        setIsStatsLoading(false);
+      }
+    }
+    fetchHeroStats();
   }, []);
 
-  const filteredCraftsmen = useMemo(
-    () => getFilteredCraftsmen(directoryState.query, directoryState.filters),
-    [directoryState.filters, directoryState.query],
-  );
-  const totalPages = Math.max(1, Math.ceil(filteredCraftsmen.length / pageSize));
-  const currentPage = Math.min(directoryState.page, totalPages);
-  const visibleCraftsmen = filteredCraftsmen.slice((currentPage - 1) * pageSize, currentPage * pageSize);
-  const comparisonCraftsmen = allCraftsmen.filter((craftsman) => comparisonIds.includes(craftsman.id));
-  const activeFilterCount = Object.entries(directoryState.filters).filter(
-    ([key, value]) => key !== "sort" && value !== "all",
-  ).length + (directoryState.query ? 1 : 0);
-  const popularCategories = [...new Set(allCraftsmen.map((craftsman) => craftsman.category))].slice(0, 5);
+  // ─── Fetch sub-service options once ──────────────────────────────────
+  useEffect(() => {
+    async function fetchSubServices() {
+      try {
+        const res = await fetch("/api/sub-services");
+        const json = await res.json();
+        if (res.ok) {
+          setSubServiceOptions(json.data);
+        }
+      } catch {
+        // fallback to empty
+      }
+    }
+    fetchSubServices();
+  }, []);
+
+  // ─── Fetch craftsmen from API ─────────────────────────────────────────
+  useEffect(() => {
+    let isMounted = true;
+    const currentRequestId = ++requestIdRef.current;
+
+    queueMicrotask(() => {
+      if (isMounted) {
+        setState((prev) => ({ ...prev, status: "loading", items: [] }));
+      }
+    });
+
+    const fetchData = async () => {
+      const params = new URLSearchParams({
+        page: String(currentPage),
+        limit: String(pageSize),
+        search: searchQuery,
+        category: filters.category,
+        region: filters.region,
+        verification: filters.verification,
+        sort: filters.sort,
+        subService: filters.subService, // ✅ ADDED THIS LINE
+      });
+
+      try {
+        const res = await fetch(`/api/craftsmen?${params.toString()}`);
+        const json = await res.json();
+
+        if (!isMounted || currentRequestId !== requestIdRef.current) return;
+
+        if (!res.ok) {
+          setState({
+            status: "success",
+            items: [],
+            totalPages: 1,
+            totalItems: 0,
+          });
+          return;
+        }
+
+        // Map API response to CraftsmanCardData
+        const mappedItems: CraftsmanCardData[] = json.data.map((item: CraftsmanResponse) => ({
+          id: item.id,
+          name: item.name,
+          businessName: item.businessName ?? "",
+          image: item.image,
+          verificationLevel: item.verificationLevel as "REGISTERED" | "VERIFIED" | "APPROVED",
+          rating: item.averageRating ?? 0,
+          reviewCount: item.reviewCount,
+          category: item.category,
+          subServices: item.subServices,
+          region: item.region,
+          priceMin: item.priceRangeMin ?? 0,
+          priceMax: item.priceRangeMax ?? 0,
+          jobsCompleted: item.totalJobsCompleted,
+        }));
+
+        setState({
+          status: "success",
+          items: mappedItems,
+          totalPages: json.pagination.totalPages,
+          totalItems: json.pagination.total,
+        });
+      } catch {
+        if (!isMounted || currentRequestId !== requestIdRef.current) return;
+        setState({
+          status: "success",
+          items: [],
+          totalPages: 1,
+          totalItems: 0,
+        });
+      }
+    };
+
+    fetchData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [currentPage, searchQuery, filters]);
+
+  // ─── Scroll to Search/Filters ONLY on pagination actions ──────────────
+  useEffect(() => {
+    if (state.status === "loading" || !shouldScrollAfterPageChange.current) {
+      return;
+    }
+
+    shouldScrollAfterPageChange.current = false;
+
+    if (state.items.length > 0) {
+      setTimeout(() => {
+        searchContainerRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }, 100);
+    }
+  }, [currentPage, state.status, state.items.length]);
+
+  // ─── Handlers ──────────────────────────────────────────────────────────
+  const handleSearch = useCallback((query: string) => {
+    setSearchQuery(query);
+    setCurrentPage(1);
+  }, []);
 
   const updateDirectory = (nextState: DirectoryState) => {
     setDirectoryState(nextState);
@@ -161,50 +244,17 @@ export default function CraftsmenPage() {
     updateDirectory({ ...directoryState, filters, page: 1 });
   };
 
-  const toggleComparison = (craftsmanId: string) => {
-    if (comparisonIds.includes(craftsmanId)) {
-      setComparisonIds((current) => current.filter((id) => id !== craftsmanId));
-      return;
-    }
-    if (comparisonIds.length === 3) {
-      toast.info("You can compare up to three craftsmen at a time.");
-      return;
-    }
-    setComparisonIds((current) => [...current, craftsmanId]);
-  };
-
   return (
-    <div className="flex min-h-screen flex-col bg-(image:--find-craftsmen-bg) bg-cover bg-center bg-fixed">
-      <Navbar user={session?.user ?? null} isLoading={isPending} />
-      <main id="main-content" className="container mx-auto flex-1 space-y-6 px-4 py-6">
-        <CraftsmenHero totalCraftsmen={156} verifiedCraftsmen={89} completedJobs={2347} totalReviews={512} />
-        <RecentlyViewedCraftsmen />
-
-        <section aria-labelledby="directory-heading" className="space-y-4">
-          <div className="flex flex-col gap-3 rounded-2xl border border-border/70 bg-card/75 p-4 shadow-sm backdrop-blur-xs sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="flex items-center gap-2 text-sm font-semibold text-primary"><Sparkles className="size-4" />Start with a popular service</p>
-              <h2 id="directory-heading" className="mt-1 text-lg font-semibold">Find the right professional faster</h2>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {popularCategories.map((category) => (
-                <Button
-                  key={category}
-                  type="button"
-                  size="sm"
-                  variant={directoryState.filters.category === category ? "secondary" : "outline"}
-                  onClick={() => updateFilters({ ...directoryState.filters, category, subService: "all" })}
-                >
-                  {category.replace(" & ", " / ")}
-                </Button>
-              ))}
-            </div>
-          </div>
-
-          <CraftsmenSearch
-            value={directoryState.query}
-            onValueChange={(query) => updateDirectory({ ...directoryState, query, page: 1 })}
-            placeholder="Search by trade, service, craftsman, or region"
+    <div className="flex min-h-screen flex-col bg-(image:--find-craftsmen-bg) bg-cover bg-center bg-no-repeat bg-fixed">
+      <Navbar user={user} isLoading={isPending} />
+      <div className="flex-1 container mx-auto px-4 py-6 space-y-6">
+        <CraftsmenHero {...heroStats} loading={isStatsLoading} />
+        <div className="space-y-4" ref={searchContainerRef}>
+          <CraftsmenSearch onSearch={handleSearch} />
+          <CraftsmenFilters
+            filters={filters}
+            onFilterChange={handleFilterChange}
+            subServiceOptions={subServiceOptions}
           />
           <CraftsmenFilters filters={directoryState.filters} onFilterChange={updateFilters} subServiceOptions={subServiceOptions} />
 

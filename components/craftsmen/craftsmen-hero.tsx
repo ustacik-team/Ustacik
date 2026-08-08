@@ -1,6 +1,6 @@
-// components/craftsmen/craftsmen-hero.tsx
 import { Users, ShieldCheck, Briefcase, Star } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
 interface CraftsmenHeroProps {
@@ -12,6 +12,8 @@ interface CraftsmenHeroProps {
   completedJobs: number;
   /** Total number of reviews submitted */
   totalReviews: number;
+  /** Whether stats are currently loading */
+  loading?: boolean;
   /** Optional title override */
   title?: string;
   /** Optional subtitle override */
@@ -56,6 +58,7 @@ export function CraftsmenHero({
   verifiedCraftsmen,
   completedJobs,
   totalReviews,
+  loading = false,
   title = "Find Trusted Craftsmen",
   subtitle = "Find verified craftsmen across Northern Cyprus.",
   className,
@@ -96,9 +99,13 @@ export function CraftsmenHero({
                   <div className={cn("rounded-full p-2", stat.bgColor)}>
                     <Icon className={cn("h-5 w-5 sm:h-6 sm:w-6", stat.color)} />
                   </div>
-                  <span className="text-xl font-bold sm:text-2xl">
-                    {value.toLocaleString()}
-                  </span>
+                  {loading ? (
+                    <Skeleton className="h-7 w-16 my-0.5 rounded-md" />
+                  ) : (
+                    <span className="text-xl font-bold sm:text-2xl">
+                      {value.toLocaleString()}
+                    </span>
+                  )}
                   <span className="text-xs text-muted-foreground sm:text-sm">
                     {stat.label}
                   </span>
@@ -110,4 +117,4 @@ export function CraftsmenHero({
       </div>
     </section>
   );
-}
+}
