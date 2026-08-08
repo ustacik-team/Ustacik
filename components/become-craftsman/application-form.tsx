@@ -151,9 +151,11 @@ export function ApplicationForm() {
   ]);
 
   // ✅ Profile Photo State
+  // ✅ Profile Photo State
   const [profilePhoto, setProfilePhoto] = useState<File | null>(null);
   const [profilePhotoPreview, setProfilePhotoPreview] = useState<string | null>(null);
 
+  // ✅ Portfolio Photos State
   // ✅ Portfolio Photos State
   const [portfolioPhotos, setPortfolioPhotos] = useState<File[]>([]);
   const [portfolioPreviews, setPortfolioPreviews] = useState<string[]>([]);

@@ -4,7 +4,7 @@ A trusted craftsman platform for Northern Cyprus, built as part of the **Ata Bil
 
 ---
 
-## 📖 About
+# 📖 About
 
 **ustacik.com** connects customers with trusted craftsmen across Northern Cyprus (Nicosia, Kyrenia, Famagusta, Larnaca, Morphou, Güzelyurt, and more).
 
@@ -12,7 +12,7 @@ The platform aims to bridge the trust gap between customers and service provider
 
 ---
 
-## 🎯 Project Goals
+# 🎯 Project Objectives
 
 - **Connect Customers & Craftsmen**: Enable seamless discovery and job requests for local home and trade services.
 - **Verification System**: Implement a 3-tier manual verification process (Registered, Verified, Approved).
@@ -22,7 +22,7 @@ The platform aims to bridge the trust gap between customers and service provider
 
 ---
 
-## 🛠 Core Features
+# ✨ Core Features
 
 - 🔍 **Craftsman Directory**: Search and filter craftsmen by name, business, category, sub-service, region, verification level, and rating.
 - 🏷️ **Categories & Sub-Services**: Detailed categorization spanning Plumbing, Electrical, Painting, Carpentry, HVAC, Gardening, Appliances, Aluminium/Glass, and more.
@@ -40,12 +40,14 @@ The platform aims to bridge the trust gap between customers and service provider
 ## 🏗 Tech Stack
 
 ### Frontend & Application Framework
+
 - **Framework**: [Next.js 16](https://nextjs.org/) (App Router, Server Components & Actions)
 - **UI & Styling**: [React 19](https://react.dev/), [Tailwind CSS v4](https://tailwindcss.com/), [Shadcn UI](https://ui.shadcn.com/), [Radix UI](https://www.radix-ui.com/), [Base UI](https://base-ui.com/)
 - **Icons & Theme**: [Lucide React](https://lucide.dev/), [React Icons](https://react-icons.github.io/react-icons/), `next-themes` (Dark/Light mode)
 - **Forms & Validation**: [React Hook Form](https://react-hook-form.com/), [Zod](https://zod.dev/), `@hookform/resolvers`
 
 ### Backend & Database
+
 - **API**: Next.js App Router API Handlers (`app/api/`)
 - **Database**: PostgreSQL hosted on [Neon](https://neon.tech/)
 - **ORM**: [Prisma 7](https://www.prisma.io/) with `@prisma/adapter-neon` serverless driver
@@ -57,19 +59,20 @@ The platform aims to bridge the trust gap between customers and service provider
 
 Every craftsman profile is categorized under one of three verification levels managed manually by administrators:
 
-| Level | Badge | Description |
-| :--- | :--- | :--- |
-| **REGISTERED** | Standard | Default state upon account creation. Phone & basic profile provided. |
-| **VERIFIED** | Verified | Identity & phone number verified by admin. |
-| **APPROVED** | Premium | Full background check completed: Business registration, work photos, references, and workmanship guarantee verified. |
+| Level          | Badge    | Description                                                                                                          |
+| :------------- | :------- | :------------------------------------------------------------------------------------------------------------------- |
+| **REGISTERED** | Standard | Default state upon account creation. Phone & basic profile provided.                                                 |
+| **VERIFIED**   | Verified | Identity & phone number verified by admin.                                                                           |
+| **APPROVED**   | Premium  | Full background check completed: Business registration, work photos, references, and workmanship guarantee verified. |
 
 ---
 
-## ⭐ Review System
+# ⭐ Review System
 
 Reviews are restricted to completed jobs to maintain integrity.
 
 Each review measures four specific criteria on a 1–5 scale:
+
 1. ⏰ **Punctuality**: Timeliness and schedule adherence.
 2. 🔨 **Workmanship**: Quality of service and craftsmanship.
 3. 💰 **Price Honesty**: Transparency and adherence to quoted pricing.
@@ -177,33 +180,136 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## 📡 API Overview
 
-| Endpoint | Method | Description |
-| :--- | :--- | :--- |
-| `/api/auth/[...all]` | GET / POST | Better Auth endpoints (sign-in, sign-up, sign-out, session). |
-| `/api/craftsmen` | GET | List craftsmen with pagination, search, category, subService, region, verification, & sort filters. |
-| `/api/craftsmen/[id]` | GET | Fetch full profile, reviews, photos, verification records, and related craftsmen for a specific ID. |
-| `/api/featured-craftsmen` | GET | Fetch top-rated, approved craftsmen for landing page highlights. |
-| `/api/sub-services` | GET | Retrieve sub-services mapped to their parent categories. |
+| Endpoint                  | Method     | Description                                                                                         |
+| :------------------------ | :--------- | :-------------------------------------------------------------------------------------------------- |
+| `/api/auth/[...all]`      | GET / POST | Better Auth endpoints (sign-in, sign-up, sign-out, session).                                        |
+| `/api/craftsmen`          | GET        | List craftsmen with pagination, search, category, subService, region, verification, & sort filters. |
+| `/api/craftsmen/[id]`     | GET        | Fetch full profile, reviews, photos, verification records, and related craftsmen for a specific ID. |
+| `/api/featured-craftsmen` | GET        | Fetch top-rated, approved craftsmen for landing page highlights.                                    |
+| `/api/sub-services`       | GET        | Retrieve sub-services mapped to their parent categories.                                            |
 
 ---
 
-## 👥 Team Workflow
+# 🚀 Getting Started
 
-- Create a feature branch from `develop`.
-- Make your changes and commit regularly.
-- Open a Pull Request into `develop`.
-- After review, the Pull Request will be merged into `develop`.
-- Only project maintainers can merge `develop` into `main`.
+## 1. Clone the repository
 
-> ⚠️ **Do not push directly to `main`.**
+```bash
+git clone https://github.com/ustacik-team/Ustacik.git
+```
+
+## 2. Navigate into the project
+
+```bash
+cd Ustacik
+```
+
+## 3. Install dependencies
+
+Using npm:
+
+```bash
+npm install
+```
+
+Or using pnpm:
+
+```bash
+pnpm install
+```
+
+## 4. Configure environment variables
+
+Create a `.env` file in the project root (I will send the secret keys privately).
+
+Example:
+
+```env
+DATABASE_URL=
+DIRECT_URL=
+
+BETTER_AUTH_SECRET=
+BETTER_AUTH_URL=http://localhost:3000
+
+NEXT_APP_URL=http://localhost:3000
+
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+```
+
+> Contact a project maintainer to obtain the required environment variables.
+
+## 5. Generate Prisma Client
+
+```bash
+npx prisma generate
+```
+
+## 6. Start the development server
+
+Using npm:
+
+```bash
+npm run dev
+```
+
+Or using pnpm:
+
+```bash
+pnpm dev
+```
+
+The application will be available at:
+
+```text
+http://localhost:3000
+```
 
 ---
 
-## 🌿 Branch Strategy
+# 📂 Useful Commands
+
+| Command               | Description                  |
+| --------------------- | ---------------------------- |
+| `npm run dev`         | Start the development server |
+| `npm run build`       | Build the application        |
+| `npm run start`       | Run the production build     |
+| `npm run lint`        | Run ESLint                   |
+| `npx prisma generate` | Generate Prisma Client       |
+| `npx prisma studio`   | Open Prisma Studio           |
+
+---
+
+# 🏛 Project Structure
+
+```
+app/
+components/
+lib/
+├── api/
+├── auth/
+prisma/
+public/
+```
+
+The project follows a modular architecture with clear separation of concerns:
+
+- **Components** for reusable UI
+- **Services** for business logic
+- **Mappers** for response transformations
+- **API Helpers** for reusable API utilities
+- **Validations** for Zod schemas
+- **Prisma** for database access
+
+---
+
+# 🌿 Git Workflow
+
+The project follows a Git Flow–inspired workflow.
 
 ```text
 main
-  │
+│
 develop
   ├── feature/auth
   ├── feature/backend
@@ -228,15 +334,44 @@ develop
 ### 📝 Commit Message Convention
 
 ```text
-feat: add job request endpoint
-fix: resolve login validation bug
-docs: update README
-refactor: improve notification service
+feat: add craftsman profile page
+feat: implement job request endpoint
+fix: resolve authentication middleware issue
+refactor: simplify craftsmen service
+docs: update project README
 style: format dashboard components
 ```
 
 ---
 
-## 📄 License
+# 📋 Development Guidelines
+
+- Follow the existing project architecture.
+- Keep components modular and reusable.
+- Use **shadcn/ui** wherever appropriate.
+- Prefer **Server Components** unless client-side interactivity is required.
+- Validate all user input using **Zod**.
+- Keep Route Handlers thin by moving business logic into services.
+- Reuse helpers, mappers, validators, and utilities whenever possible.
+- Write descriptive commit messages.
+- Keep Pull Requests focused on a single feature.
+- Ensure responsive layouts across desktop, tablet, and mobile devices.
+- Test your feature before opening a Pull Request.
+
+---
+
+# 🤝 Team Collaboration
+
+To keep the project consistent:
+
+- Discuss architectural decisions before implementing major changes.
+- Follow the established folder structure.
+- Keep code readable and maintainable.
+- Review Pull Requests constructively.
+- Maintain a consistent coding style across the project.
+
+---
+
+# 📄 License
 
 This repository is created for the Ata Bilişim Teknolojileri internship project.
