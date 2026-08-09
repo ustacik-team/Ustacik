@@ -4,6 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  Home,
   LayoutDashboard,
   Hammer,
   BriefcaseBusiness,
@@ -72,6 +73,11 @@ interface NavItem {
 }
 
 const mainNavItems: NavItem[] = [
+  {
+    title: "Home",
+    href: "/",
+    icon: Home,
+  },
   {
     title: "Dashboard",
     href: "/dashboard/admin",
@@ -195,7 +201,7 @@ export function AdminSidebar({ user, className, ...props }: AdminSidebarProps) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <Link href="/dashboard/admin" onClick={handleNavClick}>
+              <Link href="/" onClick={handleNavClick}>
                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
                   <Shield className="size-4" />
                 </div>

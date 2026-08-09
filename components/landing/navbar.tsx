@@ -168,7 +168,13 @@ export function Navbar({ user, isLoading = false, hasApplication: hasApplication
           )}
           
           {/* Mobile menu */}
-          <MobileNav user={user} isLoading={isLoading} />
+          <MobileNav
+            user={user}
+            isLoading={isLoading}
+            craftsmanNavLabel={craftsmanNavLabel}
+            craftsmanNavHref={craftsmanNavHref}
+            onCraftsmanClick={handleBecomeCraftsmanClick}
+          />
         </div>
       </div>
     </header>
