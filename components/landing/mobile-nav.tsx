@@ -10,7 +10,9 @@ import {
   Briefcase, 
   Grid, 
   HelpCircle,
-  ChevronRight
+  ChevronRight,
+  LogOut,
+  Loader2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,6 +26,7 @@ import {
 import { ThemeToggle } from "@/components/theme-toggle";
 import { UserAvatar } from "@/components/user-avatar";
 import { Separator } from "@/components/ui/separator";
+import { useSignOut } from "@/hooks/use-sign-out";
 
 interface User {
   id: string;
@@ -49,6 +52,7 @@ export function MobileNav({
   onCraftsmanClick,
 }: MobileNavProps) {
   const [open, setOpen] = useState(false);
+  const { signOut, isLoading: isSigningOut } = useSignOut();
 
   const navItems = [
     { href: "/", label: "Home", icon: Home },
@@ -139,16 +143,35 @@ export function MobileNav({
               <div className="h-4 w-28 rounded bg-muted" />
             </div>
           ) : user ? (
-            <div className="flex items-center gap-3 p-3 rounded-xl bg-primary/5 border border-primary/15">
-              <UserAvatar user={user} className="h-9 w-9 border border-border/60" />
-              <div className="flex flex-col truncate">
-                <span className="text-sm font-semibold truncate text-foreground">
-                  {user.name || "User"}
-                </span>
-                <span className="text-xs text-muted-foreground truncate">
-                  {user.email}
-                </span>
+            <div className="flex items-center justify-between gap-2 p-3 rounded-xl bg-primary/5 border border-primary/15">
+              <div className="flex items-center gap-3 overflow-hidden">
+                <UserAvatar user={user} className="h-9 w-9 border border-border/60 shrink-0" />
+                <div className="flex flex-col truncate">
+                  <span className="text-sm font-semibold truncate text-foreground">
+                    {user.name || "User"}
+                  </span>
+                  <span className="text-xs text-muted-foreground truncate">
+                    {user.email}
+                  </span>
+                </div>
               </div>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 shrink-0 gap-1.5 text-xs text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/20 cursor-pointer"
+                onClick={async () => {
+                  setOpen(false);
+                  await signOut();
+                }}
+                disabled={isSigningOut}
+              >
+                {isSigningOut ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <LogOut className="h-3.5 w-3.5" />
+                )}
+                <span>Sign Out</span>
+              </Button>
             </div>
           ) : (
             <Button asChild size="lg" className="w-full h-11 font-medium rounded-xl shadow-xs">
