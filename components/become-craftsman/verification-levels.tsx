@@ -4,8 +4,7 @@ import {
   UserPlus, 
   ShieldCheck, 
   Award, 
-  CheckCircle2,
-  XCircle
+  CheckCircle2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 

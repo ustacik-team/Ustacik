@@ -408,8 +408,11 @@ async function main() {
       const categorySubServices = subServicesMap[categoryId] || [];
       const subServiceId = categorySubServices[0]?.id || null;
 
-      const isCompleted = isFeatured || j < 2;
-      const status = isCompleted ? JobStatus.COMPLETED : (j === 2 ? JobStatus.PENDING : JobStatus.ACCEPTED);
+      const isCompleted = isFeatured ? j < 9 : j < 1;
+      const nonCompletedStatuses = [JobStatus.PENDING, JobStatus.ACCEPTED, JobStatus.CANCELLED];
+      const status = isCompleted
+        ? JobStatus.COMPLETED
+        : nonCompletedStatuses[j % nonCompletedStatuses.length];
 
       const job = await prisma.job.create({
         data: {

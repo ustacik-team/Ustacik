@@ -3,71 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   ShieldCheck,
-  Briefcase,
-  Star,
   ArrowRight,
-  MapPin,
-  Droplets,
-  Zap,
-  Hammer,
-  PaintRoller,
-  Fan,
-  Smartphone,
 } from "lucide-react";
-
-// ─── Floating Stat Cards (Left side) ──────────────────────────────────
-const floatingStats = [
-  {
-    icon: ShieldCheck,
-    label: "Verified Craftsmen",
-    value: "150+",
-    color: "text-emerald-500",
-    bgColor: "bg-emerald-50 dark:bg-emerald-950/30",
-    delay: "0s",
-    top: "top-4",
-    right: "right-4",
-  },
-  {
-    icon: Star,
-    label: "4.9 Rating",
-    value: "⭐ 4.9",
-    color: "text-amber-500",
-    bgColor: "bg-amber-50 dark:bg-amber-950/30",
-    delay: "0.15s",
-    top: "top-20",
-    left: "left-4",
-  },
-  {
-    icon: Briefcase,
-    label: "Jobs Completed",
-    value: "152",
-    color: "text-blue-500",
-    bgColor: "bg-blue-50 dark:bg-blue-950/30",
-    delay: "0.3s",
-    bottom: "bottom-4",
-    right: "right-8",
-  },
-  {
-    icon: MapPin,
-    label: "Location",
-    value: "Kyrenia, TRNC",
-    color: "text-purple-500",
-    bgColor: "bg-purple-50 dark:bg-purple-950/30",
-    delay: "0.2s",
-    bottom: "bottom-12",
-    left: "left-6",
-  },
-];
-
-// ─── Service Icons ──────────────────────────────────────────────────────
-const serviceIcons = [
-  { icon: Droplets, label: "Plumbing", color: "text-blue-400" },
-  { icon: Zap, label: "Electrical", color: "text-yellow-400" },
-  { icon: Hammer, label: "Carpentry", color: "text-amber-400" },
-  { icon: PaintRoller, label: "Painting", color: "text-pink-400" },
-  { icon: Fan, label: "HVAC", color: "text-cyan-400" },
-  { icon: Smartphone, label: "Repair", color: "text-indigo-400" },
-];
 
 // ─── Hero Component ──────────────────────────────────────────────────────
 export function Hero() {

@@ -3,7 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { apiCreated, apiError, apiSuccess, validateBody } from "@/lib/api/response";
 import { handleApiError } from "@/lib/api/errors";
-import { Role, ApplicationStatus } from "@prisma/client";
+import { Role, ApplicationStatus, Prisma } from "@prisma/client";
 import { getServerSession } from "@/lib/get-session";
 
 // Application payload schema based on form & Prisma model
@@ -46,7 +46,7 @@ export async function GET(req: NextRequest) {
 
     // If Admin, can query all applications or filter by status
     if (session?.user?.role === Role.ADMIN) {
-      const whereClause: any = {};
+      const whereClause: Prisma.CraftsmanApplicationWhereInput = {};
       if (statusParam && Object.values(ApplicationStatus).includes(statusParam as ApplicationStatus)) {
         whereClause.status = statusParam as ApplicationStatus;
       }
@@ -70,7 +70,9 @@ export async function GET(req: NextRequest) {
       return apiError("Unauthorized or email parameter missing", 401);
     }
 
-    const whereClause: any = userId ? { userId } : { email: userEmail };
+    const whereClause: Prisma.CraftsmanApplicationWhereInput = userId
+      ? { userId }
+      : { email: userEmail ?? undefined };
 
     const applications = await prisma.craftsmanApplication.findMany({
       where: whereClause,

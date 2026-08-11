@@ -1,9 +1,8 @@
-import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { apiSuccess } from "@/lib/api/response";
 import { handleApiError } from "@/lib/api/errors";
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     // Fetch craftsmen that are APPROVED and have at least one review
     const craftsmen = await prisma.craftsmanProfile.findMany({

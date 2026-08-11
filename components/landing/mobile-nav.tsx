@@ -25,7 +25,6 @@ import {
 } from "@/components/ui/sheet";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { UserAvatar } from "@/components/user-avatar";
-import { Separator } from "@/components/ui/separator";
 import { useSignOut } from "@/hooks/use-sign-out";
 
 interface User {

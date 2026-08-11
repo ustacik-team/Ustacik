@@ -25,7 +25,7 @@ export function ReviewSummary({
   className,
 }: ReviewSummaryProps) {
   // ─── Not enough reviews state ──────────────────────────────────────
-  if (totalReviews < 3) {
+  if (totalReviews === 0) {
     return (
       <Card className={cn("h-full border-border/40 bg-card/60 backdrop-blur-sm shadow-sm", className)}>
         <CardHeader className="border-b border-border/20 pb-4">
@@ -34,9 +34,9 @@ export function ReviewSummary({
         <CardContent className="pt-8 pb-12 flex flex-col items-center justify-center text-center gap-3">
           <Star className="h-12 w-12 text-muted-foreground/30" />
           <div>
-            <p className="text-lg font-medium text-muted-foreground">Not enough reviews yet.</p>
+            <p className="text-lg font-medium text-muted-foreground">No reviews yet.</p>
             <p className="text-sm text-muted-foreground/70 mt-1">
-              Need at least 3 reviews to display an average rating.
+              Ratings and category breakdown will appear once customers leave feedback.
             </p>
           </div>
         </CardContent>

@@ -2,7 +2,6 @@
 
 import type { ComponentProps } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -29,7 +28,6 @@ export interface UserAvatarProps extends ComponentProps<typeof Avatar> {
 
 export function UserAvatar({ user, className, dashboardHref, ...props }: UserAvatarProps) {
   const { signOut, isLoading } = useSignOut();
-  const router = useRouter();
 
   const displayName = user.name ?? user.email;
   const initials = displayName

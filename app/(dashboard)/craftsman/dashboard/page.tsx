@@ -1,177 +1,235 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { ArrowUpRight, DollarSign, Users, Briefcase, Activity } from "lucide-react";
+import { getServerSession } from "@/lib/get-session";
+import { prisma } from "@/lib/prisma";
+import { CraftsmanDashboardHeader } from "@/components/craftsman/dashboard/craftsman-dashboard-header";
+import { JobStatistics } from "@/components/craftsman/dashboard/job-statistics";
+import { VerificationStatusCard } from "@/components/craftsman/dashboard/verification-status-card";
+import { ProfileOverviewCard } from "@/components/craftsman/dashboard/profile-overview-card";
+import { RecentJobRequests } from "@/components/craftsman/dashboard/recent-job-requests";
+import { RecentReviews } from "@/components/craftsman/dashboard/recent-reviews";
+import { ServicesSummary } from "@/components/craftsman/dashboard/services-summary";
+import { WorkPortfolioPreview } from "@/components/craftsman/dashboard/work-portfolio-preview";
+import { NotificationsPreview } from "@/components/craftsman/dashboard/notifications-preview";
+import { SubscriptionCard } from "@/components/craftsman/dashboard/subscription-card";
+import { QuickActions } from "@/components/craftsman/dashboard/quick-actions";
+import { JobStatus } from "@prisma/client";
 
-// Dummy data
-const stats = [
-  { title: "Total Revenue", value: "$45,231.89", icon: DollarSign, change: "+20.1%" },
-  { title: "Active Users", value: "2,350", icon: Users, change: "+180" },
-  { title: "Jobs Posted", value: "1,423", icon: Briefcase, change: "+12" },
-  { title: "Conversion Rate", value: "12.5%", icon: Activity, change: "+2.3%" },
-];
+export default async function CraftsmanDashboardPage() {
+  const session = await getServerSession();
 
-const recentJobs = [
-  { id: 1, title: "Plumbing Repair", status: "In Progress", priority: "High", date: "2025-02-10" },
-  { id: 2, title: "Electrical Wiring", status: "Completed", priority: "Medium", date: "2025-02-09" },
-  { id: 3, title: "Roof Inspection", status: "Pending", priority: "Low", date: "2025-02-08" },
-  { id: 4, title: "Kitchen Renovation", status: "In Progress", priority: "High", date: "2025-02-07" },
-  { id: 5, title: "Bathroom Tiling", status: "Completed", priority: "Medium", date: "2025-02-06" },
-  { id: 6, title: "Window Installation", status: "Pending", priority: "Low", date: "2025-02-05" },
-  { id: 7, title: "Garden Landscaping", status: "In Progress", priority: "High", date: "2025-02-04" },
-  { id: 8, title: "Appliance Repair", status: "Completed", priority: "Medium", date: "2025-02-03" },
-  { id: 9, title: "Fence Building", status: "Pending", priority: "Low", date: "2025-02-02" },
-  { id: 10, title: "Interior Painting", status: "In Progress", priority: "High", date: "2025-02-01" },
-];
+  if (!session?.user?.id) {
+    return null;
+  }
 
-const statusColors = {
-  "In Progress": "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300",
-  "Completed": "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
-  "Pending": "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300",
-} as const;
+  // Fetch CraftsmanProfile with relations
+  const craftsmanProfile = await prisma.craftsmanProfile.findUnique({
+    where: {
+      userId: session.user.id,
+    },
+    include: {
+      region: true,
+      categories: {
+        include: {
+          category: true,
+        },
+      },
+      subServices: {
+        include: {
+          subService: {
+            include: {
+              category: true,
+            },
+          },
+        },
+      },
+      photos: {
+        orderBy: {
+          createdAt: "desc",
+        },
+        take: 6,
+      },
+      verificationRecords: {
+        orderBy: {
+          verifiedAt: "desc",
+        },
+        take: 1,
+      },
+    },
+  });
 
-const priorityColors = {
-  High: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300",
-  Medium: "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300",
-  Low: "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300",
-} as const;
+  // If no craftsman profile is created yet, render an initial setup state
+  if (!craftsmanProfile) {
+    return (
+      <div className="mx-auto max-w-4xl py-12 text-center space-y-4">
+        <h2 className="text-2xl font-bold">Welcome to Ustacik Craftsman Workspace</h2>
+        <p className="text-sm text-muted-foreground max-w-md mx-auto">
+          You currently don&apos;t have an active craftsman profile registered. Complete your profile registration to start receiving customer job requests.
+        </p>
+        <QuickActions />
+      </div>
+    );
+  }
 
-export default function CraftsmanDashboardPage() {
+  // Fetch Jobs belonging to this craftsman
+  const jobs = await prisma.job.findMany({
+    where: {
+      craftsmanId: craftsmanProfile.id,
+    },
+    include: {
+      customer: {
+        select: {
+          name: true,
+          image: true,
+        },
+      },
+      category: {
+        select: {
+          name: true,
+        },
+      },
+      subService: {
+        select: {
+          name: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  // Fetch Reviews belonging to this craftsman
+  const reviews = await prisma.review.findMany({
+    where: {
+      craftsmanId: craftsmanProfile.id,
+    },
+    include: {
+      customer: {
+        select: {
+          name: true,
+          image: true,
+        },
+      },
+      job: {
+        select: {
+          title: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  // Fetch Notifications for this user
+  const notifications = await prisma.notification.findMany({
+    where: {
+      userId: session.user.id,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    take: 5,
+  });
+
+  // Calculate live statistics
+  const pendingCount = jobs.filter((j) => j.status === JobStatus.PENDING).length;
+  const acceptedCount = jobs.filter((j) => j.status === JobStatus.ACCEPTED).length;
+  const completedCount = jobs.filter((j) => j.status === JobStatus.COMPLETED).length;
+  const cancelledCount = jobs.filter((j) => j.status === JobStatus.CANCELLED).length;
+
+  // Group subservices by category for ServicesSummary
+  const categoryMap = new Map<string, { id: string; name: string; subServices: { id: string; name: string }[] }>();
+
+  for (const cc of craftsmanProfile.categories) {
+    if (cc.category) {
+      categoryMap.set(cc.category.id, {
+        id: cc.category.id,
+        name: cc.category.name,
+        subServices: [],
+      });
+    }
+  }
+
+  for (const cs of craftsmanProfile.subServices) {
+    if (cs.subService) {
+      const pCat = cs.subService.category;
+      if (!categoryMap.has(pCat.id)) {
+        categoryMap.set(pCat.id, {
+          id: pCat.id,
+          name: pCat.name,
+          subServices: [],
+        });
+      }
+      const grp = categoryMap.get(pCat.id)!;
+      if (!grp.subServices.some((s) => s.id === cs.subService.id)) {
+        grp.subServices.push({
+          id: cs.subService.id,
+          name: cs.subService.name,
+        });
+      }
+    }
+  }
+
+  const serviceCategories = Array.from(categoryMap.values());
+  const latestVerificationRecord = craftsmanProfile.verificationRecords[0] || null;
+
   return (
-    <div className="space-y-6">
-      {/* Stats Grid */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat) => {
-          const Icon = stat.icon;
-          return (
-            <Card key={stat.title}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  {stat.title}
-                </CardTitle>
-                <Icon className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{stat.value}</div>
-                <p className="text-xs text-muted-foreground">
-                  {stat.change} from last month
-                </p>
-              </CardContent>
-            </Card>
-          );
-        })}
+    <div className="mx-auto max-w-6xl space-y-6">
+      {/* 1. Header Banner */}
+      <CraftsmanDashboardHeader
+        user={{
+          name: session.user.name ?? "Craftsman",
+          email: session.user.email ?? "",
+          image: session.user.image,
+        }}
+        profile={{
+          businessName: craftsmanProfile.businessName,
+          verificationLevel: craftsmanProfile.verificationLevel,
+          region: craftsmanProfile.region,
+        }}
+      />
+
+      {/* 2. Live Job Statistics */}
+      <JobStatistics
+        stats={{
+          total: jobs.length,
+          pending: pendingCount,
+          accepted: acceptedCount,
+          completed: completedCount,
+          cancelled: cancelledCount,
+          totalProfileCompletedJobs: craftsmanProfile.totalJobsCompleted,
+        }}
+      />
+
+      {/* 3. Verification & Business Profile Overview */}
+      <div className="grid gap-6 md:grid-cols-2">
+        <VerificationStatusCard
+          level={craftsmanProfile.verificationLevel}
+          record={latestVerificationRecord}
+        />
+        <ProfileOverviewCard profile={craftsmanProfile} />
       </div>
 
-      {/* Chart Placeholder */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Activity Overview</CardTitle>
-          <CardDescription>
-            Daily active users and job requests over the past 30 days
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="h-[200px] w-full rounded-md bg-muted/30 flex items-center justify-center text-muted-foreground text-sm">
-            📊 Chart (dummy) – Replace with real chart library
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Recent Jobs Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Job Requests</CardTitle>
-          <CardDescription>
-            Latest jobs posted by customers
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Title</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Priority</TableHead>
-                <TableHead>Date</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {recentJobs.map((job) => (
-                <TableRow key={job.id}>
-                  <TableCell className="font-medium">{job.title}</TableCell>
-                  <TableCell>
-                    <Badge variant="secondary" className={statusColors[job.status as keyof typeof statusColors]}>
-                      {job.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className={priorityColors[job.priority as keyof typeof priorityColors]}>
-                      {job.priority}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>{job.date}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-
-      {/* Extra long text section to ensure scrolling */}
-      <div className="grid gap-4 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="flex items-center gap-4 border-b pb-2 last:border-0 last:pb-0">
-                <div className="rounded-full bg-primary/10 p-2">
-                  <ArrowUpRight className="h-4 w-4 text-primary" />
-                </div>
-                <div className="flex-1 space-y-1">
-                  <p className="text-sm font-medium">Action #{i + 1}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {new Date('2025-02-10T00:00:00.000Z').toLocaleDateString()}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Quick Tips</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="rounded-lg border p-3">
-                <h4 className="font-medium">Tip #{i + 1}</h4>
-                <p className="text-sm text-muted-foreground">
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor.
-                </p>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
+      {/* 4. Recent Job Requests & Reviews */}
+      <div className="grid gap-6 md:grid-cols-2">
+        <RecentJobRequests jobs={jobs} />
+        <RecentReviews reviews={reviews} />
       </div>
 
-      {/* Footer spacer to ensure enough scroll */}
-      <div className="h-4" />
+      {/* 5. Services Summary & Work Portfolio Preview */}
+      <div className="grid gap-6 md:grid-cols-2">
+        <ServicesSummary categories={serviceCategories} />
+        <WorkPortfolioPreview photos={craftsmanProfile.photos} />
+      </div>
+
+      {/* 6. Notifications & Subscription Status */}
+      <div className="grid gap-6 md:grid-cols-2">
+        <NotificationsPreview notifications={notifications} />
+        <SubscriptionCard status={craftsmanProfile.subscriptionStatus} />
+      </div>
+
+      {/* 7. Quick Actions Shortcuts */}
+      <QuickActions />
     </div>
   );
 }
