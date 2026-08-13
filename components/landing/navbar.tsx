@@ -158,11 +158,13 @@ export function Navbar({ user, isLoading = false, hasApplication: hasApplication
           
           {/* ✅ Desktop user section with loading state */}
           {isLoading ? (
-            <div className="h-8 w-8 rounded-full bg-muted animate-pulse" />
+            <div className="hidden md:block h-8 w-8 rounded-full bg-muted animate-pulse" />
           ) : user ? (
-            <UserAvatar user={user} className="h-8 w-8" />
+            <div className="hidden md:block">
+              <UserAvatar user={user} className="h-8 w-8" />
+            </div>
           ) : (
-            <Button variant="ghost" size="sm" asChild>
+            <Button variant="ghost" size="sm" asChild className="hidden md:inline-flex">
               <Link href="/sign-in">Sign In</Link>
             </Button>
           )}

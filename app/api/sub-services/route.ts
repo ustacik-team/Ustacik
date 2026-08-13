@@ -1,9 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { apiSuccess } from "@/lib/api/response";
 import { handleApiError } from "@/lib/api/errors";
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     // Fetch all categories with their sub-services
     const categories = await prisma.category.findMany({

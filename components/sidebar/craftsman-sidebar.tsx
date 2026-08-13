@@ -8,9 +8,8 @@ import {
   LayoutDashboard,
   Hammer,
   BriefcaseBusiness,
-  Heart,
+  Images,
   Bell,
-  User,
   Settings,
   CircleHelp,
   LogOut,
@@ -62,7 +61,7 @@ const mainNavItems: NavItem[] = [
   },
   {
     title: "Dashboard",
-    href: "/dashboard/craftsman",
+    href: "/craftsman/dashboard",
     icon: LayoutDashboard,
   },
   {
@@ -72,57 +71,33 @@ const mainNavItems: NavItem[] = [
   },
   {
     title: "Job Requests",
-    href: "/dashboard/craftsman/jobs",
+    href: "/craftsman/job-requests",
     icon: BriefcaseBusiness,
-    todoComment:
-      "Display jobs assigned to this craftsman. Filter Job where craftsman.userId = session.user.id. Show Pending, Accepted and Completed jobs.",
   },
   {
     title: "My Services",
-    href: "/dashboard/craftsman/services",
+    href: "/craftsman/services",
     icon: Hammer,
-    todoComment:
-      "Manage categories, sub-services and pricing from CraftsmanCategory, CraftsmanSubService and CraftsmanProfile.",
   },
   {
     title: "Portfolio",
-    href: "/dashboard/craftsman/portfolio",
-    icon: Heart,
-    todoComment:
-      "Manage WorkPhoto uploads that appear on the public craftsman profile.",
-  },
-  {
-    title: "Verification",
-    href: "/dashboard/craftsman/verification",
-    icon: Shield,
-    todoComment:
-      "Show current verification level (Registered, Verified, Approved), verification history and allow submission of required verification documents.",
+    href: "/craftsman/portfolio",
+    icon: Images,
   },
   {
     title: "Reviews",
-    href: "/dashboard/craftsman/reviews",
+    href: "/craftsman/reviews",
     icon: MessageSquareQuote,
-    todoComment:
-      "View customer reviews and reply once per review. Uses Review and ReviewReply tables.",
   },
   {
     title: "Notifications",
-    href: "/dashboard/craftsman/notifications",
+    href: "/craftsman/notifications",
     icon: Bell,
-    todoComment:
-      "Show notifications where userId = session.user.id.",
-  },
-  {
-    title: "Profile",
-    href: "/dashboard/craftsman/profile",
-    icon: User,
-    todoComment:
-      "Manage business profile, bio, business name, pricing, phone, region and profile photo.",
   },
 ];
 
 const supportNavItems: NavItem[] = [
-  { title: "Settings", href: "/dashboard/settings", icon: Settings },
+  { title: "Settings", href: "/settings", icon: Settings },
   { title: "Help", href: "/help", icon: CircleHelp },
 ];
 

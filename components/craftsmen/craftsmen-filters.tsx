@@ -19,7 +19,6 @@ import {
   SheetClose,
 } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
-import { cn } from "@/lib/utils";
 
 export interface FilterOptions {
   category: string;
@@ -412,7 +411,7 @@ export function CraftsmenFilters({
           <span className="text-xs text-muted-foreground">
             {Object.entries(filters)
               .filter(([key, val]) => val !== "all" && key !== "sort")
-              .map(([key, val]) => val)
+              .map(([, val]) => val)
               .join(" · ")}
           </span>
         )}

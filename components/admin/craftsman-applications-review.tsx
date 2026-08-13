@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { 
   Card, 
   CardContent, 
@@ -18,7 +18,6 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
@@ -37,13 +36,6 @@ import {
   Loader2, 
   User, 
   Briefcase, 
-  MapPin, 
-  Tag, 
-  DollarSign, 
-  Phone, 
-  Mail, 
-  IdCard, 
-  Users, 
   Image as ImageIcon,
   Check,
   X
@@ -93,7 +85,7 @@ export function CraftsmanApplicationsReview() {
   const [reviewNotes, setReviewNotes] = useState<string>("");
   const [isSubmittingAction, setIsSubmittingAction] = useState<boolean>(false);
 
-  const fetchApplications = async () => {
+  const fetchApplications = useCallback(async () => {
     try {
       setLoading(true);
       const res = await fetch("/api/applications");
@@ -106,11 +98,13 @@ export function CraftsmanApplicationsReview() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    fetchApplications();
-  }, []);
+    queueMicrotask(() => {
+      void fetchApplications();
+    });
+  }, [fetchApplications]);
 
   const handleOpenReview = (app: ApplicationItem) => {
     setSelectedApp(app);
@@ -142,9 +136,10 @@ export function CraftsmanApplicationsReview() {
       );
 
       setIsDialogOpen(false);
-      fetchApplications();
-    } catch (err: any) {
-      toast.error(err.message || "An error occurred during review.");
+      void fetchApplications();
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "An error occurred during review.";
+      toast.error(message);
     } finally {
       setIsSubmittingAction(false);
     }

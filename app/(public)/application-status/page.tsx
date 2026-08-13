@@ -86,8 +86,8 @@ export default function ApplicationStatusPage() {
 
         setApplication(json.data?.application || null);
         setHistory(json.data?.history || []);
-      } catch (err: any) {
-        setError(err.message || "Failed to load application status.");
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : "Failed to load application status.");
       } finally {
         setLoading(false);
       }

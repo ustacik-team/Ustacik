@@ -10,7 +10,6 @@ import {
   BriefcaseBusiness,
   Heart,
   Bell,
-  User,
   Settings,
   CircleHelp,
   LogOut,
@@ -74,38 +73,31 @@ const mainNavItems: NavItem[] = [
     title: "My Job Requests",
     href: "/customer/my-job-requests",
     icon: BriefcaseBusiness,
-    todoComment:
-      "Fetch jobs where customerId = session.user.id from Job table",
   },
   {
     title: "My Reviews",
-    href: "/dashboard/customer/reviews",
+    href: "/customer/reviews",
     icon: MessageSquareQuote,
-    todoComment:
-      "Fetch reviews created by the current customer from Review table",
   },
   {
     title: "Saved Craftsmen",
-    href: "/dashboard/customer/saved",
+    href: "/customer/saved",
     icon: Heart,
-    todoComment:
-      "Requires SavedCraftsman/Favorites table (not yet in schema)",
   },
   {
     title: "Notifications",
-    href: "/dashboard/customer/notifications",
+    href: "/customer/notifications",
     icon: Bell,
-    todoComment:
-      "Fetch notifications where userId = session.user.id",
   },
   {
-    title: "Profile",
-    href: "/dashboard/customer/profile",
-    icon: User,
+    title: "Settings",
+    href: "/settings",
+    icon: Settings,
   },
 ];
+
 const supportNavItems: NavItem[] = [
-  { title: "Settings", href: "/dashboard/settings", icon: Settings },
+  { title: "Settings", href: "/settings", icon: Settings },
   { title: "Help", href: "/help", icon: CircleHelp },
 ];
 

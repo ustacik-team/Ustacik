@@ -16,14 +16,10 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import {
-  ArrowUpRight,
-  DollarSign,
   Users,
   Briefcase,
   Activity,
   UserCheck,
-  UserX,
-  Clock,
   Star,
   TrendingUp,
   ShieldCheck,
