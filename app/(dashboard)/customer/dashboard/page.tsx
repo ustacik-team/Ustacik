@@ -1,177 +1,203 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { ArrowUpRight, DollarSign, Users, Briefcase, Activity } from "lucide-react";
+import type { Metadata } from "next";
+import { redirect } from "next/navigation";
+import { JobStatus } from "@prisma/client";
 
-// Dummy data
-const stats = [
-  { title: "Total Revenue", value: "$45,231.89", icon: DollarSign, change: "+20.1%" },
-  { title: "Active Users", value: "2,350", icon: Users, change: "+180" },
-  { title: "Jobs Posted", value: "1,423", icon: Briefcase, change: "+12" },
-  { title: "Conversion Rate", value: "12.5%", icon: Activity, change: "+2.3%" },
-];
+import { CustomerDashboardHeader } from "@/components/customer/dashboard/customer-dashboard-header";
+import { JobStatistics } from "@/components/customer/dashboard/job-statistics";
+import { CurrentJobCard } from "@/components/customer/dashboard/current-job-card";
+import { FindCraftsmenCard } from "@/components/customer/dashboard/find-craftsmen-card";
+import { RecentJobRequests } from "@/components/customer/dashboard/recent-job-requests";
+import { RecentReviews } from "@/components/customer/dashboard/recent-reviews";
+import { NotificationsPreview } from "@/components/customer/dashboard/notifications-preview";
+import { AccountOverview } from "@/components/customer/dashboard/account-overview";
+import { QuickActions } from "@/components/customer/dashboard/quick-actions";
+import { getServerSession } from "@/lib/get-session";
+import { prisma } from "@/lib/prisma";
 
-const recentJobs = [
-  { id: 1, title: "Plumbing Repair", status: "In Progress", priority: "High", date: "2025-02-10" },
-  { id: 2, title: "Electrical Wiring", status: "Completed", priority: "Medium", date: "2025-02-09" },
-  { id: 3, title: "Roof Inspection", status: "Pending", priority: "Low", date: "2025-02-08" },
-  { id: 4, title: "Kitchen Renovation", status: "In Progress", priority: "High", date: "2025-02-07" },
-  { id: 5, title: "Bathroom Tiling", status: "Completed", priority: "Medium", date: "2025-02-06" },
-  { id: 6, title: "Window Installation", status: "Pending", priority: "Low", date: "2025-02-05" },
-  { id: 7, title: "Garden Landscaping", status: "In Progress", priority: "High", date: "2025-02-04" },
-  { id: 8, title: "Appliance Repair", status: "Completed", priority: "Medium", date: "2025-02-03" },
-  { id: 9, title: "Fence Building", status: "Pending", priority: "Low", date: "2025-02-02" },
-  { id: 10, title: "Interior Painting", status: "In Progress", priority: "High", date: "2025-02-01" },
-];
+export const metadata: Metadata = {
+  title: "Customer Dashboard | Ustacik",
+  description: "Track your active job requests, local craftsman connections, and customer account status.",
+};
 
-const statusColors = {
-  "In Progress": "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300",
-  "Completed": "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
-  "Pending": "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300",
-} as const;
+export default async function CustomerDashboardPage() {
+  const session = await getServerSession();
 
-const priorityColors = {
-  High: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300",
-  Medium: "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300",
-  Low: "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300",
-} as const;
+  if (!session?.user?.id) {
+    redirect("/sign-in?redirect=/customer/dashboard");
+  }
 
-export default function CustomerDashboardPage() {
+  // Fetch customer profile from User table
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      image: true,
+      phone: true,
+      role: true,
+      emailVerified: true,
+      createdAt: true,
+    },
+  });
+
+  if (!user) {
+    redirect("/sign-in");
+  }
+
+  // Fetch jobs belonging to this customer with explicit select
+  const jobs = await prisma.job.findMany({
+    where: {
+      customerId: session.user.id,
+    },
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      address: true,
+      status: true,
+      createdAt: true,
+      completedAt: true,
+      category: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+      subService: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+      craftsman: {
+        select: {
+          id: true,
+          businessName: true,
+          verificationLevel: true,
+          user: {
+            select: {
+              id: true,
+              name: true,
+              image: true,
+              phone: true,
+            },
+          },
+          region: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  // Fetch reviews submitted by this customer
+  const reviews = await prisma.review.findMany({
+    where: {
+      customerId: session.user.id,
+    },
+    select: {
+      id: true,
+      punctuality: true,
+      workmanship: true,
+      priceHonesty: true,
+      communication: true,
+      comment: true,
+      createdAt: true,
+      craftsman: {
+        select: {
+          id: true,
+          businessName: true,
+          user: {
+            select: {
+              id: true,
+              name: true,
+              image: true,
+            },
+          },
+        },
+      },
+      job: {
+        select: {
+          title: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  // Fetch notifications belonging to this user
+  const notifications = await prisma.notification.findMany({
+    where: {
+      userId: session.user.id,
+    },
+    select: {
+      id: true,
+      title: true,
+      message: true,
+      type: true,
+      isRead: true,
+      createdAt: true,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    take: 5,
+  });
+
+  // Compute live statistics
+  const pendingCount = jobs.filter((j) => j.status === JobStatus.PENDING).length;
+  const acceptedCount = jobs.filter((j) => j.status === JobStatus.ACCEPTED).length;
+  const completedCount = jobs.filter((j) => j.status === JobStatus.COMPLETED).length;
+  const cancelledCount = jobs.filter((j) => j.status === JobStatus.CANCELLED).length;
+
+  const stats = {
+    total: jobs.length,
+    pending: pendingCount,
+    accepted: acceptedCount,
+    completed: completedCount,
+    cancelled: cancelledCount,
+  };
+
+  // Identify current active job (most recent ACCEPTED job)
+  const currentJob = jobs.find((j) => j.status === JobStatus.ACCEPTED) || null;
+
   return (
-    <div className="space-y-6">
-      {/* Stats Grid */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat) => {
-          const Icon = stat.icon;
-          return (
-            <Card key={stat.title}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  {stat.title}
-                </CardTitle>
-                <Icon className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{stat.value}</div>
-                <p className="text-xs text-muted-foreground">
-                  {stat.change} from last month
-                </p>
-              </CardContent>
-            </Card>
-          );
-        })}
+    <div className="mx-auto max-w-6xl space-y-6 pb-8">
+      {/* 1. Header Banner */}
+      <CustomerDashboardHeader user={user} />
+
+      {/* 2. Job Statistics */}
+      <JobStatistics stats={stats} />
+
+      {/* 3. Current Work & Discovery Cards */}
+      <div className="grid gap-6 md:grid-cols-2">
+        <CurrentJobCard currentJob={currentJob} />
+        <FindCraftsmenCard />
       </div>
 
-      {/* Chart Placeholder */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Activity Overview</CardTitle>
-          <CardDescription>
-            Daily active users and job requests over the past 30 days
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="h-[200px] w-full rounded-md bg-muted/30 flex items-center justify-center text-muted-foreground text-sm">
-            📊 Chart (dummy) – Replace with real chart library
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Recent Jobs Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Job Requests</CardTitle>
-          <CardDescription>
-            Latest jobs posted by customers
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Title</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Priority</TableHead>
-                <TableHead>Date</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {recentJobs.map((job) => (
-                <TableRow key={job.id}>
-                  <TableCell className="font-medium">{job.title}</TableCell>
-                  <TableCell>
-                    <Badge variant="secondary" className={statusColors[job.status as keyof typeof statusColors]}>
-                      {job.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className={priorityColors[job.priority as keyof typeof priorityColors]}>
-                      {job.priority}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>{job.date}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-
-      {/* Extra long text section to ensure scrolling */}
-      <div className="grid gap-4 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="flex items-center gap-4 border-b pb-2 last:border-0 last:pb-0">
-                <div className="rounded-full bg-primary/10 p-2">
-                  <ArrowUpRight className="h-4 w-4 text-primary" />
-                </div>
-                <div className="flex-1 space-y-1">
-                  <p className="text-sm font-medium">Action #{i + 1}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {new Date('2025-02-10T00:00:00.000Z').toLocaleDateString()}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Quick Tips</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="rounded-lg border p-3">
-                <h4 className="font-medium">Tip #{i + 1}</h4>
-                <p className="text-sm text-muted-foreground">
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor.
-                </p>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
+      {/* 4. Recent Requests & Reviews */}
+      <div className="grid gap-6 md:grid-cols-2">
+        <RecentJobRequests jobs={jobs} />
+        <RecentReviews reviews={reviews} />
       </div>
 
-      {/* Footer spacer to ensure enough scroll */}
-      <div className="h-4" />
+      {/* 5. Notifications & Account Overview */}
+      <div className="grid gap-6 md:grid-cols-2">
+        <NotificationsPreview notifications={notifications} />
+        <AccountOverview user={user} />
+      </div>
+
+      {/* 6. Quick Actions */}
+      <QuickActions />
     </div>
   );
 }
