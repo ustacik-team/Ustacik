@@ -80,19 +80,9 @@ const mainNavItems: NavItem[] = [
     icon: MessageSquareQuote,
   },
   {
-    title: "Saved Craftsmen",
-    href: "/customer/saved",
-    icon: Heart,
-  },
-  {
     title: "Notifications",
     href: "/customer/notifications",
     icon: Bell,
-  },
-  {
-    title: "Settings",
-    href: "/settings",
-    icon: Settings,
   },
 ];
 
