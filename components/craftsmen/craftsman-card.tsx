@@ -170,7 +170,7 @@ export function CraftsmanCard({
                 {subServices.slice(0, 4).map((sub, idx) => (
                   <span 
                     key={idx} 
-                    className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-[10px] font-medium text-primary border border-primary/20 shadow-sm"
+                    className="inline-flex items-center rounded-full bg-secondary text-secondary-foreground border border-border/60 px-2.5 py-0.5 text-[10px] font-semibold shadow-2xs"
                   >
                     {sub}
                   </span>
