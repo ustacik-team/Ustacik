@@ -11,7 +11,9 @@ import { prisma } from "@/lib/prisma";
  *   /find-craftsmen      — craftsman discovery listing (priority 0.9)
  *   /become-craftsman    — craftsman onboarding landing (priority 0.8)
  *   /help                — help centre (priority 0.6)
- *   /terms               — terms of service (priority 0.4)
+ *   /terms               — terms of service (priority 0.5)
+ *   /privacy             — privacy policy (priority 0.5)
+ *   /cookies             — cookie policy (priority 0.4)
  *
  * Dynamic public pages:
  *   /craftsmen/[id]      — individual public craftsman profiles
@@ -65,6 +67,18 @@ const STATIC_PAGES: MetadataRoute.Sitemap = [
   },
   {
     url: `${BASE_URL}/terms`,
+    lastModified: new Date(),
+    changeFrequency: "yearly",
+    priority: 0.5,
+  },
+  {
+    url: `${BASE_URL}/privacy`,
+    lastModified: new Date(),
+    changeFrequency: "yearly",
+    priority: 0.5,
+  },
+  {
+    url: `${BASE_URL}/cookies`,
     lastModified: new Date(),
     changeFrequency: "yearly",
     priority: 0.4,
