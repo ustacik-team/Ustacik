@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Separator } from "@/components/ui/separator";
 import { 
-  Wrench
+  Shield
 } from "lucide-react";
 import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin } from "react-icons/fa";
 
@@ -65,7 +65,7 @@ export function Footer() {
           <div className="col-span-2 sm:col-span-1">
             <Link href="/" className="flex items-center gap-2 mb-4">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                <Wrench className="h-4 w-4" />
+                <Shield className="h-4 w-4" />
               </div>
               <span className="text-lg font-bold tracking-tight">Ustacik</span>
             </Link>

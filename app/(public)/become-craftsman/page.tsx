@@ -1,5 +1,18 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getServerSession } from "@/lib/get-session";
+
+export const metadata: Metadata = {
+  title: "Become a Craftsman",
+  description:
+    "Join Ustacik as a verified craftsman in Northern Cyprus. Reach more customers, build trust with our verification badges, and grow your trade business.",
+  openGraph: {
+    title: "Become a Craftsman | Ustacik",
+    description:
+      "Join Ustacik as a verified craftsman in Northern Cyprus. Reach more customers, build trust with our verification badges, and grow your trade business.",
+    type: "website",
+  },
+};
 import { prisma } from "@/lib/prisma";
 
 // ─── Global Components ──────────────────────────────────────────────────
