@@ -45,7 +45,7 @@ export function Navbar({ user, isLoading = false, hasApplication: hasApplication
           const res = await fetch("/api/applications");
           if (res.ok) {
             const json = await res.json();
-            if (json.success && json.data?.application) {
+            if (json.success && (json.data?.application || (json.data?.applications && json.data.applications.length > 0))) {
               setFetchedHasApp(true);
             }
           }
@@ -146,7 +146,7 @@ export function Navbar({ user, isLoading = false, hasApplication: hasApplication
         <div className="flex items-center gap-2">
           <ThemeToggle />
 
-          {/* ✅ Notification Bell Icon with Count Badge */}
+          {/* Notification Bell Icon */}
           {user && (
             <Button variant="ghost" size="icon" className="relative h-9 w-9 rounded-full" aria-label="Notifications">
               <Bell className="h-5 w-5 text-foreground/80" />
@@ -156,7 +156,7 @@ export function Navbar({ user, isLoading = false, hasApplication: hasApplication
             </Button>
           )}
           
-          {/* ✅ Desktop user section with loading state */}
+          {/* Desktop user section */}
           {isLoading ? (
             <div className="hidden md:block h-8 w-8 rounded-full bg-muted animate-pulse" />
           ) : user ? (

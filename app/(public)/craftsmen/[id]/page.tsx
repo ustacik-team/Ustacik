@@ -1,6 +1,67 @@
+import type { Metadata } from "next";
 import { getServerSession } from "@/lib/get-session";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
+
+// ─── Dynamic Metadata ────────────────────────────────────────────────────────
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+
+  // Minimal select — only the fields needed for title/description generation.
+  const profile = await prisma.craftsmanProfile.findUnique({
+    where: { id },
+    select: {
+      businessName: true,
+      verificationLevel: true,
+      region: { select: { name: true } },
+      user: { select: { name: true } },
+      categories: {
+        select: { category: { select: { name: true } } },
+        take: 1,
+      },
+    },
+  });
+
+  if (!profile) {
+    // Next.js will render the notFound() page; metadata values won't matter.
+    return { title: "Craftsman Not Found" };
+  }
+
+  const displayName = profile.businessName ?? profile.user.name;
+  const category = profile.categories[0]?.category.name ?? "Craftsman";
+  const region = profile.region.name;
+
+  const verifiedLabel =
+    profile.verificationLevel === "APPROVED"
+      ? "Approved & Verified"
+      : profile.verificationLevel === "VERIFIED"
+      ? "Verified"
+      : "";
+
+  const title = `${displayName} — ${category} in ${region}`;
+  const description = `Hire ${displayName}, a${verifiedLabel ? ` ${verifiedLabel}` : ""} ${category.toLowerCase()} based in ${region}, Northern Cyprus. View work portfolio, pricing, reviews, and request a job directly on Ustacik.`;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title: `${title} | Ustacik`,
+      description,
+      type: "profile",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${title} | Ustacik`,
+      description,
+    },
+  };
+}
+
+
 
 import { Navbar } from "@/components/landing/navbar";
 import { Footer } from "@/components/landing/footer";

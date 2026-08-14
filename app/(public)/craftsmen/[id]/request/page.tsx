@@ -15,6 +15,7 @@ import { prisma } from "@/lib/prisma";
 export const metadata: Metadata = {
   title: "Request a Job | Ustacik",
   description: "Submit a direct job request to a verified local craftsman.",
+  robots: { index: false, follow: false },
 };
 
 interface RequestJobPageProps {

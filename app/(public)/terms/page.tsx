@@ -1,4 +1,11 @@
+import type { Metadata } from "next";
 import { FileText } from "lucide-react";
+
+export const metadata: Metadata = {
+  title: "Terms of Use",
+  description:
+    "Read the Ustacik terms of use. Understand how the platform connects customers with independent craftsmen across Northern Cyprus and what each party is responsible for.",
+};
 import { Navbar } from "@/components/landing/navbar";
 import { Footer } from "@/components/landing/footer";
 import { getServerSession } from "@/lib/get-session";

@@ -1,6 +1,29 @@
+import type { Metadata } from "next";
 import { getServerSession } from "@/lib/get-session";
 import { prisma } from "@/lib/prisma";
 import { unstable_cache } from "next/cache";
+
+export const metadata: Metadata = {
+  title: {
+    absolute: "Ustacik — Find Verified Craftsmen in Northern Cyprus",
+  },
+  description:
+    "Ustacik connects homeowners across Northern Cyprus with verified, trusted craftsmen. Browse by service category and region, view profiles, and request jobs with confidence.",
+  openGraph: {
+    title: "Ustacik — Find Verified Craftsmen in Northern Cyprus",
+    description:
+      "Browse verified plumbers, electricians, painters, and more across Kyrenia, Nicosia, Famagusta, and Lefke. Hire with confidence on Ustacik.",
+    type: "website",
+    locale: "en_GB",
+    siteName: "Ustacik",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Ustacik — Find Verified Craftsmen in Northern Cyprus",
+    description:
+      "Browse verified plumbers, electricians, painters, and more across Kyrenia, Nicosia, Famagusta, and Lefke. Hire with confidence on Ustacik.",
+  },
+};
 
 // ─── UI Components ──────────────────────────────────────────────────────
 import { Navbar } from "@/components/landing/navbar";
@@ -179,4 +202,4 @@ export default async function Home() {
       <Footer />
     </div>
   );
-}
+}

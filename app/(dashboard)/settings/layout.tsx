@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getServerSession } from "@/lib/get-session";
 import { AdminSidebar } from "@/components/sidebar/admin-sidebar";
@@ -11,6 +12,11 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeToggle } from "@/components/theme-toggle";
+
+// Prevent /settings from being indexed.
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
 
 export default async function SettingsLayout({
   children,

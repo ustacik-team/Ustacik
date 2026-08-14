@@ -1,3 +1,4 @@
+//app/api/applications/route.ts
 import { NextRequest } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
@@ -40,12 +41,17 @@ const ApplicationSchema = z.object({
 export async function GET(req: NextRequest) {
   try {
     const session = await getServerSession();
+    const user = session?.user;
+
+    if (!user) {
+      return apiError("Unauthorized", 401);
+    }
+
     const { searchParams } = new URL(req.url);
-    const emailParam = searchParams.get("email");
     const statusParam = searchParams.get("status");
 
-    // If Admin, can query all applications or filter by status
-    if (session?.user?.role === Role.ADMIN) {
+    // 1. ADMIN Role: Can query all applications globally or filter by status
+    if (user.role === Role.ADMIN) {
       const whereClause: Prisma.CraftsmanApplicationWhereInput = {};
       if (statusParam && Object.values(ApplicationStatus).includes(statusParam as ApplicationStatus)) {
         whereClause.status = statusParam as ApplicationStatus;
@@ -62,39 +68,34 @@ export async function GET(req: NextRequest) {
       return apiSuccess({ applications });
     }
 
-    // For customer/applicant: search primarily by userId (if authenticated) or email
-    const userId = session?.user?.id;
-    const userEmail = session?.user?.email || emailParam;
-
-    if (!userId && !userEmail) {
-      return apiError("Unauthorized or email parameter missing", 401);
-    }
-
-    const whereClause: Prisma.CraftsmanApplicationWhereInput = userId
-      ? { userId }
-      : { email: userEmail ?? undefined };
-
-    const applications = await prisma.craftsmanApplication.findMany({
-      where: whereClause,
-      orderBy: { createdAt: "desc" },
-      include: {
-        user: {
-          select: { id: true, name: true, email: true, image: true, role: true },
+    // 2. CUSTOMER Role: Strictly scope query by authenticated user.id.
+    // NEVER allow email query parameter or unauthenticated identity parameters.
+    if (user.role === Role.CUSTOMER) {
+      const applications = await prisma.craftsmanApplication.findMany({
+        where: { userId: user.id },
+        orderBy: { createdAt: "desc" },
+        include: {
+          user: {
+            select: { id: true, name: true, email: true, image: true, role: true },
+          },
         },
-      },
-    });
+      });
 
-    if (!applications || applications.length === 0) {
-      return apiError("No craftsman application found", 404);
+      if (!applications || applications.length === 0) {
+        return apiError("No craftsman application found", 404);
+      }
+
+      const latestApplication = applications[0];
+      const previousApplications = applications.slice(1);
+
+      return apiSuccess({
+        application: latestApplication,
+        history: previousApplications,
+      });
     }
 
-    const latestApplication = applications[0];
-    const previousApplications = applications.slice(1);
-
-    return apiSuccess({
-      application: latestApplication,
-      history: previousApplications,
-    });
+    // 3. Other Roles (e.g. CRAFTSMAN): Application management is for customers/applicants or admins
+    return apiError("Forbidden: Craftsmen manage their profile via the craftsman dashboard", 403);
   } catch (error) {
     return handleApiError(error);
   }
@@ -214,5 +215,3 @@ export async function POST(req: NextRequest) {
     return handleApiError(error);
   }
 }
-
-
