@@ -16,6 +16,7 @@ import {
   LucideIcon,
 } from "lucide-react";
 import { markAdminNotificationAsReadAction } from "@/app/(dashboard)/admin/notifications/actions";
+import { notifyNotificationsUpdated } from "@/hooks/use-unread-notifications-count";
 import { toast } from "sonner";
 
 export interface AdminNotificationItem {
@@ -114,6 +115,7 @@ export function AdminNotificationCard({ notification }: AdminNotificationCardPro
       const result = await markAdminNotificationAsReadAction(notification.id);
       if (result.success) {
         toast.success("Notification marked as read.", { id: toastId });
+        notifyNotificationsUpdated();
       } else {
         toast.error(result.error || "Failed to update notification.", { id: toastId });
       }

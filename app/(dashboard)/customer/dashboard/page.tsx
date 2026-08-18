@@ -15,7 +15,7 @@ import { getServerSession } from "@/lib/get-session";
 import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
-  title: "Customer Dashboard | Ustacik",
+  title: "Customer Dashboard",
   description: "Track your active job requests, local craftsman connections, and customer account status.",
 };
 

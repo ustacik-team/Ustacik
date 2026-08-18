@@ -1,6 +1,5 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Shield, Bell } from "lucide-react";
@@ -15,6 +14,7 @@ import {
 import { ThemeToggle } from "@/components/theme-toggle";
 import { UserAvatar } from "@/components/user-avatar";
 import { MobileNav } from "./mobile-nav";
+import { useUnreadNotificationsCount } from "@/hooks/use-unread-notifications-count";
 
 // ─── Types ──────────────────────────────────────────────────────────────
 interface User {
@@ -34,28 +34,9 @@ interface NavbarProps {
 // ─── Navbar ──────────────────────────────────────────────────────────────
 export function Navbar({ user, isLoading = false, hasApplication: hasApplicationProp = false }: NavbarProps) {
   const router = useRouter();
-  const [fetchedHasApp, setFetchedHasApp] = useState<boolean>(false);
+  const { count: unreadCount } = useUnreadNotificationsCount();
 
-  const hasApp = hasApplicationProp || fetchedHasApp;
-
-  useEffect(() => {
-    async function checkApp() {
-      if (user && user.role === "CUSTOMER" && !hasApplicationProp) {
-        try {
-          const res = await fetch("/api/applications");
-          if (res.ok) {
-            const json = await res.json();
-            if (json.success && (json.data?.application || (json.data?.applications && json.data.applications.length > 0))) {
-              setFetchedHasApp(true);
-            }
-          }
-        } catch {
-          // ignore error
-        }
-      }
-    }
-    checkApp();
-  }, [user, hasApplicationProp]);
+  const hasApp = hasApplicationProp;
 
   // Determine label & href synchronously on first render (0 UI flicker!)
   let craftsmanNavLabel = "Become a Craftsman";
@@ -148,11 +129,15 @@ export function Navbar({ user, isLoading = false, hasApplication: hasApplication
 
           {/* Notification Bell Icon */}
           {user && (
-            <Button variant="ghost" size="icon" className="relative h-9 w-9 rounded-full" aria-label="Notifications">
-              <Bell className="h-5 w-5 text-foreground/80" />
-              <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground shadow-xs">
-                3
-              </span>
+            <Button variant="ghost" size="icon" asChild className="relative h-9 w-9 rounded-full" aria-label="Notifications">
+              <Link href={user.role === "CRAFTSMAN" ? "/craftsman/notifications" : user.role === "ADMIN" ? "/admin/notifications" : "/customer/notifications"}>
+                <Bell className="h-5 w-5 text-foreground/80" />
+                {unreadCount > 0 && (
+                  <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground shadow-xs animate-in zoom-in-50">
+                    {unreadCount > 99 ? "99+" : unreadCount}
+                  </span>
+                )}
+              </Link>
             </Button>
           )}
           

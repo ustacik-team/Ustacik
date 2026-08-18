@@ -392,3 +392,117 @@ If the answer is **no**, it is not a priority.
 
 **Mission:** Build the most trusted platform connecting customers with verified craftsmen throughout Northern Cyprus by prioritizing trust, manual verification, transparency, and real-world usability.
 ```
+
+ustacik.com
+Project Brief · Ata Bilişim Teknolojileri · 2 weeks · 30 interns · 3 competing groups
+Owner: Ata Bilişim Teknolojileri Product: ustacik.com — the trusted craftsman platform for Northern Cyprus Format: 2 weeks ·
+30 interns · 3 competing groups
+
+1. What we are building
+   ustacik.com connects people in Northern Cyprus who need a job done with craftsmen who can do it.
+   Today, finding a craftsman here means asking a neighbour or posting in a Facebook group. There is no way to know who is reliable,
+   no idea what a fair price is, and no accountability when the work goes wrong.
+   We are not building a search engine. We are building a trust layer. Test every decision against one question: does this
+   make it easier for a stranger to trust a craftsman they have never met?
+   One thing to understand before you start: this is not mainly a coding problem. A website can be built in a few days. Craftsmen take
+   the whole two weeks. Supply is the bottleneck.
+2. Business model
+   Now: completely free. Free for craftsmen, free for customers. This is a real commercial product going live, but we are buying
+   supply and trust with free access.
+   Later: monthly subscription for craftsmen. Once the platform is strong, craftsmen pay a monthly fee. Customers stay free. No
+   commission — in TRNC almost everything settles in cash, so commission is uncollectable.
+   What this means for your build: even though nothing is charged now, track completed jobs and show each craftsman how much
+   work the platform has sent them. On the day we introduce pricing, the argument is "we sent you 63 jobs," not "please pay us."
+   Leave room in your data structure for subscription fields, set to free.
+3. The eight categories
+   Locked. Same eight for all three groups.
+
+#
+
+English
+1
+Plumbing & Water Systems
+Turkish
+Su Tesisatı
+2
+Electrical
+Elektrik
+3
+HVAC & Refrigeration
+Klima & Soğutma
+4
+Appliance & Electronics Repair
+Beyaz Eşya & Elektronik Tamir
+5
+Painting & Plastering
+Boya & Alçı
+6
+Carpentry & Furniture
+Marangoz & Mobilya
+7
+Aluminium, PVC & Glass
+Alüminyum, PVC & Cam
+8
+Garden & Pool Maintenance
+Bahçe & Havuz Bakımı
+Sub-services under each category are yours to define — but agree them across the three groups so the data merges. 4. Trust model
+The core of the product and the only real difference between us and a Facebook group. Three levels, shared by all groups:
+Level
+Registered
+Requirements
+Phone verified · category · region
+Verified
+ID seen · two previous customers called · photos of past work
+Approved Craftsman
+Verified, plus business registration and a written workmanship guarantee
+Verification is manual. It does not scale, and it does not need to. Anyone can build a directory; almost nobody will sit in a workshop
+checking an ID. That manual work is the moat.
+Record every verification: what was checked, by whom, when. If a badge is ever disputed, we must be able to show our work. 5. Reviews
+A review can only come from a customer whose job went through the platform. No open review form, no anonymous
+reviews. This one rule removes almost all fake review risk.
+Four sub-scores, each 1–5: punctuality · workmanship · price honesty · communication. Price honesty is separate on
+purpose — nearly every dispute in this market will be about price. Plus an optional comment and photos.
+Rules: - No average shown until a craftsman has at least three reviews. - Negative reviews are never hidden. Hiding them is what
+destroys trust in a review system. - The craftsman gets one public reply per review, and cannot delete reviews. - Removal only for
+abuse or a review with no real job behind it — never for a low score. 6. Scope
+Build: directory by category and region · craftsman profiles with work photos · price ranges · customer job request · notification to
+the craftsman · reviews · craftsman panel · admin panel · Turkish and English · SEO landing pages for category × region.
+Do not build: in-app payments · mobile apps · live chat · booking calendar · bidding engine · subscription billing screens ·
+WhatsApp Business API.
+Mobile first — most traffic will be from phones. Use
+wa.me links and SMS for notification, not the WhatsApp API. Do not take on an
+integration that can block the whole product. 7. How the competition works
+Three groups of ten. Each group builds its own design and its own infrastructure, end to end. Technical decisions,
+architecture, stack, UX, matching logic, branding within the name — all yours. Nobody hands you an architecture.
+Each group also collects its own craftsmen, calling from its own phone lines.
+The one thing you must coordinate
+Three groups working in parallel will otherwise call the same craftsman three times. That burns the brand on first contact and
+produces data that cannot be merged.
+Before Day 1 ends, the three groups meet and agree between themselves:
+A shared craftsman template — the fields everyone collects, in the same format, so three datasets become one at the end.
+Phone number normalised the same way by everyone; it is the key that identifies a craftsman.
+A way to see who has already contacted whom, and how territory is split.
+The shared sub-service list.
+We are not dictating how. Agree it, write it down, and hold each other to it. Duplicate calls to the same craftsman count against
+you.
+Judging — end of Week 2
+Each group presents its live platform and its craftsman data. Weighted roughly:
+Does it work, end to end, with a real job request — heaviest
+Number and quality of craftsmen collected
+Mobile experience and speed
+Craftsman panel usable, unaided, by a craftsman over 50 — tested live with a real craftsman
+Trust and review system implemented properly
+SEO groundwork
+Quality of decisions and how they are defended 8. Two weeks
+Week 1 — Cross-group agreement on the shared template and territory on Day 1. Then: field work starts immediately, craftsmen
+registered, product skeleton live by end of week. Every group has something working by Friday, however rough.
+Week 2 — Craftsman numbers scale up, verification, reviews, craftsman panel, SEO pages, polish. Final presentation Friday.
+Ship something ugly that works before something beautiful that does not. 9. Non-negotiables
+Tell every craftsman what will be published — their name, phone number and work photos — and get their verbal approval
+before the profile goes live.
+ustacik.com matches, it does not guarantee the work. Say this clearly in the terms of service.
+Every intern introduces themselves as representing Ata Bilişim. 10. Two working principles
+Talk to craftsmen before you build for craftsmen. Every engineer joins at least one field visit. A craftsman panel designed by
+someone who has never met a craftsman will fail the live test, and that test is worth a lot of points.
+When in doubt, ask the trust question. If a feature does not make it easier to trust a stranger, it is not a priority.
+ustacik.com | Ata Bilişim Teknolojileri | Project Brief

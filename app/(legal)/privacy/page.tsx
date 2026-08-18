@@ -5,11 +5,11 @@ import { Footer } from "@/components/landing/footer";
 import { getServerSession } from "@/lib/get-session";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | Ustacik",
+  title: "Privacy Policy",
   description:
     "Read the Ustacik Privacy Policy. Understand what personal information is collected, how customer and craftsman application data is used, stored, and protected.",
   openGraph: {
-    title: "Privacy Policy | Ustacik",
+    title: "Privacy Policy",
     description:
       "Read the Ustacik Privacy Policy. Understand what personal information is collected, how customer and craftsman application data is used, stored, and protected.",
   },

@@ -49,13 +49,13 @@ export async function generateMetadata({
     title,
     description,
     openGraph: {
-      title: `${title} | Ustacik`,
+      title,
       description,
       type: "profile",
     },
     twitter: {
       card: "summary_large_image",
-      title: `${title} | Ustacik`,
+      title,
       description,
     },
   };

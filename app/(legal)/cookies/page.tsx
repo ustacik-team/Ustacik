@@ -5,11 +5,11 @@ import { Footer } from "@/components/landing/footer";
 import { getServerSession } from "@/lib/get-session";
 
 export const metadata: Metadata = {
-  title: "Cookie Policy | Ustacik",
+  title: "Cookie Policy",
   description:
     "Read the Ustacik Cookie Policy. Learn about essential authentication cookies used to manage secure sessions on our platform.",
   openGraph: {
-    title: "Cookie Policy | Ustacik",
+    title: "Cookie Policy",
     description:
       "Read the Ustacik Cookie Policy. Learn about essential authentication cookies used to manage secure sessions on our platform.",
   },

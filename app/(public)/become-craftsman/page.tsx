@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   description:
     "Join Ustacik as a verified craftsman in Northern Cyprus. Reach more customers, build trust with our verification badges, and grow your trade business.",
   openGraph: {
-    title: "Become a Craftsman | Ustacik",
+    title: "Become a Craftsman",
     description:
       "Join Ustacik as a verified craftsman in Northern Cyprus. Reach more customers, build trust with our verification badges, and grow your trade business.",
     type: "website",

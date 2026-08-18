@@ -8,7 +8,7 @@ import { getServerSession } from "@/lib/get-session";
 import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
-  title: "My Job Requests | Ustacik",
+  title: "My Job Requests",
   description: "View and manage all your direct job requests to local craftsmen.",
 };
 

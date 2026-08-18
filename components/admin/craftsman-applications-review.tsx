@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { 
   Card, 
   CardContent, 
@@ -75,9 +76,13 @@ interface ApplicationItem {
   } | null;
 }
 
-export function CraftsmanApplicationsReview() {
-  const [applications, setApplications] = useState<ApplicationItem[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+interface CraftsmanApplicationsReviewProps {
+  initialApplications?: ApplicationItem[];
+}
+
+export function CraftsmanApplicationsReview({ initialApplications = [] }: CraftsmanApplicationsReviewProps) {
+  const router = useRouter();
+  const [applications, setApplications] = useState<ApplicationItem[]>(initialApplications);
   const [filter, setFilter] = useState<string>("ALL");
 
   const [selectedApp, setSelectedApp] = useState<ApplicationItem | null>(null);
@@ -85,26 +90,7 @@ export function CraftsmanApplicationsReview() {
   const [reviewNotes, setReviewNotes] = useState<string>("");
   const [isSubmittingAction, setIsSubmittingAction] = useState<boolean>(false);
 
-  const fetchApplications = useCallback(async () => {
-    try {
-      setLoading(true);
-      const res = await fetch("/api/applications");
-      const json = await res.json();
-      if (res.ok && json.success) {
-        setApplications(json.data.applications || []);
-      }
-    } catch (err) {
-      console.error("Failed to fetch applications:", err);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
 
-  useEffect(() => {
-    queueMicrotask(() => {
-      void fetchApplications();
-    });
-  }, [fetchApplications]);
 
   const handleOpenReview = (app: ApplicationItem) => {
     setSelectedApp(app);
@@ -135,8 +121,17 @@ export function CraftsmanApplicationsReview() {
           : "Application REJECTED."
       );
 
+      const targetStatus = action === "APPROVE" ? "APPROVED" : "REJECTED";
+      setApplications((prev) =>
+        prev.map((item) =>
+          item.id === selectedApp.id
+            ? { ...item, status: targetStatus, reviewNotes }
+            : item
+        )
+      );
+
       setIsDialogOpen(false);
-      void fetchApplications();
+      router.refresh();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "An error occurred during review.";
       toast.error(message);
@@ -203,12 +198,7 @@ export function CraftsmanApplicationsReview() {
       </CardHeader>
 
       <CardContent>
-        {loading ? (
-          <div className="p-8 text-center flex flex-col items-center justify-center space-y-2">
-            <Loader2 className="h-6 w-6 animate-spin text-primary" />
-            <p className="text-xs text-muted-foreground">Fetching craftsman applications...</p>
-          </div>
-        ) : filteredApps.length === 0 ? (
+        {filteredApps.length === 0 ? (
           <div className="p-8 text-center text-muted-foreground text-sm border border-dashed rounded-lg">
             No applications found matching filter &quot;{filter}&quot;.
           </div>
