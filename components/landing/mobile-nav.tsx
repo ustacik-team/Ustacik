@@ -4,7 +4,6 @@ import { useState } from "react";
 import Link from "next/link";
 import { 
   Menu, 
-  Shield, 
   Home, 
   Users, 
   Briefcase, 
@@ -14,6 +13,7 @@ import {
   LogOut,
   Loader2
 } from "lucide-react";
+import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -86,14 +86,9 @@ export function MobileNav({
               <Link
                 href="/"
                 onClick={() => setOpen(false)}
-                className="flex items-center gap-3 font-semibold transition-opacity hover:opacity-90"
+                className="transition-opacity hover:opacity-90"
               >
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-xs">
-                  <Shield className="h-5 w-5" />
-                </div>
-                <span className="text-xl font-bold tracking-tight text-foreground">
-                  Ustacik
-                </span>
+                <Logo size={36} />
               </Link>
             </SheetTitle>
             <SheetDescription className="sr-only">

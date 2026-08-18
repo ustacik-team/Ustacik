@@ -125,7 +125,7 @@ export default async function HelpPage() {
           <div className="pointer-events-none absolute -right-20 -top-20 size-72 rounded-full bg-primary/10 blur-3xl" />
           <div className="pointer-events-none absolute -bottom-24 left-10 size-64 rounded-full bg-sky-500/10 blur-3xl" />
 
-          <div className="container mx-auto px-4 md:px-6 relative text-center max-w-3xl">
+          <div className="w-full max-w-7xl mx-auto px-6 md:px-12 lg:px-16 relative text-center">
             <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3.5 py-1 text-xs font-semibold text-primary mb-4">
               <CircleHelp className="size-4" />
               <span>Help & Support Center</span>
@@ -157,7 +157,7 @@ export default async function HelpPage() {
         </section>
 
         {/* Core Navigation Cards */}
-        <section className="container mx-auto px-4 md:px-6 py-12 max-w-6xl">
+        <section className="w-full max-w-7xl mx-auto px-6 md:px-12 lg:px-16 py-12">
           <div className="grid gap-6 md:grid-cols-3">
             <Card className="border-border/70 bg-card hover:border-primary/40 transition-all">
               <CardHeader>
@@ -214,7 +214,7 @@ export default async function HelpPage() {
 
         {/* Trust & Verification Levels Section */}
         <section className="bg-muted/30 border-y border-border/60 py-12">
-          <div className="container mx-auto px-4 md:px-6 max-w-6xl">
+          <div className="w-full max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
             <div className="text-center max-w-2xl mx-auto mb-10">
               <Badge variant="outline" className="border-primary/30 bg-primary/10 text-primary mb-3">
                 Verification Architecture
@@ -264,7 +264,7 @@ export default async function HelpPage() {
         </section>
 
         {/* FAQs Section */}
-        <section className="container mx-auto px-4 md:px-6 py-12 max-w-4xl space-y-10">
+        <section className="w-full max-w-7xl mx-auto px-6 md:px-12 lg:px-16 py-12 space-y-10">
           <div>
             <div className="flex items-center gap-2 text-primary mb-2">
               <HelpCircle className="size-5" />
@@ -309,7 +309,7 @@ export default async function HelpPage() {
         </section>
 
         {/* Support Banner */}
-        <section className="container mx-auto px-4 md:px-6 max-w-4xl">
+        <section className="w-full max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
           <Card className="border-primary/20 bg-gradient-to-r from-card via-card to-primary/5 p-6 sm:p-8">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
               <div className="space-y-2">

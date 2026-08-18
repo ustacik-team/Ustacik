@@ -382,7 +382,7 @@ export function ApplicationForm() {
 
   return (
     <section className="py-12 md:py-16 bg-muted/10" id="application-form">
-      <div className="container mx-auto px-4 md:px-6 max-w-4xl">
+      <div className="w-full max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
         
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-12">

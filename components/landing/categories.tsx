@@ -69,7 +69,7 @@ const categories = [
 export function Categories() {
   return (
     <section id="categories" className="py-14 md:py-20 bg-muted/20 border-y border-border/40">
-      <div className="container mx-auto px-4 md:px-6">
+      <div className="w-full max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto mb-10 md:mb-14 space-y-3">
           <Badge variant="outline" className="px-3 py-1 text-xs font-semibold uppercase tracking-wider text-primary border-primary/30 bg-primary/5 rounded-full">

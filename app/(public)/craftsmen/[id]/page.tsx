@@ -300,7 +300,7 @@ export default async function CraftsmanProfilePage({
     <div className="flex min-h-screen flex-col bg-(image:--find-craftsmen-bg) bg-cover bg-center bg-no-repeat bg-fixed">
       <Navbar user={user} hasApplication={hasApplication} />
       <main className="flex-1">
-        <div className="container mx-auto px-4 md:px-6 pt-4 pb-12 space-y-8">
+        <div className="w-full max-w-7xl mx-auto px-6 md:px-12 lg:px-16 pt-4 pb-12 space-y-8">
           <Breadcrumb
             categoryName={craftsman.categories[0]?.name ?? "Craftsman"}
             craftsmanName={craftsman.user.name}

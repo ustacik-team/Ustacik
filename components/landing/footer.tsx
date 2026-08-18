@@ -1,8 +1,6 @@
 import Link from "next/link";
 import { Separator } from "@/components/ui/separator";
-import { 
-  Shield
-} from "lucide-react";
+import { Logo } from "@/components/logo";
 import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin } from "react-icons/fa";
 
 const footerColumns = [
@@ -56,18 +54,15 @@ export function Footer() {
 
   return (
     <footer className="border-t border-border bg-slate-50/50 dark:bg-slate-950/50 backdrop-blur-sm pt-12 pb-6">
-      <div className="container mx-auto px-4 md:px-6">
+      <div className="w-full max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
         
         {/* Top Grid - 5 Columns */}
         <div className="grid grid-cols-2 gap-8 sm:grid-cols-3 lg:grid-cols-5">
           
           {/* Platform Column (Includes Brand) */}
           <div className="col-span-2 sm:col-span-1">
-            <Link href="/" className="flex items-center gap-2 mb-4">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                <Shield className="h-4 w-4" />
-              </div>
-              <span className="text-lg font-bold tracking-tight">Ustacik</span>
+            <Link href="/" className="inline-block mb-4">
+              <Logo />
             </Link>
             <p className="text-sm text-muted-foreground mb-4 leading-relaxed max-w-xs">
               Connecting homeowners with verified craftsmen across Northern Cyprus.

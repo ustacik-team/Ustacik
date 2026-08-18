@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { Shield, FileText, Scale, UserCheck, AlertTriangle, ShieldCheck } from "lucide-react";
+import Image from "next/image";
+import { FileText, Scale, UserCheck, AlertTriangle, ShieldCheck } from "lucide-react";
 import { Navbar } from "@/components/landing/navbar";
 import { Footer } from "@/components/landing/footer";
 import { getServerSession } from "@/lib/get-session";
@@ -22,13 +23,13 @@ export default async function TermsPage() {
     <div className="flex min-h-screen flex-col bg-(image:--page-bg) bg-cover bg-center bg-fixed">
       <Navbar user={session?.user ?? null} />
 
-      <main className="flex-1 container mx-auto px-4 py-12 md:px-6 md:py-16">
+      <main className="flex-1 w-full max-w-7xl mx-auto px-6 md:px-12 lg:px-16 py-12 md:py-16">
         <article className="mx-auto max-w-4xl rounded-2xl border border-border/60 bg-card/95 p-6 shadow-sm sm:p-10 backdrop-blur-md">
           
           {/* Header */}
           <div className="border-b border-border/40 pb-6 mb-8">
             <div className="flex items-center gap-2 text-primary font-semibold text-sm mb-2">
-              <Shield className="h-5 w-5" />
+              <Image src="/logo.png" alt="Ustacik Logo" width={20} height={20} className="object-contain" />
               <span>Ustacik Legal Information</span>
             </div>
             <h1 className="text-3xl font-bold tracking-tight sm:text-4xl text-foreground">

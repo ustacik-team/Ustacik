@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { CraftsmenHero } from "@/components/craftsmen/craftsmen-hero";
 import { CraftsmenSearch } from "@/components/craftsmen/craftsmen-search";
 import { CraftsmenFilters } from "@/components/craftsmen/craftsmen-filters";
@@ -51,19 +52,27 @@ interface SubServiceOption {
   label: string;
 }
 
-// ─── Page Component ──────────────────────────────────────────────────────
-export default function CraftsmenPage() {
+// ─── Content Component ──────────────────────────────────────────────────
+function CraftsmenPageContent() {
   const { data: session, isPending } = useSession();
   const user = session?.user || null;
+  const searchParams = useSearchParams();
+  const urlCategory = searchParams.get("category");
 
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState({
-    category: "all",
+    category: urlCategory || "all",
     subService: "all",
     region: "all",
     verification: "all",
     sort: "rating_desc",
   });
+
+  useEffect(() => {
+    if (urlCategory) {
+      setFilters((prev) => ({ ...prev, category: urlCategory }));
+    }
+  }, [urlCategory]);
   const [currentPage, setCurrentPage] = useState(1);
   const [state, setState] = useState<{
     status: "idle" | "loading" | "success";
@@ -253,7 +262,7 @@ export default function CraftsmenPage() {
   return (
     <div className="flex min-h-screen flex-col bg-(image:--find-craftsmen-bg) bg-cover bg-center bg-no-repeat bg-fixed">
       <Navbar user={user} isLoading={isPending} />
-      <div className="flex-1 container mx-auto px-4 py-6 space-y-6">
+      <div className="flex-1 w-full max-w-7xl mx-auto px-6 md:px-12 lg:px-16 py-6 space-y-6">
         <CraftsmenHero {...heroStats} loading={isStatsLoading} />
         <div className="space-y-4" ref={searchContainerRef}>
           <CraftsmenSearch onSearch={handleSearch} />
@@ -282,5 +291,13 @@ export default function CraftsmenPage() {
       </div>
       <Footer />
     </div>
+  );
+}
+
+export default function CraftsmenPage() {
+  return (
+    <Suspense>
+      <CraftsmenPageContent />
+    </Suspense>
   );
 }

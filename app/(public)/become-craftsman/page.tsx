@@ -37,7 +37,12 @@ export default async function BecomeCraftsmanPage({
   const params = await searchParams;
 
   if (user?.role === "CRAFTSMAN") {
-    redirect("/craftsman/dashboard");
+    const profile = await prisma.craftsmanProfile.findUnique({
+      where: { userId: user.id },
+    });
+    if (profile) {
+      redirect("/craftsman/dashboard");
+    }
   }
 
   if (user?.role === "ADMIN") {
@@ -60,7 +65,12 @@ export default async function BecomeCraftsmanPage({
     }
 
     if (latestApp?.status === "APPROVED") {
-      redirect("/craftsman/dashboard");
+      const profile = await prisma.craftsmanProfile.findUnique({
+        where: { userId: user.id },
+      });
+      if (profile) {
+        redirect("/craftsman/dashboard");
+      }
     }
 
     if (latestApp?.status === "REJECTED" && params.reapply !== "true") {
