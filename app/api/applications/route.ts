@@ -2,9 +2,9 @@
 import { NextRequest } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { apiCreated, apiError, apiSuccess, validateBody } from "@/lib/api/response";
+import { apiCreated, apiError, validateBody } from "@/lib/api/response";
 import { handleApiError } from "@/lib/api/errors";
-import { Role, ApplicationStatus, Prisma } from "@prisma/client";
+import { Role, ApplicationStatus } from "@prisma/client";
 import { getServerSession } from "@/lib/get-session";
 
 // Application payload schema based on form & Prisma model
@@ -38,68 +38,7 @@ const ApplicationSchema = z.object({
   agreeDisclaimer: z.boolean(),
 });
 
-export async function GET(req: NextRequest) {
-  try {
-    const session = await getServerSession();
-    const user = session?.user;
 
-    if (!user) {
-      return apiError("Unauthorized", 401);
-    }
-
-    const { searchParams } = new URL(req.url);
-    const statusParam = searchParams.get("status");
-
-    // 1. ADMIN Role: Can query all applications globally or filter by status
-    if (user.role === Role.ADMIN) {
-      const whereClause: Prisma.CraftsmanApplicationWhereInput = {};
-      if (statusParam && Object.values(ApplicationStatus).includes(statusParam as ApplicationStatus)) {
-        whereClause.status = statusParam as ApplicationStatus;
-      }
-      const applications = await prisma.craftsmanApplication.findMany({
-        where: whereClause,
-        orderBy: { createdAt: "desc" },
-        include: {
-          user: {
-            select: { id: true, name: true, email: true, image: true, role: true },
-          },
-        },
-      });
-      return apiSuccess({ applications });
-    }
-
-    // 2. CUSTOMER Role: Strictly scope query by authenticated user.id.
-    // NEVER allow email query parameter or unauthenticated identity parameters.
-    if (user.role === Role.CUSTOMER) {
-      const applications = await prisma.craftsmanApplication.findMany({
-        where: { userId: user.id },
-        orderBy: { createdAt: "desc" },
-        include: {
-          user: {
-            select: { id: true, name: true, email: true, image: true, role: true },
-          },
-        },
-      });
-
-      if (!applications || applications.length === 0) {
-        return apiError("No craftsman application found", 404);
-      }
-
-      const latestApplication = applications[0];
-      const previousApplications = applications.slice(1);
-
-      return apiSuccess({
-        application: latestApplication,
-        history: previousApplications,
-      });
-    }
-
-    // 3. Other Roles (e.g. CRAFTSMAN): Application management is for customers/applicants or admins
-    return apiError("Forbidden: Craftsmen manage their profile via the craftsman dashboard", 403);
-  } catch (error) {
-    return handleApiError(error);
-  }
-}
 
 export async function POST(req: NextRequest) {
   try {
@@ -195,7 +134,7 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // 7. Send In-App Receipt Notification
+    // 7. Send In-App Receipt Notification for Customer
     await prisma.notification.create({
       data: {
         userId: user.id,
@@ -204,6 +143,24 @@ export async function POST(req: NextRequest) {
         message: `Thank you ${data.fullName}! Your craftsman application for "${data.businessName}" (Ref: #${referenceNumber}) has been received and is under review.`,
       },
     });
+
+    // 8. Send Admin Notifications for Review
+    const adminUsers = await prisma.user.findMany({
+      where: { role: Role.ADMIN },
+      select: { id: true },
+    });
+
+    if (adminUsers.length > 0) {
+      await prisma.notification.createMany({
+        data: adminUsers.map((admin) => ({
+          userId: admin.id,
+          type: "VERIFICATION_APPROVED" as const,
+          title: "New Craftsman Application",
+          message: `New craftsman application submitted by ${data.fullName} for business "${data.businessName}" (Ref: #${referenceNumber}). Review details at /admin/craftsman-applications.`,
+          isRead: false,
+        })),
+      });
+    }
 
     return apiCreated({
       message: "Craftsman application submitted successfully",

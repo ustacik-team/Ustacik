@@ -296,8 +296,8 @@ model Job {
   status       JobStatus        @default(PENDING)
   createdAt    DateTime         @default(now())
   completedAt  DateTime?
-  customer     User             @relation("CustomerJobs", fields: [customerId], references: [id])
-  craftsman    CraftsmanProfile @relation("CraftsmanJobs", fields: [craftsmanId], references: [id])
+  customer     User             @relation("CustomerJobs", fields: [customerId], references: [id], onDelete: Cascade)
+  craftsman    CraftsmanProfile @relation("CraftsmanJobs", fields: [craftsmanId], references: [id], onDelete: Cascade)
   category     Category         @relation(fields: [categoryId], references: [id])
   subService   SubService?      @relation(fields: [subServiceId], references: [id])
   review       Review?
@@ -325,9 +325,9 @@ model Review {
   communication Int
   comment       String?
   createdAt     DateTime         @default(now())
-  job           Job              @relation(fields: [jobId], references: [id])
-  customer      User             @relation(fields: [customerId], references: [id])
-  craftsman     CraftsmanProfile @relation(fields: [craftsmanId], references: [id])
+  job           Job              @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  customer      User             @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  craftsman     CraftsmanProfile @relation(fields: [craftsmanId], references: [id], onDelete: Cascade)
   photos        ReviewPhoto[]
   reply         ReviewReply?
 
@@ -353,7 +353,7 @@ model ReviewReply {
   reply       String
   createdAt   DateTime         @default(now())
   review      Review           @relation(fields: [reviewId], references: [id], onDelete: Cascade)
-  craftsman   CraftsmanProfile @relation(fields: [craftsmanId], references: [id])
+  craftsman   CraftsmanProfile @relation(fields: [craftsmanId], references: [id], onDelete: Cascade)
 
   @@index([craftsmanId])
   @@map("review_reply")

@@ -5,6 +5,7 @@ import { Bell, CheckCheck, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { markAllNotificationsAsReadAction } from "@/app/(dashboard)/craftsman/notifications/actions";
+import { notifyNotificationsUpdated } from "@/hooks/use-unread-notifications-count";
 import { toast } from "sonner";
 
 interface NotificationsHeaderProps {
@@ -23,6 +24,7 @@ export function NotificationsHeader({ totalCount, unreadCount }: NotificationsHe
       const result = await markAllNotificationsAsReadAction();
       if (result.success) {
         toast.success("All notifications marked as read.", { id: toastId });
+        notifyNotificationsUpdated();
       } else {
         toast.error(result.error || "Failed to update notifications.", { id: toastId });
       }

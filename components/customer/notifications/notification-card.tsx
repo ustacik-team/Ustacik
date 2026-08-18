@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { NotificationType } from "@prisma/client";
 import { markNotificationAsReadAction } from "@/app/(dashboard)/customer/notifications/actions";
+import { notifyNotificationsUpdated } from "@/hooks/use-unread-notifications-count";
 import { toast } from "sonner";
 
 export interface NotificationItem {
@@ -108,6 +109,7 @@ export function NotificationCard({ notification }: NotificationCardProps) {
       const result = await markNotificationAsReadAction(notification.id);
       if (result.success) {
         toast.success("Notification marked as read.", { id: toastId });
+        notifyNotificationsUpdated();
       } else {
         toast.error(result.error || "Failed to update notification.", { id: toastId });
       }

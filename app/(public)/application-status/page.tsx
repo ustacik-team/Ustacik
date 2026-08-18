@@ -32,7 +32,7 @@ import { Navbar } from "@/components/landing/navbar";
 import { Footer } from "@/components/landing/footer";
 
 export const metadata: Metadata = {
-  title: "Application Status | Ustacik",
+  title: "Application Status",
   description: "Check the status of your craftsman application on Ustacik.",
   robots: {
     index: false,

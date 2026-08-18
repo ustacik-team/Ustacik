@@ -19,6 +19,7 @@ import {
   Loader2
 } from "lucide-react";
 import { useSignOut } from "@/hooks/use-sign-out";
+import { useUnreadNotificationsCount } from "@/hooks/use-unread-notifications-count";
 
 import { UserAvatar } from "@/components/user-avatar";
 import {
@@ -105,6 +106,7 @@ export function CraftsmanSidebar({ user, className, ...props }: CraftsmanSidebar
   const pathname = usePathname();
   const { isMobile, setOpenMobile } = useSidebar();
   const { signOut, isLoading } = useSignOut();
+  const { count: unreadCount } = useUnreadNotificationsCount();
 
   const handleLogout = async () => {
     await signOut();
@@ -144,6 +146,7 @@ export function CraftsmanSidebar({ user, className, ...props }: CraftsmanSidebar
             {mainNavItems.map((item) => {
               const Icon = item.icon;
               const isActive = pathname === item.href;
+              const isNotifications = item.title === "Notifications";
 
               return (
                 <SidebarMenuItem key={item.href}>
@@ -155,6 +158,11 @@ export function CraftsmanSidebar({ user, className, ...props }: CraftsmanSidebar
                     <Link href={item.href} onClick={handleNavClick}>
                       <Icon />
                       <span>{item.title}</span>
+                      {isNotifications && unreadCount > 0 && (
+                        <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-bold text-primary-foreground group-data-[collapsible=icon]:hidden">
+                          {unreadCount > 99 ? "99+" : unreadCount}
+                        </span>
+                      )}
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

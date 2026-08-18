@@ -95,7 +95,7 @@ export default async function AdminLogsPage() {
                       <p className="font-semibold text-foreground">{log.admin.name}</p>
                       <p className="text-[11px] text-muted-foreground">{log.admin.email}</p>
                     </TableCell>
-                    <TableCell className="font-medium text-foreground max-w-md">
+                    <TableCell className="font-medium text-foreground whitespace-normal break-words max-w-xs sm:max-w-md">
                       {log.action}
                     </TableCell>
                     <TableCell>

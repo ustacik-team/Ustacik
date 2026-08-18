@@ -112,10 +112,13 @@ export function RequestJobForm({ craftsman, categories, onValuesChange }: Reques
   };
 
   return (
-    <Card className="border-border/70 bg-card/95 shadow-lg shadow-primary/5">
-      <CardHeader className="border-b border-border/60">
-        <CardTitle>Describe the job</CardTitle>
-        <CardDescription>
+    <Card className="border-border/40 bg-card/60 backdrop-blur-sm shadow-sm">
+      <CardHeader className="border-b border-border/20 pb-4">
+        <CardTitle className="flex items-center gap-2 text-xl font-bold">
+          <Send className="h-5 w-5 text-primary" />
+          Describe the Job Requirements
+        </CardTitle>
+        <CardDescription className="text-xs sm:text-sm">
           Required fields are marked with an asterisk (*). Provide clear details for {craftsman.name}.
         </CardDescription>
       </CardHeader>
@@ -137,7 +140,7 @@ export function RequestJobForm({ craftsman, categories, onValuesChange }: Reques
                       value={field.value}
                     >
                       <FormControl>
-                        <SelectTrigger className="w-full">
+                        <SelectTrigger className="w-full border-border/40 bg-background">
                           <SelectValue placeholder="Select category" />
                         </SelectTrigger>
                       </FormControl>
@@ -174,7 +177,7 @@ export function RequestJobForm({ craftsman, categories, onValuesChange }: Reques
                       disabled={availableSubServices.length === 0}
                     >
                       <FormControl>
-                        <SelectTrigger className="w-full">
+                        <SelectTrigger className="w-full border-border/40 bg-background">
                           <SelectValue placeholder={availableSubServices.length > 0 ? "Select sub-service" : "No sub-services available"} />
                         </SelectTrigger>
                       </FormControl>
@@ -201,6 +204,7 @@ export function RequestJobForm({ craftsman, categories, onValuesChange }: Reques
                   <FormControl>
                     <Input
                       placeholder="e.g. Fix leaking kitchen pipe"
+                      className="border-border/40 bg-background placeholder:text-muted-foreground/60"
                       maxLength={100}
                       {...field}
                       onChange={(e) => {
@@ -209,7 +213,7 @@ export function RequestJobForm({ craftsman, categories, onValuesChange }: Reques
                       }}
                     />
                   </FormControl>
-                  <FormDescription>Be concise so the craftsman quickly grasps the job.</FormDescription>
+                  <FormDescription className="text-xs text-muted-foreground">Be concise so the craftsman quickly grasps the job.</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -223,8 +227,8 @@ export function RequestJobForm({ craftsman, categories, onValuesChange }: Reques
                   <FormLabel>Description *</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Describe the problem, the scale of work needed, timing preferences, or access instructions."
-                      className="min-h-32 resize-y"
+                      placeholder="Describe the problem, the scale of work needed, timing preferences, or access instructions..."
+                      className="min-h-32 resize-y border-border/40 bg-background placeholder:text-muted-foreground/60"
                       maxLength={2000}
                       {...field}
                     />
@@ -247,6 +251,7 @@ export function RequestJobForm({ craftsman, categories, onValuesChange }: Reques
                   <FormControl>
                     <Input
                       placeholder="Street name, building number, district"
+                      className="border-border/40 bg-background placeholder:text-muted-foreground/60"
                       maxLength={300}
                       {...field}
                       onChange={(e) => {
@@ -255,7 +260,7 @@ export function RequestJobForm({ craftsman, categories, onValuesChange }: Reques
                       }}
                     />
                   </FormControl>
-                  <FormDescription>Where the craftsman will perform the work.</FormDescription>
+                  <FormDescription className="text-xs text-muted-foreground">Where the craftsman will perform the work.</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -264,7 +269,7 @@ export function RequestJobForm({ craftsman, categories, onValuesChange }: Reques
             <Button
               type="submit"
               size="lg"
-              className="w-full gap-2 sm:w-auto font-semibold"
+              className="w-full gap-2 font-bold shadow-md hover:shadow-lg transition-all"
               disabled={isSubmitting}
             >
               {isSubmitting ? (

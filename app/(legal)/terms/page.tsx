@@ -5,11 +5,11 @@ import { Footer } from "@/components/landing/footer";
 import { getServerSession } from "@/lib/get-session";
 
 export const metadata: Metadata = {
-  title: "Terms of Service | Ustacik",
+  title: "Terms of Service",
   description:
     "Read the Ustacik Terms of Service. Learn about platform eligibility, user responsibilities, craftsman verification disclaimers, and dispute guidelines in Northern Cyprus.",
   openGraph: {
-    title: "Terms of Service | Ustacik",
+    title: "Terms of Service",
     description:
       "Read the Ustacik Terms of Service. Learn about platform eligibility, user responsibilities, craftsman verification disclaimers, and dispute guidelines in Northern Cyprus.",
   },

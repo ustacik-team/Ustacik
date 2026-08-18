@@ -5,6 +5,7 @@ import { ShieldAlert, CheckCheck, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { markAllAdminNotificationsAsReadAction } from "@/app/(dashboard)/admin/notifications/actions";
+import { notifyNotificationsUpdated } from "@/hooks/use-unread-notifications-count";
 import { toast } from "sonner";
 
 interface AdminNotificationsHeaderProps {
@@ -23,6 +24,7 @@ export function AdminNotificationsHeader({ totalCount, unreadCount }: AdminNotif
       const result = await markAllAdminNotificationsAsReadAction();
       if (result.success) {
         toast.success("All admin notifications marked as read.", { id: toastId });
+        notifyNotificationsUpdated();
       } else {
         toast.error(result.error || "Failed to update notifications.", { id: toastId });
       }

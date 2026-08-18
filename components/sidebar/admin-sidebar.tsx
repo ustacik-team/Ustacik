@@ -18,6 +18,7 @@ import {
   MessageSquareQuote,
   Loader2,
   ShieldCheck,
+  ClipboardCheck,
   Users,
   UserCog,
   Tags,
@@ -27,6 +28,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { useSignOut } from "@/hooks/use-sign-out";
+import { useUnreadNotificationsCount } from "@/hooks/use-unread-notifications-count";
 
 import { UserAvatar } from "@/components/user-avatar";
 import {
@@ -100,6 +102,11 @@ const mainNavItems: NavItem[] = [
     ],
   },
   {
+    title: "Craftsman Applications",
+    href: "/admin/craftsman-applications",
+    icon: ClipboardCheck,
+  },
+  {
     title: "Verification Queue",
     href: "/admin/verifications",
     icon: ShieldCheck,
@@ -139,11 +146,6 @@ const mainNavItems: NavItem[] = [
     href: "/admin/logs",
     icon: ClipboardList,
   },
-  {
-    title: "Settings",
-    href: "/settings",
-    icon: Settings,
-  },
 ];
 
 const supportNavItems: NavItem[] = [
@@ -155,6 +157,7 @@ export function AdminSidebar({ user, className, ...props }: AdminSidebarProps) {
   const pathname = usePathname();
   const { isMobile, setOpenMobile } = useSidebar();
   const { signOut, isLoading } = useSignOut();
+  const { count: unreadCount } = useUnreadNotificationsCount();
   const [openSubmenus, setOpenSubmenus] = React.useState<
     Record<string, boolean>
   >({
@@ -266,6 +269,8 @@ export function AdminSidebar({ user, className, ...props }: AdminSidebarProps) {
                 );
               }
 
+              const isNotifications = item.title === "Notifications";
+
               return (
                 <SidebarMenuItem key={item.href}>
                   <SidebarMenuButton
@@ -276,6 +281,11 @@ export function AdminSidebar({ user, className, ...props }: AdminSidebarProps) {
                     <Link href={item.href!} onClick={handleNavClick}>
                       <Icon />
                       <span>{item.title}</span>
+                      {isNotifications && unreadCount > 0 && (
+                        <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-bold text-primary-foreground group-data-[collapsible=icon]:hidden">
+                          {unreadCount > 99 ? "99+" : unreadCount}
+                        </span>
+                      )}
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

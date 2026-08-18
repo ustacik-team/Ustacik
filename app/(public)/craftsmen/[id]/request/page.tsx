@@ -13,7 +13,7 @@ import { getServerSession } from "@/lib/get-session";
 import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
-  title: "Request a Job | Ustacik",
+  title: "Request a Job",
   description: "Submit a direct job request to a verified local craftsman.",
   robots: { index: false, follow: false },
 };
@@ -157,7 +157,7 @@ export default async function RequestJobPage({ params }: RequestJobPageProps) {
     <div className="flex min-h-screen flex-col bg-background">
       <Navbar user={session.user} />
       <main className="flex-1">
-        <div className="container mx-auto max-w-7xl px-4 py-6 md:px-6 md:py-10">
+        <div className="container mx-auto max-w-5xl px-4 py-8 md:px-6 md:py-12 space-y-8">
           <RequestHeader
             craftsmanId={profile.id}
             craftsmanName={profile.user.name}

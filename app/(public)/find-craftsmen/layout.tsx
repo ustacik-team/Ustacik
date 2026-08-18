@@ -13,14 +13,14 @@ export const metadata: Metadata = {
   description:
     "Browse verified craftsmen across Northern Cyprus. Filter by service category, region, and verification level to find the right professional for your job.",
   openGraph: {
-    title: "Find Craftsmen in Northern Cyprus | Ustacik",
+    title: "Find Craftsmen in Northern Cyprus",
     description:
       "Browse verified craftsmen across Northern Cyprus. Filter by service category, region, and verification level to find the right professional for your job.",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Find Craftsmen in Northern Cyprus | Ustacik",
+    title: "Find Craftsmen in Northern Cyprus",
     description:
       "Browse verified craftsmen across Northern Cyprus. Filter by service category, region, and verification level to find the right professional for your job.",
   },
