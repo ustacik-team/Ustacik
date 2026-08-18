@@ -22,7 +22,7 @@ export default async function PrivacyPage() {
     <div className="flex min-h-screen flex-col bg-(image:--page-bg) bg-cover bg-center bg-fixed">
       <Navbar user={session?.user ?? null} />
 
-      <main className="flex-1 container mx-auto px-4 py-12 md:px-6 md:py-16">
+      <main className="flex-1 w-full max-w-7xl mx-auto px-6 md:px-12 lg:px-16 py-12 md:py-16">
         <article className="mx-auto max-w-4xl rounded-2xl border border-border/60 bg-card/95 p-6 shadow-sm sm:p-10 backdrop-blur-md">
           
           {/* Header */}

@@ -157,7 +157,7 @@ export default async function RequestJobPage({ params }: RequestJobPageProps) {
     <div className="flex min-h-screen flex-col bg-background">
       <Navbar user={session.user} />
       <main className="flex-1">
-        <div className="container mx-auto max-w-5xl px-4 py-8 md:px-6 md:py-12 space-y-8">
+        <div className="w-full max-w-7xl mx-auto px-6 md:px-12 lg:px-16 py-8 md:py-12 space-y-8">
           <RequestHeader
             craftsmanId={profile.id}
             craftsmanName={profile.user.name}

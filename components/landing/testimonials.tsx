@@ -64,7 +64,7 @@ export function Testimonials({ testimonials }: TestimonialsProps) {
 
   return (
     <section className="py-12 md:py-16 bg-muted/20">
-      <div className="container mx-auto px-4 md:px-6">
+      <div className="w-full max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
         
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-12">

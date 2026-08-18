@@ -86,7 +86,7 @@ export default async function ApplicationStatusPage() {
       <Navbar user={user} hasApplication={true} />
 
       <main className="flex-1 py-10 md:py-16 bg-muted/10">
-        <div className="container mx-auto px-4 max-w-4xl space-y-8">
+        <div className="w-full max-w-7xl mx-auto px-6 md:px-12 lg:px-16 space-y-8">
           
           {/* Header */}
           <div className="text-center max-w-2xl mx-auto">

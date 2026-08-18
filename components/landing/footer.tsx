@@ -56,7 +56,7 @@ export function Footer() {
 
   return (
     <footer className="border-t border-border bg-slate-50/50 dark:bg-slate-950/50 backdrop-blur-sm pt-12 pb-6">
-      <div className="container mx-auto px-4 md:px-6">
+      <div className="w-full max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
         
         {/* Top Grid - 5 Columns */}
         <div className="grid grid-cols-2 gap-8 sm:grid-cols-3 lg:grid-cols-5">

@@ -17,7 +17,7 @@ export function Hero() {
       <div className="absolute -top-24 -right-24 h-96 w-96 rounded-full bg-primary/10 blur-3xl" />
       <div className="absolute -bottom-24 -left-24 h-96 w-96 rounded-full bg-primary/5 blur-3xl" />
 
-      <div className="container mx-auto px-4 md:px-6 relative z-10">
+      <div className="w-full max-w-7xl mx-auto px-6 md:px-12 lg:px-16 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           
           {/* ─── LEFT: TEXT & CTAs ────────────────────────────────────── */}

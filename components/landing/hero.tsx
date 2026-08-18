@@ -28,7 +28,7 @@ export function Hero() {
       <div className="absolute -top-40 -right-40 h-96 w-96 rounded-full bg-primary/10 blur-3xl" />
       <div className="absolute -bottom-40 -left-40 h-96 w-96 rounded-full bg-primary/5 blur-3xl" />
       
-      {/* Inner Container with Wide Padding (fixes the end-to-end issue) */}
+      {/* Inner Container with Wide Padding */}
       <div className="relative z-10 w-full max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
         
         <div className="flex flex-col items-center gap-12 lg:flex-row lg:items-start lg:gap-16">

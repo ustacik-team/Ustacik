@@ -398,13 +398,30 @@ async function main() {
     "Garden Pool Cleaning", "Window Frame Replacement"
   ];
 
+  const reviewComments = [
+    "Ustacik made finding a plumber incredibly easy. The professional arrived on time, fixed the issue quickly, and the price was fair.",
+    "I needed my entire house painted. Found an amazing painter here. The quality of work was outstanding!",
+    "After my HVAC broke down in the middle of summer, Ustacik connected me with a technician who fixed it within hours.",
+    "Great platform for finding reliable workers. The electrician we hired was incredibly professional and knowledgeable.",
+    "The verification system puts me at ease. I hired a carpenter for custom shelves, and the craftsmanship was exceptional.",
+    "Fixed our kitchen sink leak promptly. Friendly craftsman, clean work, and very reasonable rates.",
+    "Quick response for an emergency electrical repair. Kept me updated throughout the process. Highly recommended!",
+    "Superb tiling job in our bathroom! The attention to detail was impressive. Will definitely use again.",
+    "Installed split AC units in our apartment. Punctual, polite, and left the room spotless.",
+    "Replaced old window frames efficiently. Professional service from start to finish."
+  ];
+
+  let globalJobIndex = 0;
+
   // For Featured Craftsmen: Create 12 COMPLETED jobs with 5-star reviews to guarantee reviewCount >= 10 and rating >= 4.5
   for (const { profile, isFeatured, categoryId } of allCraftsmenProfiles) {
     const jobCount = isFeatured ? 12 : 3;
 
     for (let j = 0; j < jobCount; j++) {
-      const customer = customerUsers[j % customerUsers.length];
-      const title = jobTitles[j % jobTitles.length];
+      globalJobIndex++;
+      const customer = customerUsers[globalJobIndex % customerUsers.length];
+      const title = jobTitles[globalJobIndex % jobTitles.length];
+      const commentText = reviewComments[globalJobIndex % reviewComments.length];
       const categorySubServices = subServicesMap[categoryId] || [];
       const subServiceId = categorySubServices[0]?.id || null;
 
@@ -424,7 +441,7 @@ async function main() {
           description: `Customer requested ${title} at residential property.`,
           address: `Block ${j + 1}, Main Avenue, Northern Cyprus`,
           status,
-          completedAt: isCompleted ? new Date() : null,
+          completedAt: isCompleted ? new Date(Date.now() - globalJobIndex * 3600000) : null,
         },
       });
 
@@ -440,7 +457,8 @@ async function main() {
             workmanship: ratingScore,
             priceHonesty: ratingScore,
             communication: ratingScore,
-            comment: `Excellent work on ${title}! Highly recommended craftsman.`,
+            comment: commentText,
+            createdAt: new Date(Date.now() - globalJobIndex * 3600000),
           },
         });
 

@@ -7,7 +7,7 @@ export function CtaSection() {
     <section className="relative overflow-hidden border-y border-border/10 bg-[image:var(--cta-bg)] bg-cover bg-center bg-no-repeat">
       
       {/* ——— Main Content ——— */}
-      <div className="relative z-10 container mx-auto px-4 md:px-6 py-20 md:py-28 text-center">
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 md:px-12 lg:px-16 py-20 md:py-28 text-center">
         
         {/* ✅ FIX: Glassmorphism card wrapper for perfect contrast on any background */}
         <div className="mx-auto max-w-4xl rounded-2xl bg-black/50 backdrop-blur-md p-8 md:p-12 shadow-2xl border border-white/5">

@@ -74,7 +74,7 @@ const levels: VerificationLevel[] = [
 export function VerificationLevels() {
   return (
     <section id="verification-levels" className="py-12 md:py-16 bg-transparent">
-      <div className="container mx-auto px-4 md:px-6">        
+      <div className="w-full max-w-7xl mx-auto px-6 md:px-12 lg:px-16">        
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-12">
           <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">

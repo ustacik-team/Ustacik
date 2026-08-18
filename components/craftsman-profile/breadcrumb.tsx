@@ -38,10 +38,10 @@ export function Breadcrumb({ categoryName, craftsmanName, className }: Breadcrum
         </BreadcrumbItem>
         <BreadcrumbSeparator />
 
-        {/* Category (Static link - no more query params!) */}
+        {/* Category (Filtered link) */}
         <BreadcrumbItem>
           <BreadcrumbLink asChild>
-            <Link href="/find-craftsmen">
+            <Link href={`/find-craftsmen?category=${encodeURIComponent(categoryName)}`}>
               {categoryName}
             </Link>
           </BreadcrumbLink>
