@@ -1,3 +1,6 @@
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { ArrowRight, UserPlus } from "lucide-react";
 import { getServerSession } from "@/lib/get-session";
 import { prisma } from "@/lib/prisma";
 import { CraftsmanDashboardHeader } from "@/components/craftsman/dashboard/craftsman-dashboard-header";
@@ -59,12 +62,27 @@ export default async function CraftsmanDashboardPage() {
   // If no craftsman profile is created yet, render an initial setup state
   if (!craftsmanProfile) {
     return (
-      <div className="mx-auto max-w-4xl py-12 text-center space-y-4">
-        <h2 className="text-2xl font-bold">Welcome to Ustacik Craftsman Workspace</h2>
-        <p className="text-sm text-muted-foreground max-w-md mx-auto">
-          You currently don&apos;t have an active craftsman profile registered. Complete your profile registration to start receiving customer job requests.
-        </p>
-        <QuickActions />
+      <div className="mx-auto max-w-4xl py-16 text-center space-y-6">
+        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+          <UserPlus className="h-8 w-8" />
+        </div>
+        <div className="space-y-2">
+          <h2 className="text-3xl font-bold tracking-tight">Welcome to Ustacik Craftsman Workspace</h2>
+          <p className="text-sm text-muted-foreground max-w-md mx-auto leading-relaxed">
+            You currently don&apos;t have an active craftsman profile registered. Complete your profile registration to start receiving customer job requests.
+          </p>
+        </div>
+        <div className="pt-2">
+          <Button size="lg" asChild className="gap-2 font-semibold shadow-md">
+            <Link href="/become-craftsman">
+              Apply to Become a Craftsman
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </Button>
+        </div>
+        <div className="pt-6 border-t border-border/40">
+          <QuickActions />
+        </div>
       </div>
     );
   }

@@ -12,11 +12,11 @@ import {
   Settings,
   CircleHelp,
   LogOut,
-  Shield,
   LucideIcon,
   MessageSquareQuote,
   Loader2
 } from "lucide-react";
+import { Logo } from "@/components/logo";
 import { useSignOut } from "@/hooks/use-sign-out";
 import { useUnreadNotificationsCount } from "@/hooks/use-unread-notifications-count";
 
@@ -115,12 +115,7 @@ export function CustomerSidebar({ user, className, ...props }: CustomerSidebarPr
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <Link href="/" onClick={handleNavClick}>
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                  <Shield className="size-4" />
-                </div>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">Ustacik</span>
-                </div>
+                <Logo size={28} />
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

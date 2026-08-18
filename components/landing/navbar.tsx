@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/navigation-menu";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { UserAvatar } from "@/components/user-avatar";
+import { Logo } from "@/components/logo";
 import { MobileNav } from "./mobile-nav";
 import { useUnreadNotificationsCount } from "@/hooks/use-unread-notifications-count";
 
@@ -72,10 +73,7 @@ export function Navbar({ user, isLoading = false, hasApplication: hasApplication
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6 md:px-12 lg:px-16">
         {/* Left: Logo */}
         <Link href="/" className="flex items-center gap-2 font-semibold">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-            <Shield className="h-5 w-5" />
-          </div>
-          <span className="text-lg">Ustacik</span>
+          <Logo />
         </Link>
 
         {/* Center: Navigation (desktop only) */}

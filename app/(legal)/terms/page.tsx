@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { Shield, FileText, Scale, UserCheck, AlertTriangle, ShieldCheck } from "lucide-react";
+import Image from "next/image";
+import { FileText, Scale, UserCheck, AlertTriangle, ShieldCheck } from "lucide-react";
 import { Navbar } from "@/components/landing/navbar";
 import { Footer } from "@/components/landing/footer";
 import { getServerSession } from "@/lib/get-session";
@@ -28,7 +29,7 @@ export default async function TermsPage() {
           {/* Header */}
           <div className="border-b border-border/40 pb-6 mb-8">
             <div className="flex items-center gap-2 text-primary font-semibold text-sm mb-2">
-              <Shield className="h-5 w-5" />
+              <Image src="/logo.png" alt="Ustacik Logo" width={20} height={20} className="object-contain" />
               <span>Ustacik Legal Information</span>
             </div>
             <h1 className="text-3xl font-bold tracking-tight sm:text-4xl text-foreground">
