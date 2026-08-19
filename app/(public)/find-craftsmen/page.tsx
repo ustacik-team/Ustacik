@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { CraftsmenHero } from "@/components/craftsmen/craftsmen-hero";
 import { CraftsmenSearch } from "@/components/craftsmen/craftsmen-search";
-import { CraftsmenFilters } from "@/components/craftsmen/craftsmen-filters";
+import { CraftsmenFilters, FilterOptions } from "@/components/craftsmen/craftsmen-filters";
 import { CraftsmenGrid } from "@/components/craftsmen/craftsmen-grid";
 import { CraftsmenPagination } from "@/components/craftsmen/craftsmen-pagination";
 import { Navbar } from "@/components/landing/navbar";
@@ -41,8 +41,8 @@ interface CraftsmanCardData {
   category: string;
   subServices: string[];
   region: string;
-  priceMin: number;
-  priceMax: number;
+  priceMin: number | null;
+  priceMax: number | null;
   jobsCompleted: number;
 }
 
@@ -60,19 +60,24 @@ function CraftsmenPageContent() {
   const urlCategory = searchParams.get("category");
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] = useState<FilterOptions>({
     category: urlCategory || "all",
     subService: "all",
     region: "all",
     verification: "all",
+    minPrice: "",
+    maxPrice: "",
     sort: "rating_desc",
   });
 
-  useEffect(() => {
+  const [prevUrlCategory, setPrevUrlCategory] = useState(urlCategory);
+  if (urlCategory !== prevUrlCategory) {
+    setPrevUrlCategory(urlCategory);
     if (urlCategory) {
       setFilters((prev) => ({ ...prev, category: urlCategory }));
     }
-  }, [urlCategory]);
+  }
+
   const [currentPage, setCurrentPage] = useState(1);
   const [state, setState] = useState<{
     status: "idle" | "loading" | "success";
@@ -145,7 +150,7 @@ function CraftsmenPageContent() {
     });
 
     const fetchData = async () => {
-      const params = new URLSearchParams({
+      const queryObj: Record<string, string> = {
         page: String(currentPage),
         limit: String(pageSize),
         search: searchQuery,
@@ -153,8 +158,13 @@ function CraftsmenPageContent() {
         region: filters.region,
         verification: filters.verification,
         sort: filters.sort,
-        subService: filters.subService, // ✅ ADDED THIS LINE
-      });
+        subService: filters.subService,
+      };
+
+      if (filters.minPrice) queryObj.minPrice = filters.minPrice;
+      if (filters.maxPrice) queryObj.maxPrice = filters.maxPrice;
+
+      const params = new URLSearchParams(queryObj);
 
       try {
         const res = await fetch(`/api/craftsmen?${params.toString()}`);
@@ -184,8 +194,8 @@ function CraftsmenPageContent() {
           category: item.category,
           subServices: item.subServices,
           region: item.region,
-          priceMin: item.priceRangeMin ?? 0,
-          priceMax: item.priceRangeMax ?? 0,
+          priceMin: item.priceRangeMin,
+          priceMax: item.priceRangeMax,
           jobsCompleted: item.totalJobsCompleted,
         }));
 
@@ -237,7 +247,7 @@ function CraftsmenPageContent() {
     setCurrentPage(1);
   }, []);
 
-  const handleFilterChange = useCallback((newFilters: typeof filters) => {
+  const handleFilterChange = useCallback((newFilters: FilterOptions) => {
     setFilters(newFilters);
     setCurrentPage(1);
   }, []);
@@ -253,6 +263,8 @@ function CraftsmenPageContent() {
       subService: "all",
       region: "all",
       verification: "all",
+      minPrice: "",
+      maxPrice: "",
       sort: "rating_desc",
     });
     setSearchQuery("");

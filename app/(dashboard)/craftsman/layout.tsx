@@ -51,7 +51,7 @@ export default async function CraftsmanLayout({
                 asChild
                 className="h-7 text-xs px-2 sm:h-9 sm:text-sm sm:px-3"
               >
-                <Link href="/my-services">My Services</Link>
+                <Link href="/craftsman/services">My Services</Link>
               </Button>
             </div>
           </header>

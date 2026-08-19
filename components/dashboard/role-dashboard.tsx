@@ -145,7 +145,7 @@ const dashboards: Record<DashboardRole, DashboardConfig> = {
     eyebrow: "Craftsman workspace",
     title: "Run your day, not just your inbox.",
     description: "Prioritise fresh enquiries, keep customers informed, and see exactly where your profile can win more of the right work.",
-    primaryAction: { label: "Review job requests", href: "/craftsman/jobs", Icon: BriefcaseBusiness },
+    primaryAction: { label: "Review job requests", href: "/craftsman/job-requests", Icon: BriefcaseBusiness },
     secondaryAction: { label: "Manage settings & profile", href: "/settings" },
     focusLabel: "Profile strength",
     focusValue: "78%",
