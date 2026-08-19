@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { useSignOut } from "@/hooks/use-sign-out";
-import { Loader2, LayoutDashboard, LogOut } from "lucide-react";
+import { Loader2, LayoutDashboard, Settings, LogOut } from "lucide-react";
 
 export interface UserAvatarProps extends ComponentProps<typeof Avatar> {
   user: {
@@ -73,6 +73,13 @@ export function UserAvatar({ user, className, dashboardHref, ...props }: UserAva
             <span>Dashboard</span>
           </Link>
         </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href="/settings" className="flex items-center gap-2 cursor-pointer">
+            <Settings className="h-4 w-4" />
+            <span>Settings</span>
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
         <DropdownMenuItem
           onClick={handleSignOut}
           disabled={isLoading}

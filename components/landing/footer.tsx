@@ -9,8 +9,8 @@ const footerColumns = [
     links: [
       { label: "Find a Craftsman", href: "/find-craftsmen" },
       { label: "Become a Craftsman", href: "/become-craftsman" },
-      { label: "How It Works", href: "/how-it-works" },
-      { label: "Trust & Safety", href: "/trust" },
+      { label: "How It Works", href: "/#how-it-works" },
+      { label: "Trust & Safety", href: "/help" },
     ],
   },
   {

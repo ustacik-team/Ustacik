@@ -13,7 +13,9 @@ const QuerySchema = z.object({
   region: z.string().optional().default("all"),
   verification: z.enum(["REGISTERED", "VERIFIED", "APPROVED", "all"]).optional().default("all"),
   subService: z.string().optional().default("all"),   // ✅ ADDED
-  sort: z.enum(["rating_desc", "reviews_desc", "jobs_desc", "name_asc", "newest"]).default("rating_desc"),
+  minPrice: z.coerce.number().min(0).optional(),
+  maxPrice: z.coerce.number().min(0).optional(),
+  sort: z.enum(["rating_desc", "reviews_desc", "jobs_desc", "name_asc", "newest", "price_asc", "price_desc"]).default("rating_desc"),
 });
 
 export async function GET(req: NextRequest) {
@@ -49,6 +51,41 @@ export async function GET(req: NextRequest) {
           subService: { name: query.subService },
         },
       };
+    }
+
+    // ✅ ADD Price Range filter
+    if (query.minPrice !== undefined || query.maxPrice !== undefined) {
+      const andConditions: Prisma.CraftsmanProfileWhereInput[] = [];
+
+      // Exclude profiles without any price range defined when price filter is active
+      andConditions.push({
+        OR: [
+          { priceRangeMin: { not: null } },
+          { priceRangeMax: { not: null } },
+        ],
+      });
+
+      if (query.minPrice !== undefined) {
+        const min = query.minPrice;
+        andConditions.push({
+          OR: [
+            { priceRangeMax: { gte: min } },
+            { AND: [{ priceRangeMax: null }, { priceRangeMin: { gte: min } }] },
+          ],
+        });
+      }
+
+      if (query.maxPrice !== undefined) {
+        const max = query.maxPrice;
+        andConditions.push({
+          OR: [
+            { priceRangeMin: { lte: max } },
+            { AND: [{ priceRangeMin: null }, { priceRangeMax: { lte: max } }] },
+          ],
+        });
+      }
+
+      where.AND = andConditions;
     }
 
     // Fetch all matching craftsmen with relations
@@ -100,6 +137,22 @@ export async function GET(req: NextRequest) {
           return a.profile.user.name.localeCompare(b.profile.user.name);
         case "newest":
           return b.profile.createdAt.getTime() - a.profile.createdAt.getTime();
+        case "price_asc": {
+          const pA = a.profile.priceRangeMin ? Number(a.profile.priceRangeMin) : (a.profile.priceRangeMax ? Number(a.profile.priceRangeMax) : null);
+          const pB = b.profile.priceRangeMin ? Number(b.profile.priceRangeMin) : (b.profile.priceRangeMax ? Number(b.profile.priceRangeMax) : null);
+          if (pA === null && pB === null) return 0;
+          if (pA === null) return 1;
+          if (pB === null) return -1;
+          return pA - pB;
+        }
+        case "price_desc": {
+          const pA = a.profile.priceRangeMax ? Number(a.profile.priceRangeMax) : (a.profile.priceRangeMin ? Number(a.profile.priceRangeMin) : null);
+          const pB = b.profile.priceRangeMax ? Number(b.profile.priceRangeMax) : (b.profile.priceRangeMin ? Number(b.profile.priceRangeMin) : null);
+          if (pA === null && pB === null) return 0;
+          if (pA === null) return 1;
+          if (pB === null) return -1;
+          return pB - pA;
+        }
         default:
           return 0;
       }
